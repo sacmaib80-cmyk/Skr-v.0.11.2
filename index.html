@@ -5837,8 +5837,8 @@ body.in-app-browser #authGate{
 
 .homeSpeechCard {
   position: relative;
-  min-height: 80px;
-  padding: 14px 16px 14px 80px;
+  min-height: 88px;
+  padding: 16px 16px 16px 82px;
   display: flex;
   align-items: center;
 }
@@ -5886,18 +5886,19 @@ body.in-app-browser #authGate{
 }
 
 .homeGreeting{
-  font-size:18px;
-  line-height:1.15;
+  font-size:15px;
+  line-height:1.2;
   font-weight:950;
-  letter-spacing:-.03em;
+  letter-spacing:-.02em;
   color:#25365f;
 }
 
 .homeSubMessage{
-  margin-top:6px;
-  font-size:15px;
-  font-weight:750;
+  margin-top:5px;
+  font-size:13px;
+  font-weight:700;
   color:#64708f;
+  line-height:1.45;
 }
 
 .homeSubMessage b{
@@ -6122,6 +6123,18 @@ body.in-app-browser #authGate{
 .homeHeroPanel{
   top: 46px !important;
 }
+
+/* =========================
+   HOME SPEECH CARD BOUNCE
+========================= */
+@keyframes sqCardBounceIn {
+  0%   { opacity:0; transform:translateY(-14px) scale(0.94); }
+  55%  { opacity:1; transform:translateY(5px) scale(1.02); }
+  75%  { transform:translateY(-3px) scale(0.997); }
+  90%  { transform:translateY(2px) scale(1.004); }
+  100% { transform:translateY(0) scale(1); }
+}
+.homeSpeechCard.sq-bounce { animation: sqCardBounceIn .62s cubic-bezier(.34,1.45,.64,1) both; }
 
 /* =========================
    ATMOSPHERE LAYERS
@@ -8277,8 +8290,8 @@ input, textarea {
 
     <div class="homeSpeechText">
 <div class="homeGreeting">
-  สวัสดีนะ <button id="homeNameBtn" class="homeNameBtn" type="button">เพื่อน</button>
-</div><div class="homeSubMessage">วันนี้เริ่มไป <b id="homeSpeechScore">0</b> แล้วนะ <span class="pawMini"></span></div>    </div>
+ <span id="homeGreetingPrefix">สวัสดีนะ</span>&nbsp;<button id="homeNameBtn" class="homeNameBtn" type="button">เพื่อน</button>
+</div><div class="homeSubMessage" id="homeSubMessage">วันนี้เริ่มไป <b id="homeSpeechScore">0</b> แล้วนะ <span class="pawMini"></span></div>    </div>
   </div>
 
   <div class="homeProgressCard">
@@ -10285,6 +10298,8 @@ const day = all.days?.[dateKey];
   if(speech) speech.textContent = scoreText;
   if(gain) gain.textContent = `+${scoreText} วันนี้ ›`;
   if(fill) fill.style.width = `${percent}%`;
+
+  updateHomeGreeting();
 }
 
 const HOME_USER_NAME_KEY = "sakuraq_home_user_name";
@@ -10304,9 +10319,123 @@ function setHomeUserName(name){
   }
 }
 
+function getHomeGreetingTexts(score){
+  const h = new Date().getHours();
+  const s = Number(score)||0;
+  const rem = Math.max(0, Math.ceil(100-s));
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+  const isMorning   = h>=5  && h<12;
+  const isNoon      = h>=12 && h<14;
+  const isAfternoon = h>=14 && h<18;
+  const isEvening   = h>=18 && h<21;
+
+  const isZero = s===0, isLow=s>0&&s<25, isMid=s>=25&&s<60,
+        isGood=s>=60&&s<85, isNear=s>=85&&s<100, isDone=s>=100;
+
+  let prefix, sub;
+
+  if(isMorning){
+    prefix = isZero ? pick(["สวัสดีตอนเช้านะ ☀️","อรุณสวัสดิ์นะ ☀️","เช้านี้พร้อมลุยมั้ย? ☀️"])
+           : isDone ? pick(["เช้านี้ปังมากๆ เลย! 🏆","หัวหน้าตัวจริง! 🏆"])
+           : pick(["สวัสดีตอนเช้านะ ☀️","เช้านี้เป็นไงบ้าง? ☀️"]);
+    if(isZero)      sub=pick(["วันใหม่มาแล้ว! เริ่มเควสแรกกันเลยนะ 🐾","เช้านี้อากาศดีมาก มาทำเควสด้วยกันมั้ย? ✨","ยังไม่ได้เริ่มเลย รีบมาทำก่อนนะ! 💪"]);
+    else if(isLow)  sub=pick([`เริ่มมาแล้ว ${s.toFixed(1)} คะแนน ยังเหลือ ${rem} นะ 🔥`,`เช้าๆ ได้ ${s.toFixed(1)} แล้ว ยังไปต่อได้อีก! ✨`]);
+    else if(isMid)  sub=pick([`เช้าๆ ได้ ${s.toFixed(1)} แล้วเหรอ?! โคตรเก่งเลย 🌟`,`${s.toFixed(1)} คะแนนก่อนเที่ยง เหลือ ${rem} อีกนะ! 🔥`]);
+    else if(isGood) sub=pick([`${s.toFixed(1)} คะแนน เหลืออีก ${rem} ไปให้ถึง 100! 🚀`,`เก่งมากๆ เลย! เหลืออีกแค่ ${rem} คะแนน 💥`]);
+    else if(isNear) sub=pick([`อีกแค่ ${rem} คะแนน เร่งอีกนิดนะ! 🏁`,`เกือบถึง 100 แล้ว! ${rem} คะแนนสุดท้าย! 🔥🔥`]);
+    else            sub=pick([`100+ แล้ว!! เช้านี้ปังมากกก! 🎉🎊`,`${s.toFixed(1)} คะแนนก่อนเที่ยงเลยเหรอ?! 👑`]);
+  }
+  else if(isNoon){
+    prefix = isZero ? pick(["เที่ยงแล้วนะ! 🍱","เที่ยงแล้ว ยังไม่เริ่มเลยเหรอ? 🍱"])
+           : pick(["เที่ยงแล้วนะ 🍱","พักเที่ยงด้วยกันมั้ย? 🍱"]);
+    if(isZero)      sub=pick(["เที่ยงแล้วยังไม่ได้เริ่มเลย? กินข้าวแล้วรีบมาทำนะ! 😤","หมดครึ่งวันแล้ว! รีบมาทำเควสหน่อยนะ 😅"]);
+    else if(isLow)  sub=pick([`ได้ ${s.toFixed(1)} มาแล้ว! ยังเหลือ ${rem} ไปต่อได้เลย 💪`,`เที่ยงแล้ว ยังเหลือ ${rem} คะแนน ไม่ยากเลย! ✨`]);
+    else if(isMid)  sub=pick([`${s.toFixed(1)} คะแนน ครึ่งวันนี้ดีมาก! ช่วงบ่ายต่อเลย 🔥`,`เที่ยงได้ ${s.toFixed(1)} แล้ว เหลือ ${rem} ยังทำได้! 💪`]);
+    else if(isGood) sub=pick([`โอ้โห ${s.toFixed(1)} คะแนน เก่งมากๆ เลย! 🌟`,`${s.toFixed(1)} แล้ว! อีก ${rem} เดี๋ยวครบ 100 เลย! 🚀`]);
+    else if(isNear) sub=`อีกแค่ ${rem} คะแนน จะถึง 100 แล้ว! รีบทำเลยนะ! 🏁`;
+    else            sub=`100+ แล้วก่อนเที่ยง?! เทพมากเลย! 👑🎉`;
+  }
+  else if(isAfternoon){
+    if(isZero){
+      prefix=pick(["บ่ายแล้วนะ 😤","บ่ายแล้ว ยังไม่ทำเลยเหรอ? 😑"]);
+      sub=pick(["บ่ายแล้วยังไม่ได้ทำอะไรเลย! รีบมาทำก่อนนะ!! ⚡","เวลาผ่านไปเยอะมากแล้วนะ เริ่มเควสได้เลย! 😤"]);
+    } else if(isLow){
+      prefix=pick(["บ่ายแล้วนะ ⚡","ยังมีเวลาอยู่! ⚡"]);
+      sub=pick([`ได้ ${s.toFixed(1)} มาแล้ว ดี! ยังเหลือ ${rem} อย่าหยุดนะ 🔥`,`บ่ายยังมีเวลา เหลือ ${rem} คะแนน ไปต่อได้เลย! 💪`]);
+    } else if(isMid){
+      prefix=pick(["มาดีมากเลย! ⚡","กำลังไปได้ดี ⚡"]);
+      sub=`${s.toFixed(1)} คะแนน! เหลือ ${rem} ทำได้แน่ๆ! 🔥`;
+    } else if(isGood){
+      prefix=pick(["เก่งมากเลยนะ! 🌟","ไปได้เรื่องเลย! 🌟"]);
+      sub=`${s.toFixed(1)} แล้ว! อีก ${rem} เดี๋ยวครบ 100! 🚀`;
+    } else if(isNear){
+      prefix=pick(["เกือบถึงแล้ว! 🏁","อีกนิดเดียว! 🏁"]);
+      sub=`อีกแค่ ${rem} คะแนน! ดันสุดแรงเลย! 💥🔥`;
+    } else {
+      prefix=pick(["ทำได้แล้ว! 🎉","ปังมากๆ เลย! 👑"]);
+      sub=`${s.toFixed(1)} คะแนน! ยังมีเวลา สร้าง bonus ได้เลย! 🎊`;
+    }
+  }
+  else if(isEvening){
+    if(isZero){
+      prefix=pick(["เย็นแล้วนะ... 😤","หมดวันจะถึงแล้วนะ 😤"]);
+      sub=pick(["วันนี้ยังไม่ทำอะไรเลยเหรอ?! รีบมาเดี๋ยวนี้เลย!! 😠","เย็นแล้วนะ!! ยังไม่เริ่มเลย เวลาหมดแล้ว รีบๆ! ⏰"]);
+    } else if(isLow){
+      prefix=pick(["ยังเหลือเวลาอยู่! ⏰","เย็นนี้ยังทำได้! ⏰"]);
+      sub=`ได้ ${s.toFixed(1)} มา ยังเหลือ ${rem} ทำให้ครบก่อนดึกนะ! 🔥`;
+    } else if(isMid){
+      prefix=pick(["ยังไปได้ดีอยู่! 🔥","คืนนี้ไม่หยุด! 🔥"]);
+      sub=`${s.toFixed(1)} คะแนน เหลือ ${rem} ดันให้ถึง 100 เลย! 💪`;
+    } else if(isGood){
+      prefix=pick(["ใกล้แล้ว! 🚀","เกือบถึง 100 แล้ว 🚀"]);
+      sub=`${s.toFixed(1)} แล้ว! เหลืออีก ${rem} เดี๋ยวครบ 100 เลย! ✨`;
+    } else if(isNear){
+      prefix=pick(["อีกนิดเดียว! 💥","เกือบ 100 แล้ว! 💥"]);
+      sub=`อีกแค่ ${rem} คะแนน! คืนนี้จะถึง 100 แล้ว!! 🔥🔥🔥`;
+    } else {
+      prefix=pick(["วันนี้ยอดเยี่ยม! 🎉","วันนี้ปังมาก! 👑"]);
+      sub=`${s.toFixed(1)} คะแนน! วันนี้เก่งมากๆ เลย! 🎊`;
+    }
+  }
+  else { // ดึก
+    if(isZero){
+      prefix=pick(["ดึกแล้วนะ 😡","เกือบหมดวันแล้วนะ!! 😡"]);
+      sub=pick(["วันนี้ยังไม่ได้ทำอะไรเลย!! รีบทำก่อนเที่ยงคืนนะ! 😡⚡","ดึกแล้วยังไม่เริ่มเลย?! รีบมาทำเดี๋ยวนี้!! ⏰🔥"]);
+    } else if(isLow){
+      prefix=pick(["ดึกแล้วนะ 🌙","เวลาเหลือน้อยแล้ว 🌙"]);
+      sub=`ได้ ${s.toFixed(1)} มา ยังเหลือ ${rem} ดึกแต่ยังทำได้! ⚡`;
+    } else if(isMid){
+      prefix=pick(["ดึกแต่ยังไปได้! 🌙","คืนนี้ไม่หยุด! 🌙"]);
+      sub=`${s.toFixed(1)} คะแนน เหลือ ${rem} ดันให้ครบคืนนี้เลย! 🔥`;
+    } else if(isGood){
+      prefix=pick(["เก่งมากเลยนะ! 🌙","วันนี้ดีมากเลย 🌙"]);
+      sub=`${s.toFixed(1)} แล้ว! เหลือ ${rem} ไปให้ถึง 100 ก่อนนอนนะ! ✨`;
+    } else if(isNear){
+      prefix=pick(["เกือบ 100 แล้ว! 🌙🔥","อีกนิดแล้ว!! 🔥"]);
+      sub=`อีกแค่ ${rem} คะแนน! คืนนี้จะถึง 100 แล้ว!! 💥`;
+    } else {
+      prefix=pick(["วันนี้ปังมากๆ! 🌙👑","ยอดเยี่ยมมากๆ! 🌙"]);
+      sub=`${s.toFixed(1)} คะแนน! วันนี้เก่งที่สุดเลย นอนหลับฝันดีนะ 🎉`;
+    }
+  }
+
+  return { prefix, sub };
+}
+
+function updateHomeGreeting(){
+  const score = Number(calcDayTotal(localDateKey()))||0;
+  const texts = getHomeGreetingTexts(score);
+  const pEl = document.getElementById("homeGreetingPrefix");
+  if(pEl) pEl.textContent = texts.prefix;
+  const sEl = document.getElementById("homeSubMessage");
+  if(sEl) sEl.innerHTML = texts.sub;
+}
+
 function renderHomeName(){
   const btn = document.getElementById("homeNameBtn");
   if(btn) btn.textContent = getHomeUserName();
+  updateHomeGreeting();
 }
 
 function setupHomeNameEdit(){
@@ -15445,6 +15574,14 @@ function switchPage(pageId){
   }
 
   if(pageId === "homeScene"){
+    updateHomeGreeting();
+    ['homeSpeechCard','homeProgressCard'].forEach(cls=>{
+      const c = document.querySelector('.'+cls);
+      if(!c) return;
+      c.classList.remove('sq-bounce');
+      void c.offsetWidth;
+      c.classList.add('sq-bounce');
+    });
     requestAnimationFrame(() => {
       renderHomeHud();
       updateDiceVisibility();
