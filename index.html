@@ -3800,6 +3800,7 @@ linear-gradient(
 }
 
 .hpHeroCard::before {
+  display: none;
   content: "";
   position: absolute;
   left: 0; right: 0; top: 0;
@@ -8188,6 +8189,45 @@ input, textarea {
      ดังนั้น: ตอนเปิดเลือกหมวด → ลูกเต๋าอยู่หน้าได้ ✓
               ตอน run/report screen ขึ้น → JS ซ่อนด้วย display:none ✓ */
 }
+
+/* ── Category Inline Icon ── */
+.catInlineIcon{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:20px; height:20px; border-radius:6px;
+  flex:0 0 20px; vertical-align:-4px; margin-right:5px; overflow:hidden;
+}
+.catInlineIcon .sqIcon{ transform:scale(.58); }
+.catInlineIcon .sqIconConnect{ transform:scale(.58) rotate(-45deg) translateY(1px) !important; }
+.catInlineLearn { background:rgba(52,211,153,.18); }
+.catInlineWork  { background:rgba(59,130,246,.15); }
+.catInlinePhys  { background:rgba(139,92,246,.16); }
+.catInlineConn  { background:rgba(236,72,153,.13); }
+.catInlineOther { background:rgba(100,116,139,.11); }
+
+/* ── History micro icons: Avg + Change ── */
+.hpAvgIcon{
+  display:inline-block; width:13px; height:10px;
+  position:relative; vertical-align:-1px; margin-right:3px;
+}
+.hpAvgIcon::before{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(to top, #7c3aed 58%, transparent 58%) 0/3px 100% no-repeat,
+    linear-gradient(to top, #7c3aed 38%, transparent 38%) 5px/3px 100% no-repeat,
+    linear-gradient(to top, #7c3aed 80%, transparent 80%) 10px/3px 100% no-repeat;
+  opacity:.75;
+}
+.hpChangeIcon{
+  display:inline-block;
+  width:16px; height:12px;
+  position:relative; vertical-align:-2px; margin-right:3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpolyline points='1,10 5,5 9,7 14,1' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolyline points='11,0 14,0 14,3.5' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.hpChangeIcon::before,
+.hpChangeIcon::after{ content: none; }
 </style>
 </head>
 <body>
@@ -8629,7 +8669,6 @@ input, textarea {
           <span class="hpHeroScore" id="histTotalQps">284</span>
           <span class="hpHeroBadge" id="histTodayBadge">+0 วันนี้</span>
         </div>
-        <button class="hpHeroBell" type="button">🔔</button>
       </div>
 
       <!-- sub stats -->
@@ -8638,7 +8677,7 @@ input, textarea {
   <span class="sqFire sm" aria-hidden="true"></span>
   <span>ติด <b id="histCurrentStreak">12</b> วัน</span>
 </span>        <span class="hpHeroSubDivider">/</span>
-        <span class="hpHeroSub">📈 Avg <b id="histAvgDay">40.6</b></span>
+        <span class="hpHeroSub"><span class="hpAvgIcon" aria-hidden="true"></span>Avg <b id="histAvgDay">40.6</b></span>
       </div>
 
       <!-- chart area -->
@@ -8693,7 +8732,7 @@ input, textarea {
   <span class="sqFire sm" aria-hidden="true"></span>
 <span>Best Streak: <b id="histBestStreakHero">0</b></span>
 </span>        <span class="hpMetaDivider">/</span>
-       <span>📈 Change <b id="histChangeValue">--</b></span>
+       <span><span class="hpChangeIcon" aria-hidden="true"></span>Change <b id="histChangeValue">--</b></span>
         <span class="hpMetaDivider">/</span>
     <div class="historyRangeTabs hpRangeTabs">
  <button class="rangeTab" data-range="2d" type="button">2D</button>
@@ -12387,7 +12426,7 @@ const day = all.days?.[todayKey] || { totalQps:0, quests:[] };
         <div class="item">
           <div class="itemTop">
             <div class="itemName">
-  ${getQuestCategoryEmoji(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
 </div>
             <div class="itemScore">+${round1(questScore).toFixed(1)}</div>
           </div>
@@ -16333,6 +16372,19 @@ function getQuestCategoryEmoji(cat){
   return map[key] || "✅";
 }
 
+function getQuestCategoryIconHtml(cat){
+  const key = String(cat || "").toLowerCase().trim();
+  const map = {
+    "learning":     { cls:"catInlineLearn",  icon:'<i class="sqIcon sqIconLearn" aria-hidden="true"></i>' },
+    "work/project": { cls:"catInlineWork",   icon:'<i class="sqIcon sqIconWork" aria-hidden="true"></i>' },
+    "physical":     { cls:"catInlinePhys",   icon:'<i class="sqIcon sqIconPhysical" aria-hidden="true"></i>' },
+    "connection":   { cls:"catInlineConn",   icon:'<i class="sqIcon sqIconConnect" aria-hidden="true"></i>' },
+  };
+  const found = map[key];
+  if(!found) return `<span class="catInlineIcon catInlineOther"></span>`;
+  return `<span class="catInlineIcon ${found.cls}">${found.icon}</span>`;
+}
+
 function buildNotificationTitle(quest){
   if(!quest) return "SakuraQ";
   const emoji = getQuestCategoryEmoji(quest.category);
@@ -16846,7 +16898,7 @@ if(el.histSelectedTotal) el.histSelectedTotal.textContent = `Total: ${selectedTo
           <div class="item">
             <div class="itemTop">
               <div class="itemName">
-  ${getQuestCategoryEmoji(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
 </div>
               <div class="itemScore">+${Number(item.questScore || 0).toFixed(1)}</div>
             </div>
@@ -16870,7 +16922,7 @@ if(el.histSelectedTotal) el.histSelectedTotal.textContent = `Total: ${selectedTo
           <div class="item">
             <div class="itemTop">
               <div class="itemName">
-  ${getQuestCategoryEmoji(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
 </div>
               <div class="itemMeta">${historySelectedDay}</div>
             </div>
@@ -17476,7 +17528,7 @@ function renderHistoryCategoryStats(){
   mount.innerHTML = items.map(item => `
     <div class="hpStatItem">
       <div class="hpStatHeader">
-        <span class="hpStatIcon">${item.icon}</span>
+        <span class="hpStatIcon">${getQuestCategoryIconHtml(item.key)}</span>
         <span class="hpStatName">${escapeHtml(item.label)}</span>
         <span class="hpStatLevel">Lv.${item.level}</span>
         <span class="hpStatChevron">›</span>
