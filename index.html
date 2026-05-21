@@ -12129,42 +12129,16 @@ function forceAutoStop(){
 
   state.flowBaseName = state.flowBaseName || normQuestName(state.questName || "");
 
-  let reportMinutes = minutes;
-  let splitInfo = null;
-
-  if(minutes > 0){
-    splitInfo = buildPendingSegmentsFromStoppedFlow(minutes);
-    console.log("[FORCE AUTOSTOP AFTER HELPER]", {
-      splitInfo,
-      questName: state.questName,
-      flowBaseName: state.flowBaseName,
-      flowIndex: state.flowIndex,
-      pendingSegments: state.pendingSegments
-    });
-  }
+const reportMinutes = minutes;
 
   state.status = "stopped";
   state.startTs = null;
-
-  if(splitInfo){
-    state.elapsedBefore = splitInfo.currentMinutes * 60000;
-    state.lastElapsedMs = splitInfo.currentMinutes * 60000;
-    reportMinutes = splitInfo.currentMinutes;
-
-    console.log("[FORCE AUTOSTOP splitInfo]", splitInfo);
-    console.log("[FORCE AUTOSTOP state after split]", {
-      questName: state.questName,
-      flowBaseName: state.flowBaseName,
-      flowIndex: state.flowIndex,
-      pendingSegments: state.pendingSegments,
-      reportMinutes
-    });
-  }else{
-    state.elapsedBefore = lockedElapsed;
-    state.lastElapsedMs = lockedElapsed;
-  }
+  state.elapsedBefore = lockedElapsed;
+  state.lastElapsedMs = lockedElapsed;
+  state.pendingSegments = [];
 
   clearCutDeadline();
+
   questFinished = true;
   saveState();
 
@@ -12192,6 +12166,16 @@ function forceAutoStop(){
   resetNotificationFlags();
 
   showTimerWarn(`Stop อัตโนมัติ ✅ (${Math.round(lockedElapsed / 1000)} วินาที)`);
+
+  // Bug 1 fix: handle stuck home run screen after auto-stop
+  const _homeRunScreen = document.getElementById("homeRunScreen");
+  if(_homeRunScreen?.classList.contains("show")){
+    hideHomeRunScreen();
+    const _reportScreen = document.getElementById("homeReportScreen");
+    if(!_reportScreen?.classList.contains("show")){
+      setTimeout(()=> showHomeReportIntro(), 120);
+    }
+  }
 }
 
 function checkAutoStop(){
@@ -14073,26 +14057,12 @@ const dateKey = state.startDateKey || localDateKey();
 
 state.flowBaseName = state.flowBaseName || normQuestName(state.questName || "");
 
-let reportMinutes = minutes;
-  let splitInfo = null;
-
-  // Fix: manual stop also needs split when elapsed > cap (no cut time case)
-  if(minutes > 0){
-    splitInfo = buildPendingSegmentsFromStoppedFlow(minutes);
-  }
-
 state.status = "stopped";
 state.startTs = null;
-
-if(splitInfo){
-  state.elapsedBefore = splitInfo.currentMinutes * 60000;
-  state.lastElapsedMs = splitInfo.currentMinutes * 60000;
-  reportMinutes = splitInfo.currentMinutes;
-
-}else{
-  state.elapsedBefore = elapsed;
-  state.lastElapsedMs = elapsed;
-}
+state.elapsedBefore = elapsed;
+state.lastElapsedMs = elapsed;
+state.pendingSegments = [];
+const reportMinutes = minutes;
 
 
 
@@ -16418,6 +16388,20 @@ function syncHomeRunScreen(){
 
   const isPaused = state.status === "paused";
 
+  // Bug 1 fix: quest stopped externally (forceAutoStop) → handle home run screen
+  if(state.status === "stopped") {
+    hideHomeRunScreen();
+    const reportScreen = document.getElementById("homeReportScreen");
+    if(!reportScreen?.classList.contains("show")){
+      setTimeout(()=> showHomeReportIntro(), 80);
+    }
+    return;
+  }
+  if(state.status === "idle") {
+    hideHomeRunScreen();
+    return;
+  }
+
   if(timeEl){
     const remain = isPaused && homeRunPausedRemain !== null
       ? homeRunPausedRemain
@@ -16449,6 +16433,12 @@ function syncHomeRunScreen(){
 }
 
 document.getElementById("homeRunPauseBtn")?.addEventListener("click", ()=>{
+  // Bug 1 fix: already stopped externally
+  if(state.status === "stopped" || state.status === "idle") {
+    hideHomeRunScreen();
+    if(state.status === "stopped") showHomeReportIntro();
+    return;
+  }
   if(state.status === "paused"){
     window.homeRunEndTs = Date.now() + (homeRunPausedRemain || 0);
     homeRunPausedRemain = null;
