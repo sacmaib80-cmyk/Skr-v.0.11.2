@@ -9749,34 +9749,36 @@ function clearMasterTab(){
 }
 
 function acquireMasterTab(){
+  // Standalone PWA: ไม่มีหลาย tab จริง → ครองทันทีเสมอ
+  if(isStandaloneMode()){
+    writeMasterTab();
+    isMasterTab = true;
+    if((state.status === "running" || state.status === "paused") && !tickHandle){
+      startTick();
+    }
+    return true;
+  }
+
   const current = readMasterTab();
   const now = Date.now();
-
-const staleness = isStandaloneMode() ? 12000 : 6000;
-  const canTake =
-    !current ||
-    !current.tabId ||
-    (now - Number(current.ts || 0) > staleness);
+  const staleness = 6000;
+  const canTake = !current || !current.tabId || (now - Number(current.ts || 0) > staleness);
 
   if(canTake){
     writeMasterTab();
     isMasterTab = true;
-
     if((state.status === "running" || state.status === "paused") && !tickHandle){
       startTick();
     }
-
     return true;
   }
 
   if(current.tabId === TAB_ID){
     writeMasterTab();
     isMasterTab = true;
-
     if((state.status === "running" || state.status === "paused") && !tickHandle){
       startTick();
     }
-
     return true;
   }
 
@@ -9791,6 +9793,16 @@ function startTabHeartbeat(){
 
   const hbInterval = isStandaloneMode() ? 800 : 1500;
   tabHeartbeat = setInterval(()=>{
+    // Standalone PWA: always master, no contest
+    if(isStandaloneMode()){
+      writeMasterTab();
+      isMasterTab = true;
+      if((state.status === "running" || state.status === "paused") && !tickHandle){
+        startTick();
+      }
+      return;
+    }
+
     if(isCurrentTabMasterNow()){
       writeMasterTab();
       isMasterTab = true;
@@ -9847,28 +9859,29 @@ function renderMultiTabState(){
   const banner = document.getElementById("multiTabBanner");
   if(!banner) return;
 
-  if(isCurrentTabMasterNow()){
-    // master = ซ่อนทันที ไม่รอ
-    if(_multiTabBannerTimer){
-      clearTimeout(_multiTabBannerTimer);
-      _multiTabBannerTimer = null;
-    }
+  // Standalone PWA: ไม่มี multi-tab จริง ไม่ต้องโชว์ banner เลย
+  if(isStandaloneMode()){
+    if(_multiTabBannerTimer){ clearTimeout(_multiTabBannerTimer); _multiTabBannerTimer = null; }
     banner.classList.add("hidden");
     document.body.classList.remove("hasMultiTabBanner");
     return;
   }
 
-  // ไม่ใช่ master = รอ debounce ก่อนโชว์
+  if(isCurrentTabMasterNow()){
+    if(_multiTabBannerTimer){ clearTimeout(_multiTabBannerTimer); _multiTabBannerTimer = null; }
+    banner.classList.add("hidden");
+    document.body.classList.remove("hasMultiTabBanner");
+    return;
+  }
+
   if(!_multiTabBannerTimer){
-    const delay = isStandaloneMode() ? 3500 : 1800;
     _multiTabBannerTimer = setTimeout(()=>{
       _multiTabBannerTimer = null;
-      // เช็คอีกรอบก่อนโชว์จริง
       if(!isCurrentTabMasterNow()){
         banner.classList.remove("hidden");
         document.body.classList.add("hasMultiTabBanner");
       }
-    }, delay);
+    }, 1800);
   }
 }
 function isSecondaryTab(){
