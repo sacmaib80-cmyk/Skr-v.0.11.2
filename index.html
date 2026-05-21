@@ -12075,24 +12075,7 @@ function checkAutoStop(){
         elapsedBefore: state.elapsedBefore
       });
 
-      const capCheckTs = Number(
-  (state.softWarned && state.softDeadlineTs) ? state.softDeadlineTs : state.targetEndTs
-);
-
-const hitCap = willCurrentRunHitBaseCapNow(capCheckTs);
-console.log("[auto-stop][soft] hitCap?", hitCap, { capCheckTs });
-
-      if(hitCap){
-        const didSplit = splitCurrentQuestSegmentAtCap();
-        console.log("[auto-stop][soft] didSplit?", didSplit, {
-          questNameAfter: state.questName,
-          flowIndexAfter: state.flowIndex,
-          pendingSegments: state.pendingSegments
-        });
-        if(didSplit) return;
-      }
-
-      console.log("[auto-stop][soft] fallback -> forceAutoStop()");
+      // forceAutoStop handles split correctly via buildPendingSegmentsFromStoppedFlow
       forceAutoStop();
     }
 
@@ -12114,20 +12097,6 @@ console.log("[auto-stop][soft] hitCap?", hitCap, { capCheckTs });
       elapsedBefore: state.elapsedBefore
     });
 
-    const hitCap = willCurrentRunHitBaseCapNow(targetTs);
-console.log("[auto-stop][hard] hitCap?", hitCap, { capCheckTs: targetTs });
-
-    if(hitCap){
-      const didSplit = splitCurrentQuestSegmentAtCap();
-      console.log("[auto-stop][hard] didSplit?", didSplit, {
-        questNameAfter: state.questName,
-        flowIndexAfter: state.flowIndex,
-        pendingSegments: state.pendingSegments
-      });
-      if(didSplit) return;
-    }
-
-    console.log("[auto-stop][hard] fallback -> forceAutoStop()");
     forceAutoStop();
   }
 }
@@ -13807,15 +13776,12 @@ function splitCurrentQuestSegmentAtCap(){
   state.lastElapsedMs = 0;
   state.startDateKey = localDateKey();
 
-  if(state.cutEnabled && state.cutMinutes){
-    state.targetEndTs = Date.now() + (Number(state.cutMinutes) * 60000);
-    state.softWarned = false;
-    state.softDeadlineTs = 0;
-  }else{
+  // Keep existing targetEndTs → new segment ends at original target, not a fresh full duration
+  if(!state.cutEnabled || !state.targetEndTs){
     state.targetEndTs = 0;
-    state.softWarned = false;
-    state.softDeadlineTs = 0;
   }
+  state.softWarned = false;
+  state.softDeadlineTs = 0;
 
   saveState();
 
@@ -13845,9 +13811,16 @@ function buildPendingSegmentsFromStoppedFlow(totalMinutes){
 
   if(fullSegments <= 0) return null;
 
+  // Fix: remainder=0 → treat last full-segment as "current", not pending
+  // (prevents 0-min report when time hits cap exactly)
+  const pendingCount   = remainder > 0 ? fullSegments : fullSegments - 1;
+  const currentMinutes = remainder > 0 ? remainder    : capMin;
+
+  if(pendingCount <= 0) return null; // exact cap hit → no split, report full 60 min
+
   const built = [];
 
-  for(let i = 0; i < fullSegments; i++){
+  for(let i = 0; i < pendingCount; i++){
     built.push({
       chainId: state.flowChainId,
       flowBaseName: baseName,
@@ -13858,7 +13831,7 @@ function buildPendingSegmentsFromStoppedFlow(totalMinutes){
     });
   }
 
-  const nextIndex = fullSegments + 1;
+  const nextIndex = pendingCount + 1;
   const currentName = buildFlowQuestName(baseName, nextIndex);
 
   state.flowBaseName = baseName;
@@ -13871,7 +13844,7 @@ function buildPendingSegmentsFromStoppedFlow(totalMinutes){
   return {
     pendingSegments: built,
     currentQuestName: currentName,
-    currentMinutes: remainder
+    currentMinutes: currentMinutes
   };
 }
 
@@ -13943,8 +13916,12 @@ const dateKey = state.startDateKey || localDateKey();
 state.flowBaseName = state.flowBaseName || normQuestName(state.questName || "");
 
 let reportMinutes = minutes;
-let splitInfo = null;
+  let splitInfo = null;
 
+  // Fix: manual stop also needs split when elapsed > cap (no cut time case)
+  if(minutes > 0){
+    splitInfo = buildPendingSegmentsFromStoppedFlow(minutes);
+  }
 
 state.status = "stopped";
 state.startTs = null;
