@@ -11915,63 +11915,52 @@ if(!gate.locked && gate.unlocked && !gate.passed){
   hideGateTopBar();
   return;
 }
-  } 
-    
 
-
-async function ensureNotificationPermission(){
-  if (!("Notification" in window)) return;
-
-  if (Notification.permission === "default") {
-    await Notification.requestPermission();
+  // gate IS world active now
+  if(!gate.startedAt){
+    if(el.gateCoverStatusChip) el.gateCoverStatusChip.textContent = "STATUS: READY";
+    if(el.gateCoverTime) el.gateCoverTime.textContent = "--:--";
+    if(el.gateCoverKicker){
+      el.gateCoverKicker.innerHTML =
+        `ถึง Trigger แล้ว: <b>${gateCfg.triggerHHMM}</b><br>` +
+        `กดเริ่ม Gate เพื่อเริ่มนับถอยหลัง และเริ่มเควสแรกให้ทัน`;
+    }
+    if(el.gateCoverHint){
+      el.gateCoverHint.innerHTML =
+        `เป้าคือ <b>Start เควสแรก</b> ให้ทันก่อนหมดเวลา<br>` +
+        `PASS เมื่อเควสแรกวิ่งครบ <b>${GATE_RULES.qualifyMin} นาที</b>`;
+    }
+    showGateCover();
+    hideGateTopBar();
+    return;
   }
 
+  showGateTopBar();
+  hideGateCover();
+  el.gateTopBar?.classList.remove("done");
 
+  if(gate.locked && !gate.unlocked){
+    if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • LOCKED ❌";
+    if(el.gateTopSub) el.gateTopSub.textContent = "ต้อง Unlock ก่อนถึงจะ Start เควสได้ (โบนัสจะโดนตัด)";
+    if(el.gateTopTime) el.gateTopTime.textContent = "LOCK";
+    if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Unlock";
+    return;
+  }
 
-    if(!gate.startedAt){
-      if(el.gateCoverStatusChip) el.gateCoverStatusChip.textContent = "STATUS: READY";
-      if(el.gateCoverTime) el.gateCoverTime.textContent = "--:--";
-      if(el.gateCoverKicker){
-        el.gateCoverKicker.innerHTML =
-          `ถึง Trigger แล้ว: <b>${gateCfg.triggerHHMM}</b><br>` +
-          `กดเริ่ม Gate เพื่อเริ่มนับถอยหลัง และเริ่มเควสแรกให้ทัน`;
-      }
-      if(el.gateCoverHint){
-        el.gateCoverHint.innerHTML =
-          `เป้าคือ <b>Start เควสแรก</b> ให้ทันก่อนหมดเวลา<br>` +
-          `PASS เมื่อเควสแรกวิ่งครบ <b>${GATE_RULES.qualifyMin} นาที</b>`;
-      }
-      showGateCover();
-      hideGateTopBar();
-      return;
-    }
-
-    showGateTopBar();
-    hideGateCover();
-    el.gateTopBar?.classList.remove("done");
-
-    if(gate.locked && !gate.unlocked){
-      if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • LOCKED ❌";
-      if(el.gateTopSub) el.gateTopSub.textContent = "ต้อง Unlock ก่อนถึงจะ Start เควสได้ (โบนัสจะโดนตัด)";
-      if(el.gateTopTime) el.gateTopTime.textContent = "LOCK";
-      if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Unlock";
-      return;
-    }
-
-    if(gate.unlocked){
-      if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • Unlocked ✅";
-      if(el.gateTopSub) el.gateTopSub.textContent = "เริ่มเควสได้แล้ว (เหตุผลจะติดใน Notes)";
-      if(el.gateTopTime) el.gateTopTime.textContent = "OK";
-      if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
-      return;
-    }
-
-    const left = gateTimeLeftSec();
-    if(el.gateTopTime) el.gateTopTime.textContent = formatMMSS(left);
-    if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • Running";
-    if(el.gateTopSub) el.gateTopSub.textContent = "เริ่มเควสแรกให้ทันก่อนหมดเวลา";
+  if(gate.unlocked){
+    if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • Unlocked ✅";
+    if(el.gateTopSub) el.gateTopSub.textContent = "เริ่มเควสได้แล้ว (เหตุผลจะติดใน Notes)";
+    if(el.gateTopTime) el.gateTopTime.textContent = "OK";
     if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+    return;
   }
+
+  const left = gateTimeLeftSec();
+  if(el.gateTopTime) el.gateTopTime.textContent = formatMMSS(left);
+  if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • Running";
+  if(el.gateTopSub) el.gateTopSub.textContent = "เริ่มเควสแรกให้ทันก่อนหมดเวลา";
+  if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+}
 function openTopMenu(){
   if(!el.topMenu || !el.topMenuBackdrop) return;
 
