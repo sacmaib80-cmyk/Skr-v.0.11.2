@@ -8241,6 +8241,68 @@ input, textarea {
 }
 .hpChangeIcon::before,
 .hpChangeIcon::after{ content: none; }
+
+/* ===== PAW TAP EFFECT ===== */
+.sq-tap-paw{
+  position:fixed;
+  pointer-events:none;
+  z-index:999999;
+  width:30px;
+  height:26px;
+  transform:translate(-50%,-50%);
+  animation: sqTapPawMain .48s ease-out forwards;
+}
+.sq-tap-paw::before{
+  content:"";
+  position:absolute;
+  left:50%; bottom:0;
+  width:13px; height:10px;
+  transform:translateX(-50%);
+  border-radius:60% 60% 55% 55%;
+  background:rgba(255,255,255,.97);
+  box-shadow:
+    0 0 8px rgba(255,255,255,.95),
+    0 0 18px rgba(167,139,250,.85);
+}
+.sq-tap-paw::after{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 20% 22%, rgba(255,255,255,.97) 0 4px, transparent 5px),
+    radial-gradient(circle at 50% 7%,  rgba(255,255,255,.97) 0 4px, transparent 5px),
+    radial-gradient(circle at 80% 22%, rgba(255,255,255,.97) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 46%, rgba(255,255,255,.97) 0 3px, transparent 4px),
+    radial-gradient(circle at 70% 46%, rgba(255,255,255,.97) 0 3px, transparent 4px);
+  filter:
+    drop-shadow(0 0 5px rgba(167,139,250,.95))
+    drop-shadow(0 0 10px rgba(255,255,255,.65));
+}
+@keyframes sqTapPawMain{
+  0%  { opacity:0; transform:translate(-50%,-50%) scale(.25); }
+  28% { opacity:1; transform:translate(-50%,-50%) scale(1.2); }
+  62% { opacity:.88; transform:translate(-50%,-50%) scale(.96); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(.82) translateY(-7px); }
+}
+.sq-tap-star{
+  position:fixed;
+  pointer-events:none;
+  z-index:999998;
+  width:3.5px; height:3.5px;
+  border-radius:50%;
+  background:rgba(255,255,255,.96);
+  box-shadow:
+    0 0 4px rgba(167,139,250,1),
+    0 0 8px rgba(255,255,255,.7);
+  transform:translate(-50%,-50%);
+  animation: sqTapStar .48s ease-out var(--d,0ms) forwards;
+  opacity:0;
+}
+@keyframes sqTapStar{
+  0%  { opacity:0; transform:translate(-50%,-50%) translate(0,0) scale(0); }
+  22% { opacity:1; }
+  100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) scale(.2); }
+}
+
 </style>
 </head>
 <body>
@@ -9130,9 +9192,7 @@ input, textarea {
       class="hqSliderInput"
       id="hqQuestTime"
       min="15"
-      max="120"
-      step="5"
-      value="30"
+      max="60" step="5" value="30"
     >
     <div class="hqSliderTrack" id="hqSliderTrack">
       <div class="hqSliderFill" id="hqSliderFill"></div>
@@ -9142,10 +9202,9 @@ input, textarea {
   <div class="hqSliderLabels">
     <span class="hqSliderLabelItem" data-snap="15">15m</span>
     <span class="hqSliderLabelItem snap-active" data-snap="25">25m</span>
+    <span class="hqSliderLabelItem" data-snap="30">30m</span>
     <span class="hqSliderLabelItem" data-snap="45">45m</span>
     <span class="hqSliderLabelItem" data-snap="60">60m</span>
-    <span class="hqSliderLabelItem" data-snap="90">90m</span>
-    <span class="hqSliderLabelItem" data-snap="120">120m</span>
   </div>
 </div>
 
@@ -12135,7 +12194,6 @@ const reportMinutes = minutes;
   state.startTs = null;
   state.elapsedBefore = lockedElapsed;
   state.lastElapsedMs = lockedElapsed;
-  state.pendingSegments = [];
 
   clearCutDeadline();
 
@@ -13685,6 +13743,14 @@ if(!isCurrentTabMasterNow()){
     renderTimer();
     renderCutUI();
 
+    // Auto-split at daily base cap
+if(state.status === "running" && state.startTs){
+  const _capMs = Number(RULES.baseCapPerQuestNamePerDay || 60) * 60000;
+  if(computeElapsedMs() >= _capMs){
+    splitCurrentQuestSegmentAtCap();
+  }
+}
+
     if(state.status === "running" && state.cutEnabled && state.targetEndTs){
   const now = Date.now();
 
@@ -13932,6 +13998,13 @@ function splitCurrentQuestSegmentAtCap(){
   renderControls();
   updateUI();
 
+  // ถ้า targetEndTs ผ่านไปแล้ว (เช่น ตั้ง cut = 60 = cap) → ล้างทิ้ง ไม่ให้ auto-stop ทันที
+  if(state.cutEnabled && state.targetEndTs && Date.now() >= state.targetEndTs){
+    state.softWarned = false;
+    state.softDeadlineTs = 0;
+    state.targetEndTs = 0;
+  }
+
   showTimerWarn(`ครบ ${capMin} นาทีแล้ว • แยกเป็น "${nextName}" อัตโนมัติ`);
   return true;
 }
@@ -14026,6 +14099,12 @@ function pauseQuest(){
   if(state.cutEnabled && state.targetEndTs){
     state.targetEndTs += pausedFor;
 
+    // sync home run screen timer ด้วย
+    if(window.homeRunEndTs){
+      window.homeRunEndTs += pausedFor;
+      state.homeRunEndTs = window.homeRunEndTs;
+    }
+
     if(state.cutMode === "soft" && state.softWarned && state.softDeadlineTs){
       state.softDeadlineTs += pausedFor;
     }
@@ -14061,7 +14140,6 @@ state.status = "stopped";
 state.startTs = null;
 state.elapsedBefore = elapsed;
 state.lastElapsedMs = elapsed;
-state.pendingSegments = [];
 const reportMinutes = minutes;
 
 
@@ -14099,12 +14177,20 @@ updateCapHint(dateKey, state.questName);
 
  function discardReport(){
   state.status="idle";
-state.startTs=null;
-state.elapsedBefore=0;
-state.lastElapsedMs=0;
-state.startDateKey=null;
+  state.startTs=null;
+  state.elapsedBefore=0;
+  state.lastElapsedMs=0;
+  state.startDateKey=null;
+  state.questName="";
+  if(el.questName) el.questName.value="";
 
 clearCutDeadline();
+
+  // ล้าง flow segments ที่ค้างอยู่
+  state.pendingSegments = [];
+  state.flowBaseName = "";
+  state.flowIndex = 1;
+  state.flowChainId = null;
 
   saveState();
   setReportVisible(false);
@@ -16009,22 +16095,29 @@ if(!Number.isFinite(inputMin) || inputMin < 1){
   return;
 }
 
-window.homeRunEndTs = Date.now() + inputMin * 60000;
+state.cutEnabled = true;
+  state.cutMinutes = inputMin;
+  state.cutMode = "hard";
+  if(el.cutMinutes) el.cutMinutes.value = String(inputMin);
+  if(el.cutMode) el.cutMode.value = "hard";
+
+  window.homeRunEndTs = Date.now() + inputMin * 60000;
   state.homeRunEndTs = window.homeRunEndTs;
-  saveState();
 
   setQuestCategory(homeQuestDraftCategory);
-
   if(el.questName) el.questName.value = cleanName;
-state.questName = cleanName;
+  state.questName = cleanName;
   saveState();
+  renderCutUI();
 
   closeHomeQuestFlow();
   switchPage("homeScene");
 
-  setTimeout(()=>{
-    el.startBtn?.click();
-    showHomeRunScreen();
+  setTimeout(async ()=>{
+    await startQuest();
+    if(state.status === "running"){
+      showHomeRunScreen();
+    }
   }, 120);
 });
 
@@ -16038,7 +16131,7 @@ state.questName = cleanName;
 
   if(!slider) return;
 
-  const SNAPS = [15,25,45,60,90,120];
+  const SNAPS = [15,25,30,45,60];
   const SNAP_RADIUS = 4; // ± step ที่จะ snap
 
   function pct(val){
@@ -18594,6 +18687,31 @@ window.addEventListener("load", async () => {
     }
   }
 });
+
+// ===== PAW TAP EFFECT =====
+(function(){
+  function spawnPaw(x, y){
+    const paw = document.createElement('div');
+    paw.className = 'sq-tap-paw';
+    paw.style.cssText = `left:${x}px;top:${y}px;`;
+    document.body.appendChild(paw);
+    paw.addEventListener('animationend', ()=> paw.remove(), { once:true });
+
+    for(let i = 0; i < 4; i++){
+      const s = document.createElement('div');
+      s.className = 'sq-tap-star';
+      const ang = (360/4)*i + Math.random()*24 - 12;
+      const d   = 18 + Math.random()*14;
+      s.style.cssText = `left:${x}px;top:${y}px;`;
+      s.style.setProperty('--tx', Math.cos(ang*Math.PI/180)*d+'px');
+      s.style.setProperty('--ty', Math.sin(ang*Math.PI/180)*d+'px');
+      s.style.setProperty('--d', (i*28)+'ms');
+      document.body.appendChild(s);
+      s.addEventListener('animationend', ()=> s.remove(), { once:true });
+    }
+  }
+  document.addEventListener('pointerdown', e => spawnPaw(e.clientX, e.clientY), { passive:true });
+})();
 
 
   boot();
