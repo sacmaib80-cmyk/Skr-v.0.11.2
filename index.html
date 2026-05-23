@@ -12711,85 +12711,87 @@ const SQ_DICE_RULES = {
 };
 
   const SQ_WORK_FLOW = [
-  "วางแผน Focus",
-  "ลงมือทำ Focus",
-  "แก้/ปรับ Focus",
-  "Focus 1 อย่าง",
-  "สรุปบทเรียน Focus"
+  "วางโครงสร้าง / หาไอเดีย",
+  "ลงมือลุยงาน (Deep Work)",
+  "ตรวจทาน / จัดระเบียบให้เข้าที่",
+  "เคลียร์สเต็ปย่อย 1 อย่างให้จบ",
+  "สรุปความคืบหน้า / ปิดจ็อบ"
 ];
 
 const SQ_DICE_GEN = {
   durations: {
     low:  [10, 15, 20],
-    mid:  [30, 35],
+    mid:  [30, 35, 40],
     high: [45, 50, 55, 60],
   },
 
-
-
   physical: {
-    cardio: ["เดิน", "วิ่งเบา" , "ยืดเหยียด", "คาร์ดิโอเบา"],
-    bodypart: ["อก", "หลัง", "ไหล่", "แขน", "ขา", "ท้อง"]
+    cardio: ["เดินชิลๆ", "วิ่งจ๊อกกิ้ง", "ยืดเหยียดร่างกาย", "ทำงานบ้านขยับตัว", "เดินเล่นรับลม", "คาร์ดิโอเบาๆ"],
+    bodypart: ["อก", "หลัง", "ไหล่", "แขน", "ขา", "หน้าท้อง", "แกนกลางลำตัว (Core)"]
   },
 
   connection: {
     low: [
-      "ทักคนใหม่ 1 คน",
-      "เริ่มบทสนทนากับคนที่ไม่ค่อยได้คุย 1 ครั้ง",
-      "ถามคำถามเพื่อเปิดบทสนทนาใหม่ 1 ครั้ง",
-      "ทำความรู้จักคนใหม่ 1 คน"
+      "ทักทายคนที่ไม่ได้คุยนานแล้ว 1 คน",
+      "ส่งข้อความให้กำลังใจเพื่อน/แฟน/ครอบครัว",
+      "ถามสารทุกข์สุกดิบเพื่อนร่วมงาน/คนรู้จัก",
+      "แชร์เรื่องตลกหรือมีสาระให้คนสนิท",
+      "ทำความรู้จักเพื่อนใหม่หรือคนในคอมมูนิตี้ 1 คน"
     ]
   },
 
   workActions: [
-    "ลงมือทำ Focus",
-    "แก้/ปรับ Focus",
-    "วางแผน Focus",
-    "Focus 1 อย่าง",
-    "สรุปบทเรียน Focus"
+    "ลงมือลุยงาน (Deep Work)",
+    "ตรวจทาน / จัดระเบียบให้เข้าที่",
+    "วางโครงสร้าง / หาไอเดีย",
+    "เคลียร์สเต็ปย่อย 1 อย่างให้จบ",
+    "สรุปความคืบหน้า / ปิดจ็อบ"
   ],
 
   learningActivities: {
     language: [
-      { act:"ท่องศัพท์", tail:"แต่ง 5 ประโยค" },
-      { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 บรรทัด" },
-      { act:"ฟัง/ดูคลิป", tail:"สรุป 5 บรรทัด" },
-      { act:"ฝึกใช้จริง", tail:"แต่ง 8 ประโยค" },
-      { act:"ทบทวน", tail:"สรุปสิ่งที่พลาด 3 ข้อ" },
+      { act:"ท่องศัพท์/ทบทวนคำศัพท์", tail:"ลองแต่งประโยคดู 5 ประโยค" },
+      { act:"อ่านบทความ/ข่าว", tail:"จดสรุปใจความสำคัญสั้นๆ" },
+      { act:"ฟังพอดแคสต์/ดูคลิป", tail:"สรุปสิ่งที่ได้เรียนรู้ 3 ข้อ" },
+      { act:"ฝึกพูด/ออกเสียงตาม", tail:"อัดเสียงตัวเองเช็คความเป๊ะ" },
+      { act:"ทำแบบฝึกหัด", tail:"จดจุดที่ผิดไว้กันลืม" },
     ],
     math: [
-      { act:"ทำโจทย์", tail:"Error log 3 ข้อ" },
-      { act:"ทบทวนสูตร", tail:"สรุปสูตร + ตัวอย่าง 2 ข้อ" },
-      { act:"แก้โจทย์ชุด", tail:"ตรวจคำตอบ + สรุปจุดพลาด" },
+      { act:"ลุยทำโจทย์", tail:"จด Error log ข้อที่พลาด" },
+      { act:"ทบทวนสูตร/คอนเซปต์", tail:"ทำตัวอย่างประกอบ 2 ข้อ" },
+      { act:"ทำโจทย์ชุดใหญ่", tail:"ตรวจคำตอบ + หาวิธีที่ไวกว่าเดิม" },
     ],
     generic: [
-      { act:"อ่านเนื้อหา", tail:"เขียนใจความ 5 บรรทัด" },
-      { act:"ดูคลิป", tail:"สรุป 5 บรรทัด" },
-      { act:"ทบทวน", tail:"สรุป 5 บรรทัด" },
-      { act:"จดสรุป", tail:"ย่อ 5 บรรทัด" },
+      { act:"อ่านหนังสือ/บทความ", tail:"เขียนสรุปไอเดียหลัก 5 บรรทัด" },
+      { act:"ดูคลิปสาระ/How-to", tail:"สรุปทริคที่เอาไปใช้ต่อได้จริง" },
+      { act:"จัดระเบียบความรู้", tail:"ทำ Mindmap หรือสรุปสั้นๆ" },
+      { act:"ทบทวนเรื่องที่เคยเรียน", tail:"ลองอธิบายให้ตัวเองฟังหน้ากระจก" },
     ],
   },
 
   kw: {
-    language: ["eng","english","chinese","japan","japanese","korea","korean","vocab","sentence","reading","listening","speaking","grammar","汉语","中文","ภาษาอังกฤษ","ภาษาจีน","ศัพท์","ประโยค","อ่าน","ฟัง","พูด","แกรมม่า"],
-    math: ["math","algebra","equation","calculus","stats","logic","dp","สมการ","สถิติ","ฟังก์ชัน","ตรรกะ","โจทย์","พิสูจน์","คณิต"],
+    language: ["eng","english","chinese","japan","japanese","korea","korean","vocab","sentence","reading","listening","speaking","grammar","ภาษา","ศัพท์","ประโยค","อังกฤษ","จีน","ญี่ปุ่น","เกาหลี"],
+    math: ["math","algebra","equation","calculus","stats","logic","dp","สมการ","สถิติ","ฟังก์ชัน","ตรรกะ","โจทย์","พิสูจน์","คณิต","เลข","ตัวเลข"],
   },
 
   fallbackPool: {
     low: [
-      { category:"Learning", name:"Learning • อ่าน/สรุป", tail:"สรุป 5 บรรทัด" },
-      { category:"Physical", name:"Physical • เดิน", tail:"" },
-      { category:"Work/Project", name:"Work • จัดระบบ", tail:"Focus" },
+      { category:"Learning", name:"Learning • อ่านคอนเทนต์มีสาระ", tail:"เซฟไอเดียเก็บไว้" },
+      { category:"Physical", name:"Physical • ยืดเส้นยืดสาย / แก้กล้ามเนื้อตึง", tail:"" },
+      { category:"Work/Project", name:"Work • เคลียร์โต๊ะ / จัดระเบียบไฟล์คอม", tail:"" },
+      { category:"Work/Project", name:"Work • จดลิสต์สิ่งที่ต้องทำพรุ่งนี้ (To-do list)", tail:"" },
     ],
     mid: [
-      { category:"Learning", name:"Learning • ทบทวน", tail:"เขียนใจความ 5 บรรทัด" },
-      { category:"Physical", name:"Physical • อก", tail:"" },
-      { category:"Work/Project", name:"Work • ลงมือทำ", tail:"Focus" },
+      { category:"Learning", name:"Learning • ดูคลิปพัฒนาตัวเอง", tail:"จด 1 อย่างที่จะเอาไปใช้" },
+      { category:"Physical", name:"Physical • บอดี้เวทเบาๆ (อก/แขน/ขา)", tail:"" },
+      { category:"Work/Project", name:"Work • ลุยเคลียร์งานที่ค้างอยู่", tail:"เอาให้จบ 1 ชิ้น" },
+      { category:"Work/Project", name:"Work • ทำงานบ้านชิ้นใหญ่", tail:"เช่น ซักผ้า, ถูห้อง" },
     ],
     high: [
-      { category:"Work/Project", name:"Work • 1 อย่าง", tail:"Focus" },
-      { category:"Physical", name:"Physical • หลัง", tail:"" },
-      { category:"Learning", name:"Learning • ทำชุด", tail:"สรุปจุดพลาด 3 ข้อ" },
+      { category:"Work/Project", name:"Work • จัดการโปรเจกต์สำคัญ", tail:"ลุยแบบ Deep Work" },
+      { category:"Work/Project", name:"Work • เคลียร์งานที่น่าเบื่อที่สุดให้พ้นทาง", tail:"" },
+      { category:"Physical", name:"Physical • เวทเทรนนิ่ง / ออกกำลังกายจริงจัง", tail:"" },
+      { category:"Learning", name:"Learning • ศึกษาเรื่องใหม่ที่สนใจแบบเจาะลึก", tail:"ทำสรุปความเข้าใจ" },
     ]
   }
 };
@@ -12956,11 +12958,11 @@ function rqGetLastWorkActionForDomain(domain, lookbackDays = SQ_DICE_RULES.lookb
 
       const name = normQuestName(q.questName);
 
-      if(name.includes("วางแผน Focus")) return "วางแผน Focus";
-      if(name.includes("ลงมือทำ Focus")) return "ลงมือทำ Focus";
-      if(name.includes("แก้/ปรับ Focus")) return "แก้/ปรับ Focus";
-      if(name.includes("Focus 1 อย่าง")) return "Focus 1 อย่าง";
-      if(name.includes("สรุปบทเรียน Focus")) return "สรุปบทเรียน Focus";
+      if(name.includes("วางโครงสร้าง")) return "วางโครงสร้าง / หาไอเดีย";
+      if(name.includes("ลงมือลุยงาน")) return "ลงมือลุยงาน (Deep Work)";
+      if(name.includes("ตรวจทาน")) return "ตรวจทาน / จัดระเบียบให้เข้าที่";
+      if(name.includes("เคลียร์สเต็ปย่อย")) return "เคลียร์สเต็ปย่อย 1 อย่างให้จบ";
+      if(name.includes("สรุปความคืบหน้า")) return "สรุปความคืบหน้า / ปิดจ็อบ";
     }
   }
 
@@ -12969,9 +12971,10 @@ function rqGetLastWorkActionForDomain(domain, lookbackDays = SQ_DICE_RULES.lookb
 function rqPickProgressedWorkAction(domain){
   const last = rqGetLastWorkActionForDomain(domain);
 
+  // ถ้าไม่เคยทำโปรเจกต์นี้มาก่อน ให้เริ่มที่หาไอเดีย หรือ ลุยเลย
   if(!last) return rqPickOne([
-    "วางแผน Focus",
-    "ลงมือทำ Focus"
+    "วางโครงสร้าง / หาไอเดีย",
+    "ลงมือลุยงาน (Deep Work)"
   ]);
 
   const idx = SQ_WORK_FLOW.indexOf(last);
@@ -12982,12 +12985,12 @@ function rqPickProgressedWorkAction(domain){
 
   const next = SQ_WORK_FLOW[idx + 1];
 
-  // ถ้าถึงท้ายแล้ว ให้หมุนได้ระหว่าง  / สรุป / ลงมือทำ
+  // ถ้าถึงสเต็ปสุดท้ายแล้ว ให้หมุนลูปกลับมาที่ ลุยต่อ / เช็คงาน / ปิดจ็อบ
   if(!next){
     return rqPickOne([
-      "ลงมือทำ Focus",
-      "Focus 1 อย่าง",
-      "สรุปบทเรียน Focus"
+      "ลงมือลุยงาน (Deep Work)",
+      "ตรวจทาน / จัดระเบียบให้เข้าที่",
+      "สรุปความคืบหน้า / ปิดจ็อบ"
     ]);
   }
 
@@ -13219,7 +13222,14 @@ function rqChooseCategorySmart(energy){
 function rqBuildLearningQuest(energy){
   const duration = rqPickDuration(energy);
   const domains = rqGetDomainsFromHistory("Learning");
-  const fallbackLearning = rqPickOne(["English","Math","Coding","Reading","Thai"]);
+  // ขยายหมวดการเรียนรู้ให้ครอบคลุม Soft Skills และเรื่องทั่วไป
+  const fallbackLearning = rqPickOne([
+    "ภาษาต่างประเทศ", 
+    "เรื่องเงินๆ ทองๆ (Finance)", 
+    "ทักษะคอมพิวเตอร์ / เทคโนโลยี", 
+    "จิตวิทยา / การพัฒนาตัวเอง", 
+    "คอนเทนต์ความรู้ทั่วไป"
+  ]);
 const domain = rqPickTopDomainAntiStreak(domains, "Learning") || fallbackLearning;
   const type = rqClassifyLearningType(domain);
   const act = rqPickOne(SQ_DICE_GEN.learningActivities[type] || SQ_DICE_GEN.learningActivities.generic);
@@ -13236,7 +13246,14 @@ const domain = rqPickTopDomainAntiStreak(domains, "Learning") || fallbackLearnin
 function rqBuildWorkQuest(energy){
   const duration = rqPickDuration(energy);
   const domains = rqGetDomainsFromHistory("Work/Project");
-  const fallbackWork = rqPickOne(["Project","SakuraQ","Portfolio","System"]);
+  // เปลี่ยนเป็นโดเมนงานกว้างๆ ที่ครอบคลุมทั้งนักเรียน คนทำงาน และงานบ้าน
+  const fallbackWork = rqPickOne([
+    "งานค้างที่ต้องเคลียร์", 
+    "งานบ้าน / ทำความสะอาด", 
+    "โปรเจกต์ส่วนตัว", 
+    "จัดระเบียบชีวิต / การเงิน", 
+    "วางแผนเป้าหมาย"
+  ]);
 const domain = rqPickTopDomainAntiStreak(domains, "Work/Project") || fallbackWork;
 const action = rqPickProgressedWorkAction(domain);
 const name = `${domain} • ${action}`;
