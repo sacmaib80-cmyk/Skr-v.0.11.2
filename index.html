@@ -7472,6 +7472,53 @@ input, textarea {
     0 6px 24px rgba(109,40,217,.08),
     0 1px 0 rgba(255,255,255,.9) inset !important;
 }
+
+/* ═══ MORNING GATE CSS ICON ═══ */
+.sqIconGate{
+  width:24px; height:22px;
+  position:relative; display:inline-block; flex:0 0 auto;
+  background:radial-gradient(ellipse 72% 52% at 50% 48%,
+    rgba(255,205,60,.58) 0%,
+    rgba(255,130,20,.26) 46%,
+    transparent 73%);
+}
+/* หลังคาโค้ง */
+.sqIconGate::after{
+  content:"";
+  position:absolute;
+  top:0; left:-1px; right:-1px;
+  height:10px;
+  background:linear-gradient(180deg,#ff4422 0%,#cc1100 60%,#aa0d00 100%);
+  clip-path:polygon(2% 100%,9% 60%,22% 28%,50% 0%,78% 28%,91% 60%,98% 100%);
+  filter:drop-shadow(0 -2px 6px rgba(255,90,20,.55));
+}
+/* เสา 2 ต้น + คานขวาง */
+.sqIconGate::before{
+  content:"";
+  position:absolute;
+  left:2px; right:2px;
+  top:8px; bottom:0;
+  background:
+    linear-gradient(180deg,#ff4422,#bb1000) 0 0 / 4px 100% no-repeat,
+    linear-gradient(180deg,#ff4422,#bb1000) 100% 0 / 4px 100% no-repeat,
+    linear-gradient(90deg,#991000,#ff3311,#991000) 0 38% / 100% 2.5px no-repeat;
+}
+.catInlineGate{background:rgba(200,40,15,.14);}
+.tpQuestIconGate{
+  background:linear-gradient(135deg,rgba(255,196,55,.22),rgba(200,50,15,.16)) !important;
+}
+.tpQuestCard.gateCard{
+  background:linear-gradient(155deg,
+    rgba(255,248,228,.98) 0%,
+    rgba(255,233,198,.95) 55%,
+    rgba(255,244,220,.97) 100%) !important;
+  border-color:rgba(200,60,15,.20) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.90) inset,
+    0 6px 20px rgba(190,55,10,.12),
+    0 2px 8px rgba(190,55,10,.07) !important;
+}
+
 /* CSS Sparkle สำหรับ Today title */
 .tpTitleSparkle{
   display: inline-block;
@@ -8255,27 +8302,27 @@ input, textarea {
 .sq-tap-paw::before{
   content:"";
   position:absolute;
-  left:50%; bottom:0;
-  width:13px; height:10px;
+  left:50%; bottom:1px;
+  width:15px; height:11px;
   transform:translateX(-50%);
-  border-radius:60% 60% 55% 55%;
-  background:rgba(255,255,255,.97);
+  border-radius:44% 44% 42% 42% / 42% 42% 54% 54%;
+  background:rgba(255,255,255,.96);
   box-shadow:
-    0 0 8px rgba(255,255,255,.95),
-    0 0 18px rgba(167,139,250,.85);
+    0 0 5px  rgba(255,255,255,.92),
+    0 0 12px rgba(167,139,250,.85),
+    0 0 22px rgba(167,139,250,.38);
 }
 .sq-tap-paw::after{
   content:"";
   position:absolute; inset:0;
   background:
-    radial-gradient(circle at 20% 22%, rgba(255,255,255,.97) 0 4px, transparent 5px),
-    radial-gradient(circle at 50% 7%,  rgba(255,255,255,.97) 0 4px, transparent 5px),
-    radial-gradient(circle at 80% 22%, rgba(255,255,255,.97) 0 4px, transparent 5px),
-    radial-gradient(circle at 30% 46%, rgba(255,255,255,.97) 0 3px, transparent 4px),
-    radial-gradient(circle at 70% 46%, rgba(255,255,255,.97) 0 3px, transparent 4px);
+    radial-gradient(ellipse 5px   6.5px at 16% 36%, rgba(255,255,255,.96) 0% 72%, transparent 100%),
+    radial-gradient(ellipse 5.5px 7.5px at 36% 14%, rgba(255,255,255,.96) 0% 72%, transparent 100%),
+    radial-gradient(ellipse 5.5px 7.5px at 64% 14%, rgba(255,255,255,.96) 0% 72%, transparent 100%),
+    radial-gradient(ellipse 5px   6.5px at 84% 36%, rgba(255,255,255,.96) 0% 72%, transparent 100%);
   filter:
-    drop-shadow(0 0 5px rgba(167,139,250,.95))
-    drop-shadow(0 0 10px rgba(255,255,255,.65));
+    drop-shadow(0 0 5px  rgba(167,139,250,.96))
+    drop-shadow(0 0 10px rgba(255,255,255,.72));
 }
 @keyframes sqTapPawMain{
   0%  { opacity:0; transform:translate(-50%,-50%) scale(.25); }
@@ -11228,7 +11275,7 @@ function saveGateCfg(){
   function isGateActiveToday(){
     if(!gateCfg.enabled) return false;
     if(!gateCfg.triggerHHMM) return false;
-    if(!gateCfg.effectiveFrom) return false;
+    if(!gateCfg.effectiveFrom) return true;
     return localDateKey() >= gateCfg.effectiveFrom;
   }
   function todayTriggerTs(){
@@ -11823,6 +11870,18 @@ async function maybeSendMorningGateNotification(){
   }
 
   if(!gateCfg.enabled || !gateCfg.triggerHHMM || !isGateActiveToday()){
+
+    // ✅ BUG 1 FIX — quest ยังวิ่งอยู่หลัง deadline
+    if(gate.awaitingGateResult || (gate.startedInTime && !gate.passed)){
+      showGateTopBar();
+      el.gateTopBar?.classList.remove("done");
+      if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • Quest Running";
+      if(el.gateTopSub) el.gateTopSub.textContent = `ทำต่อให้ครบ ${GATE_RULES.qualifyMin} นาทีเพื่อ PASS`;
+      if(el.gateTopTime) el.gateTopTime.textContent = "...";
+      if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+      return;
+    }
+
     hideGateCover();
     hideGateTopBar();
     return;
@@ -12155,7 +12214,7 @@ function forceAutoStop(){
     flowIndex: state.flowIndex
   });
 
-  if(state.status !== "running") return;
+  if(state.status !== "running" && state.status !== "paused") return;
 
   const startTs = Number(state.startTs || 0);
   if(!startTs) return;
@@ -12607,7 +12666,7 @@ const day = all.days?.[todayKey] || { totalQps:0, quests:[] };
         <div class="item">
           <div class="itemTop">
             <div class="itemName">
-  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category, item.questName)} ${escapeHtml(name)}
 </div>
             <div class="itemScore">+${round1(questScore).toFixed(1)}</div>
           </div>
@@ -13980,19 +14039,26 @@ function splitCurrentQuestSegmentAtCap(){
   state.softWarned = false;
   state.softDeadlineTs = 0;
 
-  saveState();
+  // ✅ FIX: cleanup targetEndTs และ sync homeRunEndTs ก่อน save
+  if(state.cutEnabled && state.targetEndTs && Date.now() >= state.targetEndTs){
+    // cut = cap: หมดเวลาพอดี → ล้างทั้งคู่ ไม่ให้ home run timer force stop
+    state.softWarned = false;
+    state.softDeadlineTs = 0;
+    state.targetEndTs = 0;
+    window.homeRunEndTs = 0;
+    state.homeRunEndTs = 0;
+  } else if(state.cutEnabled && state.targetEndTs && state.targetEndTs > Date.now()){
+    // cut > cap: ยังเหลือเวลา → sync homeRunEndTs ให้ตรงกับ targetEndTs
+    window.homeRunEndTs = state.targetEndTs;
+    state.homeRunEndTs = state.targetEndTs;
+  }
+
+  saveState();  // ✅ save หลัง cleanup แล้ว
 
   if(el.questName) el.questName.value = state.questName || "";
   renderCutUI();
   renderControls();
   updateUI();
-
-  // ถ้า targetEndTs ผ่านไปแล้ว (เช่น ตั้ง cut = 60 = cap) → ล้างทิ้ง ไม่ให้ auto-stop ทันที
-  if(state.cutEnabled && state.targetEndTs && Date.now() >= state.targetEndTs){
-    state.softWarned = false;
-    state.softDeadlineTs = 0;
-    state.targetEndTs = 0;
-  }
 
   showTimerWarn(`ครบ ${capMin} นาทีแล้ว • แยกเป็น "${nextName}" อัตโนมัติ`);
   return true;
@@ -16497,11 +16563,11 @@ function syncHomeRunScreen(){
       String(m).padStart(2,"0") + ":" +
       String(sec).padStart(2,"0");
 
-    if(remain <= 0 && state.status === "running"){
-  hideHomeRunScreen();
-  el.stopBtn?.click();
-  setTimeout(()=> showHomeReportIntro(), 80);
-}
+    if(window.homeRunEndTs > 0 && remain <= 0 && state.status === "running"){
+      hideHomeRunScreen();
+      el.stopBtn?.click();
+      setTimeout(()=> showHomeReportIntro(), 80);
+    }
   }
 
   if(questEl){
@@ -16602,13 +16668,17 @@ function getQuestCategoryEmoji(cat){
   return map[key] || "✅";
 }
 
-function getQuestCategoryIconHtml(cat){
-  const key = String(cat || "").toLowerCase().trim();
+function getQuestCategoryIconHtml(cat, questName){
+  const qnLow = normQuestName(questName||"").toLowerCase();
+  if(qnLow === "morning gate bonus"){
+    return `<span class="catInlineIcon catInlineGate"><i class="sqIcon sqIconGate" aria-hidden="true"></i></span>`;
+  }
+  const key = String(cat||"").toLowerCase().trim();
   const map = {
-    "learning":     { cls:"catInlineLearn",  icon:'<i class="sqIcon sqIconLearn" aria-hidden="true"></i>' },
-    "work/project": { cls:"catInlineWork",   icon:'<i class="sqIcon sqIconWork" aria-hidden="true"></i>' },
-    "physical":     { cls:"catInlinePhys",   icon:'<i class="sqIcon sqIconPhysical" aria-hidden="true"></i>' },
-    "connection":   { cls:"catInlineConn",   icon:'<i class="sqIcon sqIconConnect" aria-hidden="true"></i>' },
+    "learning":     {cls:"catInlineLearn",  icon:'<i class="sqIcon sqIconLearn" aria-hidden="true"></i>'},
+    "work/project": {cls:"catInlineWork",   icon:'<i class="sqIcon sqIconWork" aria-hidden="true"></i>'},
+    "physical":     {cls:"catInlinePhys",   icon:'<i class="sqIcon sqIconPhysical" aria-hidden="true"></i>'},
+    "connection":   {cls:"catInlineConn",   icon:'<i class="sqIcon sqIconConnect" aria-hidden="true"></i>'},
   };
   const found = map[key];
   if(!found) return `<span class="catInlineIcon catInlineOther"></span>`;
@@ -17128,7 +17198,7 @@ if(el.histSelectedTotal) el.histSelectedTotal.textContent = `Total: ${selectedTo
           <div class="item">
             <div class="itemTop">
               <div class="itemName">
-  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category, item.questName)} ${escapeHtml(name)}
 </div>
               <div class="itemScore">+${Number(item.questScore || 0).toFixed(1)}</div>
             </div>
@@ -17152,7 +17222,7 @@ if(el.histSelectedTotal) el.histSelectedTotal.textContent = `Total: ${selectedTo
           <div class="item">
             <div class="itemTop">
               <div class="itemName">
-  ${getQuestCategoryIconHtml(item.category)} ${escapeHtml(name)}
+  ${getQuestCategoryIconHtml(item.category, item.questName)} ${escapeHtml(name)}
 </div>
               <div class="itemMeta">${historySelectedDay}</div>
             </div>
@@ -18406,24 +18476,26 @@ function calcTpGrade(score){
   return { grade:'F', bg:'#ef4444' };
 }
 
-function getTpIconBoxClass(category){
+function getTpIconBoxClass(category, questName){
+  const qnLow = normQuestName(questName||"").toLowerCase();
+  if(qnLow === "morning gate bonus") return 'tpQuestIconGate';
   const map = {
-    'Learning':'tpQuestIconLearn',
-    'Work/Project':'tpQuestIconWork',
-    'Physical':'tpQuestIconPhysical',
-    'Connection':'tpQuestIconConnect',
+    'Learning':'tpQuestIconLearn','Work/Project':'tpQuestIconWork',
+    'Physical':'tpQuestIconPhysical','Connection':'tpQuestIconConnect',
   };
-  return map[category] || 'tpQuestIconOther';
+  return map[category]||'tpQuestIconOther';
 }
 
-function getTpIconHtml(category){
+function getTpIconHtml(category, questName){
+  const qnLow = normQuestName(questName||"").toLowerCase();
+  if(qnLow === "morning gate bonus") return '<i class="sqIcon sqIconGate" aria-hidden="true"></i>';
   const map = {
     'Learning':'<i class="sqIcon sqIconLearn" aria-hidden="true"></i>',
     'Work/Project':'<i class="sqIcon sqIconWork" aria-hidden="true"></i>',
     'Physical':'<i class="sqIcon sqIconPhysical" aria-hidden="true"></i>',
     'Connection':'<i class="sqIcon sqIconConnect" aria-hidden="true"></i>',
   };
-  return map[category] || '';
+  return map[category]||'';
 }
 
 function getTpCatBadgeClass(category){
@@ -18526,8 +18598,9 @@ function renderTodayPage(){
     const qs     = Number(item.questScore || 0);
     const bonus  = Number(item.qualityBonus || 0);
     const timeStr    = formatTpTime(item.ts);
-    const boxClass   = getTpIconBoxClass(item.category);
-    const iconHtml   = getTpIconHtml(item.category);
+    const isGate   = normQuestName(item.questName||"").toLowerCase() === "morning gate bonus";
+const boxClass = getTpIconBoxClass(item.category, item.questName);
+const iconHtml = getTpIconHtml(item.category, item.questName);
     const badgeClass = getTpCatBadgeClass(item.category);
     const catLabel   = (item.category || '').replace('Work/Project','Work');
     const isSystem   = normQuestName(item.questName).toLowerCase() === 'morning gate bonus';
@@ -18536,7 +18609,7 @@ function renderTodayPage(){
       <div class="tpQuestItem">
         <div class="tpQuestTimeCol">${escapeHtml(timeStr)}</div>
         <div class="tpQuestDotCol"><div class="tpQuestDotInner"></div></div>
-        <div class="tpQuestCard">
+        <<div class="tpQuestCard${isGate?' gateCard':''}">
           <div class="tpQuestIconBox ${boxClass}">${iconHtml}</div>
           <div class="tpQuestInfo">
             <div class="tpQuestNameRow">
