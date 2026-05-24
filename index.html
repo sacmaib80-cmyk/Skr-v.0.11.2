@@ -30,7 +30,7 @@
         --warmInk:#e35d3f;
 --warmSoft:#f08a6a;
 
-        --accent:#22c55e;
+        --accent:#5b5bd6;
         --accent2:#60a5fa;
         --warn:#fb7185;
         --gold:#f59e0b;
@@ -952,7 +952,7 @@ button.danger:active:not(:disabled){
      #startBtn,
 #submitReportBtn,
 #exportBtn{
-  box-shadow: 2px 5px 0 #15803d !important;
+  box-shadow: 2px 5px 0 #3d3da8 !important;
 }
 
   #startBtn:active:not(:disabled),
@@ -962,7 +962,7 @@ button.danger:active:not(:disabled){
   box-shadow: 1px 2px 0 #15803d !important;
 }
 #startBtn {
-  background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+  background: linear-gradient(135deg, #5b5bd6, #7c7de8, #a78bfa);
   background-size: 200% 200%;
   animation: btnGradientShift 3s ease infinite;
   border: 1px solid rgba(255,255,255,.25);
@@ -976,7 +976,7 @@ button.danger:active:not(:disabled){
 
 #startBtn:active:not(:disabled) {
   transform: translateY(4px) !important;
-  box-shadow: 0 0 0 #15803d, 0 4px 12px rgba(34,197,94,.2) !important;
+  box-shadow: 0 0 0 #3d3da8, 0 4px 12px rgba(91,91,214,.2) !important;
 }
 
 @keyframes btnGradientShift {
@@ -2271,161 +2271,6 @@ background-size: 200% 100%;
   background:#e9eef8;
 }
 
-/* กำแพงซ้าย */
-.roomBack::before{
-  content:"";
-  position:absolute;
-  left:-8%;
-  top:0;
-  width:58%;
-  height:72%;
-  background:#fbfcff;
-clip-path: polygon(0 0, 100% 0, 72% 100%, 0 100%);
-  z-index:1;
-  pointer-events:none;
-}
-
-/* กำแพงขวา */
-.roomBack::after{
-  content:"";
-  position:absolute;
-  right:-8%;
-  top:0;
-  width:58%;
-  height:72%;
-  background:#fdfdff;
-clip-path: polygon(0 0, 100% 0, 100% 100%, 28% 100%);
-  z-index:1;
-  pointer-events:none;
-}
-
-.roomWallLine{
-  position:absolute;
-  left:0;
-  right:0;
-top:54%;
-  height:1px;
-  background:rgba(148,163,184,.18);
-  z-index:2;
-  pointer-events:none;
-}
-/* layer เส้นห้อง */
-.roomBack::before,
-.roomBack::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  z-index:2;
-}
-
-/* =========================
-   ด้านบน + ผนังซ้ายขวา
-========================= */
-.roomBack::before{
-  background:
-    /* เส้นเพดานซ้าย */
-    linear-gradient(
-      16deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.07) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) top left / 50% 18% no-repeat,
-
-    /* เส้นเพดานขวา */
-    linear-gradient(
-      -16deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.07) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) top right / 50% 18% no-repeat,
-
-    /* เส้นผนังซ้าย */
-    linear-gradient(
-      -80deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.055) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) left center / 15% 72% no-repeat,
-
-    /* เส้นผนังขวา */
-    linear-gradient(
-      80deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.055) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) right center / 15% 90% no-repeat;
-}
-
-/* =========================
-   ด้านล่าง
-   ให้บาลานซ์กับด้านบน
-========================= */
-.roomBack::before{
-  background:
-    /* เส้นเพดานซ้าย */
-    linear-gradient(
-      16deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.07) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) top left / 50% 18% no-repeat,
-
-    /* เส้นเพดานขวา */
-    linear-gradient(
-      -16deg,
-      transparent 0 49.6%,
-      rgba(15,23,42,.07) 49.85% 50.15%,
-      transparent 50.4% 100%
-    ) top right / 50% 18% no-repeat,
-
-    /* เส้นผนังซ้าย */
-linear-gradient(
-  -12deg,
-  transparent 0 49.6%,
-  rgba(15,23,42,.055) 49.85% 50.15%,
-  transparent 50.4% 100%
-) left 17% / 15% 65% no-repeat,
-
-/* เส้นผนังขวา */
-linear-gradient(
-  12deg,
-  transparent 0 49.6%,
-  rgba(15,23,42,.055) 49.85% 50.15%,
-  transparent 50.4% 100%
-) right 17% / 15% 65% no-repeat;
-}
-/* =========================
-   พื้นวงรีกลางห้อง
-========================= */
-.roomFloor{
-  position:absolute;
-
-  left:50%;
-  bottom:70px;
-
-  transform:translateX(-50%);
-
-  width:420px;
-  height:120px;
-
-  border-radius:50%;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(15,23,42,.14),
-      rgba(15,23,42,.06) 42%,
-      transparent 74%
-    );
-
-  filter: blur(12px);
-
-  z-index:1;
-
-  pointer-events:none;
-}
-
 /* asset base */
 .roomAsset{
   position:absolute;
@@ -3644,7 +3489,7 @@ linear-gradient(
 
 /* ตอน running ให้กลายเป็นสีเขียว */
 body.quest-running #sec-timer .timer {
-  background: linear-gradient(135deg, #059669, #22c55e);
+  background: linear-gradient(135deg, #5b5bd6, #7c7de8);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -5139,19 +4984,6 @@ body.in-app-browser #authGate{
   padding:10px 12px 16px !important;
 }
 
-#homeStartQuestBtn.homeStartQuestBtn{
-  width:min(100%, 300px);
-  height:56px;
-  border-radius:999px;
-  background:linear-gradient(180deg,#45e878,#22c55e);
-  color:#052e16;
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:
-    0 12px 26px rgba(34,197,94,.22),
-    inset 0 1px 0 rgba(255,255,255,.45);
-  font-size:17px;
-  font-weight:950;
-}
 
 #homeStartQuestBtn.homeStartQuestBtn:active{
   transform:scale(.97);
@@ -5186,15 +5018,15 @@ body.in-app-browser #authGate{
   0%,100%{
     transform: translateY(0) scale(1);
     box-shadow:
-      0 14px 30px rgba(34,197,94,.28),
-      0 0 0 0 rgba(34,197,94,.28),
+      0 14px 30px rgba(91,91,214,.28),
+      0 0 0 0 rgba(91,91,214,.28),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
   50%{
     transform: translateY(-2px) scale(1.018);
     box-shadow:
-      0 18px 38px rgba(34,197,94,.34),
-      0 0 0 9px rgba(34,197,94,.08),
+      0 18px 38px rgba(91,91,214,.34),
+      0 0 0 9px rgba(91,91,214,.08),
       inset 0 1px 0 rgba(255,255,255,.52);
   }
 }
@@ -5203,21 +5035,17 @@ body.in-app-browser #authGate{
   color:#ffffff !important;
 
   background:
-    linear-gradient(
-      rgba(0,0,0,.12),   /* ลดจาก .18 → .12 */
-      rgba(0,0,0,.12)
-    ),
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,.55), transparent 32%),
-    linear-gradient(180deg,#66ff8f,#2bff73 55%,#1ed760 100%) !important;
+  radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 30%),
+  linear-gradient(180deg, #7c7de8 0%, #5b5bd6 55%, #4a4ac4 100%) !important;
 
   text-shadow:
     0 2px 6px rgba(0,0,0,.35),
     0 1px 2px rgba(0,0,0,.25);
 
   box-shadow:
-    0 16px 34px rgba(34,255,120,.42),
-    0 0 0 0 rgba(34,255,120,.28),
-    inset 0 1px 0 rgba(255,255,255,.6);
+  0 16px 34px rgba(91,91,214,.32),
+  0 0 0 0 rgba(91,91,214,.28),
+  inset 0 1px 0 rgba(255,255,255,.45);
 
   animation: startQuestPulse 2s ease-in-out infinite;
 }
@@ -5867,6 +5695,7 @@ body.in-app-browser #authGate{
     0 8px 28px rgba(99,102,241,.13),
     0 2px 8px rgba(15,23,42,.05),
     inset 0 1px 0 rgba(255,255,255,.95);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
 }
 
 .homeSpeechCard {
@@ -5942,6 +5771,7 @@ body.in-app-browser #authGate{
 
 .homeProgressCard{
   padding:14px 16px 16px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
 }
 
 .homeProgressTop{
@@ -5984,7 +5814,7 @@ body.in-app-browser #authGate{
 .homeProgressFill{
   height:100%;
   border-radius:999px;
-  background:linear-gradient(90deg,#29d7d3,#54e887,#39d86d);
+  background:linear-gradient(90deg,#a78bfa,#5b5bd6);
   box-shadow:0 0 18px rgba(45,212,191,.34);
 }
 
@@ -6369,22 +6199,6 @@ body.in-app-browser #authGate{
 .roomScene::before,
 .roomScene::after{
   display:none !important;
-}
-
-.homeStartQuestBtn{
-  background:#55d9c9 !important;
-  color:#ffffff !important;
-
-  border:1px solid rgba(255,255,255,.75) !important;
-
-  box-shadow:
-    0 8px 0 #3fb9ad,
-    0 16px 28px rgba(63,185,173,.26) !important;
-
-  text-shadow:
-    0 1px 2px rgba(15,23,42,.28) !important;
-
-  font-weight:950 !important;
 }
 
 .homeStartQuestBtn span{
@@ -9618,6 +9432,21 @@ input, textarea {
   </div>
 </div>
 
+<div id="lk-ov" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:9999; opacity:0;">
+  <div id="lk-scene" style="position:relative; width:200px; height:200px;">
+    <div id="lk-glow" style="position:absolute; top:17px; left:17px; right:17px; bottom:17px; border-radius:50%; opacity:0;"></div>
+    <div id="lk-al" style="position:absolute; width:83px; height:166px; top:17px; right:50%; border:3.5px solid #e53e3e; border-right:none; border-radius:83px 0 0 83px; opacity:0; transform:translateX(-130px);"></div>
+    <div id="lk-ar" style="position:absolute; width:83px; height:166px; top:17px; left:50%; border:3.5px solid #e53e3e; border-left:none; border-radius:0 83px 83px 0; opacity:0; transform:translateX(130px);"></div>
+    <div id="lk-pad" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.3); opacity:0; display:flex; flex-direction:column; align-items:center;">
+      <div id="lk-shk" style="width:36px; height:26px; border:5px solid #e53e3e; border-bottom:none; border-radius:18px 18px 0 0; transform:translateY(-18px); position:relative; z-index:1;"></div>
+      <div style="width:60px; height:48px; background:#e53e3e; border-radius:9px; position:relative; z-index:2;">
+        <div style="position:absolute; width:13px; height:13px; background:rgba(0,0,0,0.38); border-radius:50%; top:10px; left:50%; transform:translateX(-50%);"></div>
+        <div style="position:absolute; width:6px; height:11px; background:rgba(0,0,0,0.38); border-radius:0 0 3px 3px; top:21px; left:50%; transform:translateX(-50%);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 
 
@@ -11571,6 +11400,7 @@ function gateIsWorldActiveNow(){
     gate.locked = false;
     gate.awaitingGateResult = true;
     saveGate("gateMaybeLock:deadline-await-result");
+    showLock();
   }
 }
 console.log("[GATE after gateMaybeLock]", {
@@ -18718,6 +18548,55 @@ const iconHtml = getTpIconHtml(item.category, item.questName);
       </div>
     `;
   }).join('');
+}
+
+function showLock() {
+  var ov=document.getElementById('lk-ov'),
+      gl=document.getElementById('lk-glow'),
+      al=document.getElementById('lk-al'),
+      ar=document.getElementById('lk-ar'),
+      pd=document.getElementById('lk-pad'),
+      sk=document.getElementById('lk-shk');
+  if(!ov) return;
+
+  [ov,gl,al,ar,pd,sk].forEach(function(e){ if(e) e.style.transition='none'; });
+  ov.style.opacity='1';
+  if(al){ al.style.transform='translateX(-130px)'; al.style.opacity='0'; }
+  if(ar){ ar.style.transform='translateX(130px)';  ar.style.opacity='0'; }
+  if(pd){ pd.style.transform='translate(-50%,-50%) scale(0.3)'; pd.style.opacity='0'; }
+  if(sk){ sk.style.transform='translateY(-18px)'; }
+  if(gl){ gl.style.opacity='0'; gl.style.boxShadow='none'; }
+  void ov.offsetHeight;
+
+  var t=function(ms,fn){ setTimeout(fn,ms); };
+  t(80,function(){
+    if(al){ al.style.transition='transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.35s'; al.style.transform='translateX(0)'; al.style.opacity='1'; }
+    if(ar){ ar.style.transition='transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.35s'; ar.style.transform='translateX(0)'; ar.style.opacity='1'; }
+  });
+  t(1100,function(){
+    if(pd){ pd.style.transition='all 0.4s cubic-bezier(0.34,1.56,0.64,1)'; pd.style.opacity='1'; pd.style.transform='translate(-50%,-50%) scale(1)'; }
+  });
+  t(1620,function(){
+    if(sk){ sk.style.transition='transform 0.2s cubic-bezier(0.4,0,0.6,1)'; sk.style.transform='translateY(3px)'; }
+  });
+  t(1840,function(){
+    if(sk){ sk.style.transition='transform 0.13s ease-out'; sk.style.transform='translateY(0)'; }
+  });
+  t(2050,function(){
+    if(gl){ gl.style.transition='all 0.55s ease-out'; gl.style.opacity='1'; gl.style.boxShadow='0 0 65px 32px rgba(229,62,62,0.48)'; }
+  });
+  t(2700,function(){
+    if(gl){ gl.style.transition='all 0.45s ease-in'; gl.style.opacity='0'; gl.style.boxShadow='none'; }
+  });
+  t(3050,function(){
+    if(gl){ gl.style.transition='all 0.45s ease-out'; gl.style.opacity='0.8'; gl.style.boxShadow='0 0 65px 32px rgba(229,62,62,0.38)'; }
+  });
+  t(3650,function(){
+    if(gl){ gl.style.transition='all 0.45s ease-in'; gl.style.opacity='0'; gl.style.boxShadow='none'; }
+  });
+  t(4250,function(){
+    ov.style.transition='opacity 0.72s ease-in'; ov.style.opacity='0';
+  });
 }
 
   async function boot(){
