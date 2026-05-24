@@ -14,6 +14,10 @@
 
 <link rel="apple-touch-icon" href="./logo-192.png">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
       :root{
         --bg:#f6f9ff;
@@ -56,7 +60,7 @@
 
 body{
   margin:0;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   color:var(--ink);
 background:#f7f9fc;
   overflow:hidden;
@@ -825,7 +829,11 @@ backdrop-filter: blur(12px);
   background: rgba(255,255,255,.90);
   border: 1px solid rgba(255,255,255,.55);
   border-radius: var(--r2);
-  box-shadow: 0 12px 28px rgba(15,23,42,.06);
+    box-shadow:
+    0 0 0 1px rgba(15,23,42,.04),
+    0 2px 4px rgba(15,23,42,.04),
+    0 8px 24px rgba(15,23,42,.06),
+    0 24px 48px rgba(15,23,42,.04);
   padding: 14px;
   max-width: 760px;
   margin: 0 auto;
@@ -953,12 +961,27 @@ button.danger:active:not(:disabled){
   transform: translate(2px,3px);
   box-shadow: 1px 2px 0 #15803d !important;
 }
-#startBtn{
-  background: linear-gradient(
-    to bottom,
-    #50f066,
-    #2dd457
-  );
+#startBtn {
+  background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+  background-size: 200% 200%;
+  animation: btnGradientShift 3s ease infinite;
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.3) inset,
+    0 4px 0 #15803d,
+    0 8px 24px rgba(34,197,94,.32) !important;
+  letter-spacing: -.02em;
+  font-size: 16px;
+}
+
+#startBtn:active:not(:disabled) {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 #15803d, 0 4px 12px rgba(34,197,94,.2) !important;
+}
+
+@keyframes btnGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
       .btns{
@@ -3606,15 +3629,24 @@ linear-gradient(
 /* -------------------------
    TIMER HERO
 ------------------------- */
-#sec-timer .timer{
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(46px, 10vw, 68px);
+#sec-timer .timer {
+  font-size: clamp(52px, 12vw, 80px);
+  font-weight: 900;
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   line-height: 1;
-  letter-spacing: 1.5px;
-  font-weight: 950;
   text-align: center;
-  margin: 18px 0 8px;
-  color: #0f172a;
+  padding: 8px 0;
+}
+
+/* ตอน running ให้กลายเป็นสีเขียว */
+body.quest-running #sec-timer .timer {
+  background: linear-gradient(135deg, #059669, #22c55e);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 #sec-timer #timerHint,
@@ -3986,9 +4018,10 @@ linear-gradient(
   border-radius: 24px;
   padding: 18px 16px 14px;
   box-shadow:
-    0 1px 0 rgba(255,255,255,.9) inset,
-    0 10px 30px rgba(109,40,217,.10),
-    0 2px 6px rgba(15,23,42,.04);
+    0 0 0 1px rgba(15,23,42,.04),
+    0 2px 4px rgba(15,23,42,.04),
+    0 8px 24px rgba(15,23,42,.06),
+    0 24px 48px rgba(15,23,42,.04);
   border: 1px solid rgba(139,92,246,.12);
 }
  
@@ -4131,9 +4164,10 @@ linear-gradient(
   border-radius: 20px;
   padding: 16px 16px 14px;
   box-shadow:
-    0 1px 0 rgba(255,255,255,.9) inset,
-    0 8px 24px rgba(109,40,217,.09),
-    0 2px 6px rgba(15,23,42,.04);
+    0 0 0 1px rgba(15,23,42,.04),
+    0 2px 4px rgba(15,23,42,.04),
+    0 8px 24px rgba(15,23,42,.06),
+    0 24px 48px rgba(15,23,42,.04);
   border: 1px solid rgba(139,92,246,.12);
   position: relative;
   overflow: hidden;
@@ -7064,8 +7098,10 @@ input, textarea {
   padding: 12px 44px 12px 12px;
   margin-left: 10px;
   box-shadow:
-    0 1px 0 rgba(0,0,0,.04),
-    0 6px 18px rgba(0,0,0,.06);
+    0 0 0 1px rgba(15,23,42,.04),
+    0 2px 4px rgba(15,23,42,.04),
+    0 8px 24px rgba(15,23,42,.06),
+    0 24px 48px rgba(15,23,42,.04);
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -11547,6 +11583,8 @@ console.log("[GATE after gateMaybeLock]", {
   startedAt: gate.startedAt
 });
   function gateCanStartQuest(){
+    document.body.classList.add('quest-running')
+
   if(!isGateActiveToday()) return true;
   if(gate.passed || hasQuestAfterTodayTrigger()) return true;
 
@@ -12230,8 +12268,18 @@ function forceAutoStop(){
   if(!finalTs) return;
 
   const baseElapsed = Number(state.elapsedBefore || 0);
-  const lockedElapsed = Math.max(0, baseElapsed + (finalTs - startTs));
-  const minutes = Math.max(0, Math.round(lockedElapsed / 60000));
+  let lockedElapsed = Math.max(0, baseElapsed + (finalTs - startTs));
+
+if(state.pendingSegments.length === 0){
+  const totalMin = Math.round(lockedElapsed / 60000);
+  if(totalMin > RULES.baseCapPerQuestNamePerDay){
+    ensureFlowMetaForCurrentQuest();
+    const splitResult = buildPendingSegmentsFromStoppedFlow(totalMin);
+    if(splitResult) lockedElapsed = splitResult.currentMinutes * 60000;
+  }
+}
+
+const minutes = Math.max(0, Math.round(lockedElapsed / 60000));
   const dateKey = state.startDateKey || localDateKey();
 
   state.flowBaseName = state.flowBaseName || normQuestName(state.questName || "");
@@ -14193,6 +14241,8 @@ function pauseQuest(){
 
   function stopQuest(){
 
+    document.body.classList.remove('quest-running')
+
   if(!(state.status==="running" || state.status==="paused")) return;
 
  if(!isCurrentTabMasterNow()){
@@ -14201,9 +14251,18 @@ function pauseQuest(){
 }
 
   const now = Date.now();
-  const elapsed = (state.status==="running") ? computeElapsedMs(now) : state.elapsedBefore;
+  let elapsed = (state.status==="running") ? computeElapsedMs(now) : state.elapsedBefore;
 
-  const minutes = Math.max(0, Math.round(elapsed / 60000));
+if(state.pendingSegments.length === 0){
+  const totalMin = Math.round(elapsed / 60000);
+  if(totalMin > RULES.baseCapPerQuestNamePerDay){
+    ensureFlowMetaForCurrentQuest();
+    const splitResult = buildPendingSegmentsFromStoppedFlow(totalMin);
+    if(splitResult) elapsed = splitResult.currentMinutes * 60000;
+  }
+}
+
+const minutes = Math.max(0, Math.round(elapsed / 60000));
 const dateKey = state.startDateKey || localDateKey();
 
 state.flowBaseName = state.flowBaseName || normQuestName(state.questName || "");
@@ -14248,6 +14307,9 @@ updateCapHint(dateKey, state.questName);
 }
 
  function discardReport(){
+
+  document.body.classList.remove('quest-running')
+
   state.status="idle";
   state.startTs=null;
   state.elapsedBefore=0;
@@ -14296,7 +14358,9 @@ if(isGateActiveToday() && gate.awaitingGateResult){
     clearSubmitMessages();
 
     const minutes = Math.max(0, Math.round((state.lastElapsedMs || 0) / 60000));
-    if(!Number.isFinite(minutes) || minutes <= 0){
+  const pendingHasData = Array.isArray(state.pendingSegments) && state.pendingSegments.length > 0;
+
+if(!Number.isFinite(minutes) || (minutes <= 0 && !pendingHasData)){
   if(el.submitWarn){
     el.submitWarn.style.display="block";
     el.submitWarn.textContent="Minutes ต้อง > 0";
@@ -16605,7 +16669,6 @@ document.getElementById("homeRunPauseBtn")?.addEventListener("click", ()=>{
     return;
   }
   if(state.status === "paused"){
-    window.homeRunEndTs = Date.now() + (homeRunPausedRemain || 0);
     homeRunPausedRemain = null;
 
     el.resumeBtn?.click();
