@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SakuraQ">
 
-<link rel="apple-touch-icon" href="./logo-192.png">
+<link rel="apple-touch-icon" href="./logo-192-maskable.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -907,9 +907,10 @@ input[readonly]{
   font-weight: 800;
   cursor:pointer;
   color: white;
-background: var(--accent);  box-shadow:
-0 6px 14px rgba(34,197,94,.18),
-inset 0 1px 0 rgba(255,255,255,.25);
+background: var(--accent);
+box-shadow:
+  0 4px 12px rgba(0,0,0,.12),
+  inset 0 1px 0 rgba(255,255,255,.25);
 
   transition:
     transform .08s ease,
@@ -1481,10 +1482,20 @@ button.danger:active:not(:disabled){
   transition: none !important;
 }
 
+/* ลูกเต๋าถูกจับ: ลอยขึ้น + สั่น */
+.diceFab.dragging .diceBtn {
+  transform: translateY(-10px) scale(1.07);
+  box-shadow:
+    0 36px 60px rgba(2,6,23,.22),
+    0 18px 28px rgba(2,6,23,.14),
+    inset 0 2px 6px rgba(255,255,255,.9),
+    inset 0 -6px 12px rgba(2,6,23,.06);
+  animation: diceGrabWiggle .50s ease-in-out infinite;
+}
 
-
-.diceFab.dragging{
-  transition: none !important;
+@keyframes diceGrabWiggle {
+  0%, 100% { transform: translateY(-10px) scale(1.07) rotate(-2.5deg); }
+  50%      { transform: translateY(-10px) scale(1.07) rotate(2.5deg); }
 }
 
 .diceBtn{
@@ -2575,6 +2586,10 @@ background-size: 200% 100%;
 
 #homeScene.page-active{
   display:flex;
+  position:absolute;
+  inset:0;
+  height:100%;
+  overflow:hidden;
 }
 
 /* =========================
@@ -8208,6 +8223,30 @@ input, textarea {
   100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) scale(.2); }
 }
 
+/* ===== RESET TODAY: hover → solid red ===== */
+#todayPage .tpResetSection:hover,
+#todayPage .tpResetSection:active {
+  background: linear-gradient(160deg,#ef4444,#dc2626) !important;
+  border-color: rgba(220,38,38,.55) !important;
+  box-shadow: 0 8px 28px rgba(239,68,68,.38), inset 0 1px 0 rgba(255,255,255,.18) !important;
+  transform: translateY(-1px);
+}
+#todayPage .tpResetSection:active {
+  transform: scale(.98) translateY(0) !important;
+  box-shadow: 0 4px 14px rgba(239,68,68,.28) !important;
+}
+#todayPage .tpResetSection:hover .tpResetTitle,
+#todayPage .tpResetSection:active .tpResetTitle { color:#fff !important; }
+#todayPage .tpResetSection:hover .tpResetDesc,
+#todayPage .tpResetSection:active .tpResetDesc  { color:rgba(255,255,255,.72) !important; }
+#todayPage .tpResetSection:hover .tpTrashIcon::before,
+#todayPage .tpResetSection:active .tpTrashIcon::before { border-color:#fff !important; }
+#todayPage .tpResetSection:hover .tpTrashIcon::after,
+#todayPage .tpResetSection:active .tpTrashIcon::after {
+  background:#fff !important;
+  box-shadow: 5px -4px 0 -1px #fff, -1px -4px 0 -1px #fff !important;
+}
+
 /* ===== ROOM-BG: TODAY + HISTORY ===== */
 /* ภาพห้องเป็นฉากหลัง + overlay กึ่งโปร่งใสลด vivid */
 #todayPage,
@@ -9494,6 +9533,30 @@ input, textarea {
       <div style="font-size:10px;font-weight:800;letter-spacing:5px;color:rgba(252,165,165,0.7);text-transform:uppercase;margin-bottom:8px;font-family:system-ui,sans-serif;">Morning Gate</div>
       <div style="font-size:42px;font-weight:900;color:#fff;letter-spacing:4px;line-height:1;font-family:system-ui,sans-serif;text-shadow:0 0 50px rgba(239,68,68,0.9),0 2px 4px rgba(0,0,0,0.5);">LOCKED</div>
       <div style="font-size:13px;color:rgba(255,255,255,0.42);margin-top:12px;font-weight:500;font-family:system-ui,sans-serif;letter-spacing:0.3px;">ไม่ได้เริ่มเควสทันก่อนหมดเวลา</div>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Today Confirm Modal -->
+<div id="reset-confirm-modal" style="display:none;position:fixed;inset:0;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,0.68);backdrop-filter:blur(8px);">
+  <div style="width:min(320px,88vw);background:linear-gradient(145deg,#1a0606 0%,#2d0b0b 100%);border:1px solid rgba(239,68,68,0.26);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.05);overflow:hidden;">
+    <div style="padding:30px 24px 18px;text-align:center;">
+      <!-- CSS trash can icon -->
+      <div style="display:inline-block;position:relative;width:42px;height:46px;margin-bottom:20px;">
+        <div style="position:absolute;top:-9px;left:11px;right:11px;height:8px;border:3.5px solid #f87171;border-bottom:none;border-radius:4px 4px 0 0;"></div>
+        <div style="position:absolute;top:0;left:-5px;right:-5px;height:5px;background:linear-gradient(180deg,#ef4444,#dc2626);border-radius:3px;box-shadow:0 2px 6px rgba(239,68,68,.4);"></div>
+        <div style="position:absolute;top:8px;left:3px;right:3px;bottom:0;border:3.5px solid #ef4444;border-top:none;border-radius:0 0 7px 7px;"></div>
+        <div style="position:absolute;top:15px;left:50%;width:2.5px;bottom:6px;background:rgba(239,68,68,.45);border-radius:2px;transform:translateX(-50%);"></div>
+        <div style="position:absolute;top:15px;left:calc(50% - 8px);width:2.5px;bottom:6px;background:rgba(239,68,68,.45);border-radius:2px;"></div>
+        <div style="position:absolute;top:15px;left:calc(50% + 6px);width:2.5px;bottom:6px;background:rgba(239,68,68,.45);border-radius:2px;"></div>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#fff;font-family:system-ui,sans-serif;margin-bottom:6px;letter-spacing:0.2px;">Reset Today</div>
+      <div id="rcm-date" style="display:inline-block;font-size:10px;font-weight:700;color:rgba(252,165,165,0.6);letter-spacing:2px;text-transform:uppercase;font-family:system-ui,sans-serif;margin-bottom:14px;padding:3px 10px;background:rgba(239,68,68,.1);border-radius:999px;">—</div>
+      <div style="font-size:13px;color:rgba(255,195,195,0.7);line-height:1.6;font-family:system-ui,sans-serif;font-weight:500;">รายการเควสทั้งหมดจะถูกลบออก<br><span style="color:rgba(255,255,255,0.32);font-size:12px;">คุณแน่ใจแล้วใช่ไหม?</span></div>
+    </div>
+    <div style="padding:0 20px 22px;display:flex;gap:9px;">
+      <button id="rcm-cancel" style="flex:1;padding:12px 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:11px;color:rgba(255,255,255,0.52);font-size:14px;font-weight:600;cursor:pointer;font-family:system-ui,sans-serif;transition:background .14s;">ยกเลิก</button>
+      <button id="rcm-confirm" style="flex:2;padding:12px 0;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:system-ui,sans-serif;box-shadow:0 4px 16px rgba(220,38,38,.44);letter-spacing:0.3px;transition:filter .14s;">Reset</button>
     </div>
   </div>
 </div>
@@ -11631,6 +11694,7 @@ saveAll(all);
  function gateCheckFirstQuestQualify(){
   if(!isGateActiveToday()) return;
   if(gate.passed) return;
+  if(gate.unlocked) return;
   if(state.status !== "running") return;
 
   // quest กำลัง running อยู่แต่ gate เพิ่ง trigger (เควสเริ่มก่อน gate) = ตั้ง firstQuestStartAt อัตโนมัติ
@@ -14511,21 +14575,21 @@ clearReportFormFields();
   }
 
   function resetToday(){
-    const todayKey = localDateKey();
-    const ok = confirm(`Reset วันนี้ (${todayKey})? รายการวันนี้จะหายหมด`);
-    if(!ok) return;
+    showResetConfirmModal(() => {
+      const todayKey = localDateKey();
+      pushUndoSnapshot();
+      const all = loadAll();
+      all.days[todayKey] = { totalQps:0, quests:[] };
+      saveAll(all);
 
-    pushUndoSnapshot();
-    const all = loadAll();
-all.days[todayKey] = { totalQps:0, quests:[] };
-saveAll(all);
+      gateResetForToday(true);
+      syncGateRuntimeFromCfg();
 
-    gateResetForToday(true);
-    syncGateRuntimeFromCfg();
-
-    updateStreakAfterChange();
-    updateUI();
-    showTimerWarn("เคลียร์ข้อมูลวันนี้แล้ว");
+      updateStreakAfterChange();
+      updateUI();
+      renderTodayPage();
+      showTimerWarn("เคลียร์ข้อมูลวันนี้แล้ว");
+    });
   }
 
   /* =========================
@@ -18655,6 +18719,38 @@ const iconHtml = getTpIconHtml(item.category, item.questName);
       </div>
     `;
   }).join('');
+}
+
+function showResetConfirmModal(onConfirm) {
+  const modal = document.getElementById("reset-confirm-modal");
+  const dateEl = document.getElementById("rcm-date");
+  const confirmBtn = document.getElementById("rcm-confirm");
+  const cancelBtn = document.getElementById("rcm-cancel");
+
+  if (dateEl) dateEl.textContent = localDateKey();
+  modal.style.display = "flex";
+
+  function doConfirm() { close(); onConfirm(); }
+  function doCancel() { close(); }
+
+  function close() {
+    modal.style.display = "none";
+    confirmBtn.removeEventListener("click", doConfirm);
+    cancelBtn.removeEventListener("click", doCancel);
+    modal.removeEventListener("click", onOverlay);
+    document.removeEventListener("keydown", onKey);
+  }
+
+  function onOverlay(e) { if (e.target === modal) doCancel(); }
+  function onKey(e) {
+    if (e.key === "Enter") doConfirm();
+    if (e.key === "Escape") doCancel();
+  }
+
+  confirmBtn.addEventListener("click", doConfirm);
+  cancelBtn.addEventListener("click", doCancel);
+  modal.addEventListener("click", onOverlay);
+  document.addEventListener("keydown", onKey);
 }
 
 function showGateUnlockModal(onConfirm) {
