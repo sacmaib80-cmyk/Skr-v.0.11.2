@@ -1,0 +1,22 @@
+{
+  "appId": "com.sacmaib80.sakuraq",
+  "appName": "SakuraQ",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#5b6af0",
+      "sound": "beep.wav"
+    },
+    "StatusBar": {
+      "style": "light",
+      "backgroundColor": "#5b6af0"
+    }
+  }
+}

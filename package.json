@@ -1,0 +1,24 @@
+{
+  "name": "sakuraq",
+  "version": "0.13.1",
+  "description": "SakuraQ - Quest & habit tracker",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo no build step needed",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npx cap open android",
+    "cap:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}
