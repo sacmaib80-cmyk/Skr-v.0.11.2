@@ -6176,11 +6176,12 @@ body.in-app-browser #authGate{
 
 
 .homeHeroPanel{ z-index:5 !important; }
-.roomDesk,.roomShelf,.roomParticles,.roomFloor{ z-index:1 !important; }
+.roomDesk,.roomShelf,.roomParticles,.roomFloor{ display:none !important; }
 .foxMascot{ z-index:20 !important; }
 
+/* ฉากหลังห้องใหม่ */
 .roomScene {
-  background: url('./room-light.png') center center / cover no-repeat !important;
+  background: url('./room-bg.png') center bottom / cover no-repeat !important;
 }
 
 .roomWall,
@@ -6199,6 +6200,14 @@ body.in-app-browser #authGate{
 .roomScene::before,
 .roomScene::after{
   display:none !important;
+}
+
+
+/* hero panel ปรับให้ดูดีบนพื้นหลังม่วง */
+.homeHeroPanel{
+  left: 5% !important;
+  top: 28px !important;
+  width: min(88%, 330px) !important;
 }
 
 .homeStartQuestBtn span{
@@ -6871,7 +6880,7 @@ input, textarea {
 
 .tpQuestItem {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 6px 0;
   position: relative;
 }
@@ -6881,7 +6890,6 @@ input, textarea {
   font-size: 10px;
   font-weight: 700;
   color: #94a3b8;
-  padding-top: 18px;
   text-align: center;
   z-index: 1;
   line-height: 1.2;
@@ -6890,8 +6898,8 @@ input, textarea {
 .tpQuestDotCol {
   width: 20px; flex: 0 0 20px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding-top: 21px;
   z-index: 1;
 }
 
@@ -6917,7 +6925,7 @@ input, textarea {
     0 8px 24px rgba(15,23,42,.06),
     0 24px 48px rgba(15,23,42,.04);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   position: relative;
   transition: box-shadow .16s ease;
@@ -8200,6 +8208,35 @@ input, textarea {
   100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) scale(.2); }
 }
 
+/* ===== ROOM-BG: TODAY + HISTORY ===== */
+/* ภาพห้องเป็นฉากหลัง + overlay กึ่งโปร่งใสลด vivid */
+#todayPage,
+#historyPage {
+  background:
+    linear-gradient(
+      rgba(255,253,255,0.72),
+      rgba(250,247,255,0.75)
+    ),
+    url('./room-bg.png') top center / cover no-repeat !important;
+  background-color: #f5f3ff !important;
+}
+
+/* ยก shadow การ์ดทุกใบให้โดดขึ้นจาก bg */
+#todayPage .tpHeroCard,
+#todayPage .tpQuestCard,
+#todayPage .tpResetSection,
+#historyPage .hpHeroCard,
+#historyPage .hpWeekCard,
+#historyPage .hpQuestLog,
+#historyPage .hpBarCard,
+#historyPage [class*="hpCard"],
+#historyPage [class*="hpSection"] {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.95) inset,
+    0 8px 28px rgba(109,40,217,0.13),
+    0 2px 8px rgba(15,23,42,0.08) !important;
+}
+
 </style>
 </head>
 <body>
@@ -8268,9 +8305,6 @@ input, textarea {
     <span class="homeStartArrow">›</span>
   </button>
 </div>
-<img class="roomDesk" src="./desk.png" alt="">
-<img class="roomShelf" src="./shelf.png" alt="">
-<div class="roomParticles"></div>
         <video
   class="foxMascot"
   autoplay
@@ -9432,16 +9466,63 @@ input, textarea {
   </div>
 </div>
 
-<div id="lk-ov" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:9999; opacity:0;">
-  <div id="lk-scene" style="position:relative; width:200px; height:200px;">
-    <div id="lk-glow" style="position:absolute; top:17px; left:17px; right:17px; bottom:17px; border-radius:50%; opacity:0;"></div>
-    <div id="lk-al" style="position:absolute; width:83px; height:166px; top:17px; right:50%; border:3.5px solid #e53e3e; border-right:none; border-radius:83px 0 0 83px; opacity:0; transform:translateX(-130px);"></div>
-    <div id="lk-ar" style="position:absolute; width:83px; height:166px; top:17px; left:50%; border:3.5px solid #e53e3e; border-left:none; border-radius:0 83px 83px 0; opacity:0; transform:translateX(130px);"></div>
-    <div id="lk-pad" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.3); opacity:0; display:flex; flex-direction:column; align-items:center;">
-      <div id="lk-shk" style="width:36px; height:26px; border:5px solid #e53e3e; border-bottom:none; border-radius:18px 18px 0 0; transform:translateY(-18px); position:relative; z-index:1;"></div>
-      <div style="width:60px; height:48px; background:#e53e3e; border-radius:9px; position:relative; z-index:2;">
-        <div style="position:absolute; width:13px; height:13px; background:rgba(0,0,0,0.38); border-radius:50%; top:10px; left:50%; transform:translateX(-50%);"></div>
-        <div style="position:absolute; width:6px; height:11px; background:rgba(0,0,0,0.38); border-radius:0 0 3px 3px; top:21px; left:50%; transform:translateX(-50%);"></div>
+<div id="lk-ov" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:9999;opacity:0;">
+  <!-- radial red backdrop -->
+  <div id="lk-bg" style="position:absolute;inset:0;background:radial-gradient(ellipse 72% 58% at 50% 46%,rgba(127,29,29,0.6) 0%,transparent 72%);opacity:0;pointer-events:none;"></div>
+
+  <div id="lk-scene" style="position:relative;display:flex;flex-direction:column;align-items:center;">
+    <!-- glow orb -->
+    <div id="lk-glow" style="position:absolute;width:230px;height:230px;border-radius:50%;top:-28px;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none;"></div>
+
+    <!-- padlock -->
+    <div id="lk-pad" style="display:flex;flex-direction:column;align-items:center;opacity:0;transform:scale(0.32) translateY(50px);">
+      <!-- shackle arc -->
+      <div id="lk-shk" style="width:72px;height:50px;border:8px solid #f87171;border-bottom:none;border-radius:36px 36px 0 0;transform:translateY(7px);position:relative;z-index:1;box-sizing:border-box;filter:drop-shadow(0 -4px 12px rgba(248,113,113,0.5));"></div>
+      <!-- body -->
+      <div style="width:112px;height:90px;background:linear-gradient(148deg,#ef4444 0%,#991b1b 55%,#7f1d1d 100%);border-radius:20px;position:relative;z-index:2;box-shadow:0 16px 48px rgba(239,68,68,0.45),0 4px 12px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -3px 0 rgba(0,0,0,0.25);">
+        <!-- highlight strip -->
+        <div style="position:absolute;top:0;left:14px;right:14px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);border-radius:2px;"></div>
+        <!-- keyhole circle -->
+        <div style="position:absolute;width:22px;height:22px;background:rgba(0,0,0,0.5);border-radius:50%;top:20px;left:50%;transform:translateX(-50%);box-shadow:inset 0 3px 6px rgba(0,0,0,0.6);"></div>
+        <!-- keyhole slot -->
+        <div style="position:absolute;width:10px;height:18px;background:rgba(0,0,0,0.5);border-radius:0 0 5px 5px;top:40px;left:50%;transform:translateX(-50%);"></div>
+      </div>
+    </div>
+
+    <!-- text -->
+    <div id="lk-txt" style="margin-top:34px;text-align:center;opacity:0;transform:translateY(22px);">
+      <div style="font-size:10px;font-weight:800;letter-spacing:5px;color:rgba(252,165,165,0.7);text-transform:uppercase;margin-bottom:8px;font-family:system-ui,sans-serif;">Morning Gate</div>
+      <div style="font-size:42px;font-weight:900;color:#fff;letter-spacing:4px;line-height:1;font-family:system-ui,sans-serif;text-shadow:0 0 50px rgba(239,68,68,0.9),0 2px 4px rgba(0,0,0,0.5);">LOCKED</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.42);margin-top:12px;font-weight:500;font-family:system-ui,sans-serif;letter-spacing:0.3px;">ไม่ได้เริ่มเควสทันก่อนหมดเวลา</div>
+    </div>
+  </div>
+</div>
+
+<!-- Morning Gate Unlock Modal -->
+<div id="gate-unlock-modal" style="display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);">
+  <div style="width:min(340px,90vw);background:linear-gradient(145deg,#1a0a0a 0%,#2d0f0f 100%);border:1px solid rgba(239,68,68,0.28);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 0 1px rgba(239,68,68,0.08),inset 0 1px 0 rgba(255,255,255,0.06);overflow:hidden;">
+    <div style="padding:18px 20px 14px;border-bottom:1px solid rgba(239,68,68,0.14);background:linear-gradient(135deg,rgba(127,29,29,0.4),rgba(153,27,27,0.2));">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;background:linear-gradient(135deg,#ef4444,#991b1b);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(239,68,68,0.45);flex-shrink:0;">🔓</div>
+        <div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:4px;color:rgba(252,165,165,0.55);text-transform:uppercase;font-family:system-ui,sans-serif;">Morning Gate</div>
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-top:1px;font-family:system-ui,sans-serif;">Unlock Gate</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:18px 20px 20px;">
+      <div style="font-size:11px;color:rgba(252,165,165,0.65);font-weight:600;letter-spacing:0.4px;margin-bottom:8px;font-family:system-ui,sans-serif;">เหตุผล <span style="color:rgba(255,255,255,0.28);font-weight:400;">— โบนัสจะถูกตัด</span></div>
+      <div style="position:relative;">
+        <input id="gate-unlock-input" type="text" maxlength="60"
+          placeholder="เช่น นอนหลับเกิน, ลืมเปิดแอพ..."
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(239,68,68,0.22);border-radius:10px;padding:11px 46px 11px 13px;color:#fff;font-size:14px;outline:none;font-family:system-ui,sans-serif;transition:border-color 0.18s;"
+          onfocus="this.style.borderColor='rgba(239,68,68,0.6)'"
+          onblur="this.style.borderColor='rgba(239,68,68,0.22)'">
+        <div id="gate-unlock-count" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(255,255,255,0.28);pointer-events:none;font-family:system-ui,sans-serif;font-variant-numeric:tabular-nums;">0/60</div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:13px;">
+        <button id="gate-unlock-cancel" style="flex:1;padding:11px 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;font-family:system-ui,sans-serif;">ยกเลิก</button>
+        <button id="gate-unlock-confirm" style="flex:2;padding:11px 0;background:linear-gradient(135deg,#dc2626,#991b1b);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:system-ui,sans-serif;box-shadow:0 4px 14px rgba(220,38,38,0.38);letter-spacing:0.2px;">Unlock</button>
       </div>
     </div>
   </div>
@@ -11386,6 +11467,15 @@ function gateIsWorldActiveNow(){
 
   // เลย deadline แล้ว
   if(!gate.startedInTime){
+    // ถ้า quest กำลัง running = ถือว่าเริ่มทัน รอ submit ก่อน ห้ามล็อกทันที
+    if(state.status === "running"){
+      gate.startedInTime = true;
+      gate.awaitingGateResult = true;
+      if(!gate.firstQuestStartAt) gate.firstQuestStartAt = start;
+      if(!gate.startedAt) gate.startedAt = start;
+      saveGate("gateMaybeLock:quest-running-at-deadline");
+      return;
+    }
     if(!gate.locked || gate.awaitingGateResult){
       gate.locked = true;
       gate.awaitingGateResult = false;
@@ -11400,7 +11490,7 @@ function gateIsWorldActiveNow(){
     gate.locked = false;
     gate.awaitingGateResult = true;
     saveGate("gateMaybeLock:deadline-await-result");
-    showLock();
+    if(state.status !== "running") showLock();
   }
 }
 console.log("[GATE after gateMaybeLock]", {
@@ -11498,13 +11588,7 @@ console.log("[GATE after gateMaybeLock]", {
     if(gate.bonusGranted) return;
     if(!gate.passed) return;
 
-    const now = Date.now();
-    const deadline = gateWorldDeadlineTs();
-    if(!deadline) return;
-
-    const withinDeadline = now <= deadline;
     const blockedByUnlock = gate.unlocked === true;
-    if(!withinDeadline) return;
     if(blockedByUnlock) return;
 
     const todayKey = localDateKey();
@@ -11547,8 +11631,21 @@ saveAll(all);
  function gateCheckFirstQuestQualify(){
   if(!isGateActiveToday()) return;
   if(gate.passed) return;
-  if(!gate.firstQuestStartAt) return;
   if(state.status !== "running") return;
+
+  // quest กำลัง running อยู่แต่ gate เพิ่ง trigger (เควสเริ่มก่อน gate) = ตั้ง firstQuestStartAt อัตโนมัติ
+  if(!gate.firstQuestStartAt){
+    const triggerTs = gateWorldStartTs();
+    if(triggerTs && Date.now() >= triggerTs){
+      gate.firstQuestStartAt = triggerTs;
+      gate.startedInTime = true;
+      gate.awaitingGateResult = true;
+      if(!gate.startedAt) gate.startedAt = triggerTs;
+      saveGate("gateCheckFirstQuestQualify:auto-set-running-at-trigger");
+    } else {
+      return;
+    }
+  }
 
   const msSinceFirstQuest = Date.now() - Number(gate.firstQuestStartAt || 0);
 
@@ -11817,6 +11914,18 @@ if(!gate.locked && gate.unlocked && !gate.passed){
     if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • LOCKED";
     if(el.gateTopSub) el.gateTopSub.textContent = "ไม่เริ่มเควสแรกให้ทันก่อนหมดเวลา";
     if(el.gateTopTime) el.gateTopTime.textContent = "LOCK";
+    if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+    return;
+  }
+
+  // quest กำลัง running หลัง deadline = ยังคงดำเนินต่อ
+  if(gate.awaitingGateResult && state.status === "running"){
+    hideGateCover();
+    showGateTopBar();
+    el.gateTopBar?.classList.remove("done");
+    if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate • ยังคงดำเนินต่อ";
+    if(el.gateTopSub) el.gateTopSub.textContent = "Quest กำลังวิ่งอยู่ • Submit เพื่อ PASS";
+    if(el.gateTopTime) el.gateTopTime.textContent = "GO";
     if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
     return;
   }
@@ -14344,6 +14453,7 @@ if(isGateActiveToday() && gate.awaitingGateResult){
     gate.awaitingGateResult = false;
     saveGate();
 
+    gateGrantBonusIfEligible();
     syncGateRuntimeFromCfg();
     gateEnforceStartButton();
     renderGateUX();
@@ -15338,24 +15448,21 @@ on(el.gateTopOpenBtn, "click", ()=>{
   if(!isGateActiveToday()) return;
 
   if(gate.locked && !gate.unlocked){
-    const reason = prompt("Unlock Reason (สั้นๆ แต่จริง):", "");
-    if(reason && reason.trim()){
+    showGateUnlockModal((reason) => {
       gate.dateKey = localDateKey();
       gate.unlocked = true;
       gate.locked = false;
       gate.passed = false;
       gate.startedInTime = false;
       gate.awaitingGateResult = false;
-      gate.unlockReason = reason.trim();
+      gate.unlockReason = reason;
       gate.bonusGranted = true; // unlock = ตัดโบนัส
 
       saveGate("manualUnlock");
       gateEnforceStartButton();
       renderGateUX();
       showTimerWarn("Unlock ✅ (Bonus ถูกตัด)");
-    }else{
-      showTimerWarn("ต้องใส่เหตุผลก่อน");
-    }
+    });
     return;
   }
 
@@ -18519,7 +18626,7 @@ const iconHtml = getTpIconHtml(item.category, item.questName);
       <div class="tpQuestItem">
         <div class="tpQuestTimeCol">${escapeHtml(timeStr)}</div>
         <div class="tpQuestDotCol"><div class="tpQuestDotInner"></div></div>
-        <<div class="tpQuestCard${isGate?' gateCard':''}">
+        <div class="tpQuestCard${isGate?' gateCard':''}">
           <div class="tpQuestIconBox ${boxClass}">${iconHtml}</div>
           <div class="tpQuestInfo">
             <div class="tpQuestNameRow">
@@ -18550,52 +18657,166 @@ const iconHtml = getTpIconHtml(item.category, item.questName);
   }).join('');
 }
 
+function showGateUnlockModal(onConfirm) {
+  const modal = document.getElementById("gate-unlock-modal");
+  const input = document.getElementById("gate-unlock-input");
+  const countEl = document.getElementById("gate-unlock-count");
+  const confirmBtn = document.getElementById("gate-unlock-confirm");
+  const cancelBtn = document.getElementById("gate-unlock-cancel");
+
+  input.value = "";
+  countEl.textContent = "0/60";
+  modal.style.display = "flex";
+  setTimeout(() => input.focus(), 80);
+
+  function onInput() {
+    const len = input.value.length;
+    countEl.textContent = `${len}/60`;
+    countEl.style.color = len >= 50 ? "rgba(252,165,165,0.7)" : "rgba(255,255,255,0.28)";
+  }
+
+  function shake() {
+    input.style.transform = "translateX(-5px)";
+    setTimeout(() => { input.style.transform = "translateX(5px)"; }, 80);
+    setTimeout(() => { input.style.transform = ""; }, 160);
+    input.style.borderColor = "#ef4444";
+    setTimeout(() => { input.style.borderColor = "rgba(239,68,68,0.22)"; }, 900);
+  }
+
+  function doConfirm() {
+    const val = input.value.trim();
+    if (!val) { shake(); return; }
+    close();
+    onConfirm(val);
+  }
+
+  function doCancel() { close(); }
+
+  function close() {
+    modal.style.display = "none";
+    input.removeEventListener("input", onInput);
+    confirmBtn.removeEventListener("click", doConfirm);
+    cancelBtn.removeEventListener("click", doCancel);
+    modal.removeEventListener("click", onOverlayClick);
+    document.removeEventListener("keydown", onKeyDown);
+  }
+
+  function onOverlayClick(e) { if (e.target === modal) doCancel(); }
+
+  function onKeyDown(e) {
+    if (e.key === "Enter") doConfirm();
+    if (e.key === "Escape") doCancel();
+  }
+
+  input.addEventListener("input", onInput);
+  confirmBtn.addEventListener("click", doConfirm);
+  cancelBtn.addEventListener("click", doCancel);
+  modal.addEventListener("click", onOverlayClick);
+  document.addEventListener("keydown", onKeyDown);
+}
+
 function showLock() {
-  var ov=document.getElementById('lk-ov'),
-      gl=document.getElementById('lk-glow'),
-      al=document.getElementById('lk-al'),
-      ar=document.getElementById('lk-ar'),
-      pd=document.getElementById('lk-pad'),
-      sk=document.getElementById('lk-shk');
+  const ov  = document.getElementById('lk-ov');
+  const bg  = document.getElementById('lk-bg');
+  const gl  = document.getElementById('lk-glow');
+  const pd  = document.getElementById('lk-pad');
+  const sk  = document.getElementById('lk-shk');
+  const txt = document.getElementById('lk-txt');
   if(!ov) return;
 
-  [ov,gl,al,ar,pd,sk].forEach(function(e){ if(e) e.style.transition='none'; });
-  ov.style.opacity='1';
-  if(al){ al.style.transform='translateX(-130px)'; al.style.opacity='0'; }
-  if(ar){ ar.style.transform='translateX(130px)';  ar.style.opacity='0'; }
-  if(pd){ pd.style.transform='translate(-50%,-50%) scale(0.3)'; pd.style.opacity='0'; }
-  if(sk){ sk.style.transform='translateY(-18px)'; }
-  if(gl){ gl.style.opacity='0'; gl.style.boxShadow='none'; }
+  // Reset to initial state
+  [ov,bg,gl,pd,sk,txt].forEach(e => { if(e) e.style.transition = 'none'; });
+  ov.style.opacity = '0';
+  ov.style.background = 'rgba(0,0,0,0)';
+  ov.style.backdropFilter = 'blur(0px)';
+  ov.style.webkitBackdropFilter = 'blur(0px)';
+  ov.style.pointerEvents = 'all';
+  if(bg)  { bg.style.opacity = '0'; }
+  if(gl)  { gl.style.opacity = '0'; gl.style.boxShadow = 'none'; }
+  if(pd)  { pd.style.opacity = '0'; pd.style.transform = 'scale(0.32) translateY(50px)'; }
+  if(sk)  { sk.style.transform = 'translateY(7px)'; }
+  if(txt) { txt.style.opacity = '0'; txt.style.transform = 'translateY(22px)'; }
   void ov.offsetHeight;
 
-  var t=function(ms,fn){ setTimeout(fn,ms); };
-  t(80,function(){
-    if(al){ al.style.transition='transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.35s'; al.style.transform='translateX(0)'; al.style.opacity='1'; }
-    if(ar){ ar.style.transition='transform 0.85s cubic-bezier(0.22,1,0.36,1), opacity 0.35s'; ar.style.transform='translateX(0)'; ar.style.opacity='1'; }
+  const t = (ms, fn) => setTimeout(fn, ms);
+
+  // ── Phase 1: Backdrop fades in (dark + blur)
+  t(0, () => {
+    ov.style.transition = 'opacity 0.5s ease, background 0.65s ease, backdrop-filter 0.65s ease, -webkit-backdrop-filter 0.65s ease';
+    ov.style.opacity = '1';
+    ov.style.background = 'rgba(0,0,0,0.92)';
+    ov.style.backdropFilter = 'blur(14px)';
+    ov.style.webkitBackdropFilter = 'blur(14px)';
+    if(bg){ bg.style.transition = 'opacity 0.9s ease'; bg.style.opacity = '1'; }
   });
-  t(1100,function(){
-    if(pd){ pd.style.transition='all 0.4s cubic-bezier(0.34,1.56,0.64,1)'; pd.style.opacity='1'; pd.style.transform='translate(-50%,-50%) scale(1)'; }
+
+  // ── Phase 2: Padlock drops in with spring
+  t(320, () => {
+    if(pd){
+      pd.style.transition = 'opacity 0.38s ease, transform 0.6s cubic-bezier(0.34,1.28,0.64,1)';
+      pd.style.opacity = '1';
+      pd.style.transform = 'scale(1) translateY(0)';
+    }
   });
-  t(1620,function(){
-    if(sk){ sk.style.transition='transform 0.2s cubic-bezier(0.4,0,0.6,1)'; sk.style.transform='translateY(3px)'; }
+
+  // ── Phase 3: Shackle snaps shut (2-stage: compress → bounce)
+  t(1020, () => {
+    if(sk){ sk.style.transition = 'transform 0.13s cubic-bezier(0.55,0,1,0.45)'; sk.style.transform = 'translateY(0) scaleY(0.68)'; }
   });
-  t(1840,function(){
-    if(sk){ sk.style.transition='transform 0.13s ease-out'; sk.style.transform='translateY(0)'; }
+  t(1150, () => {
+    if(sk){ sk.style.transition = 'transform 0.18s cubic-bezier(0.34,1.6,0.64,1)'; sk.style.transform = 'translateY(0) scaleY(1)'; }
   });
-  t(2050,function(){
-    if(gl){ gl.style.transition='all 0.55s ease-out'; gl.style.opacity='1'; gl.style.boxShadow='0 0 65px 32px rgba(229,62,62,0.48)'; }
+
+  // ── Phase 4: Impact glow burst on snap
+  t(1020, () => {
+    if(gl){
+      gl.style.transition = 'opacity 0.15s ease-out, box-shadow 0.15s ease-out';
+      gl.style.opacity = '1';
+      gl.style.boxShadow = '0 0 110px 55px rgba(239,68,68,0.7)';
+    }
   });
-  t(2700,function(){
-    if(gl){ gl.style.transition='all 0.45s ease-in'; gl.style.opacity='0'; gl.style.boxShadow='none'; }
+  t(1380, () => {
+    if(gl){
+      gl.style.transition = 'opacity 0.55s ease-in, box-shadow 0.55s ease-in';
+      gl.style.opacity = '0.12';
+      gl.style.boxShadow = '0 0 18px 4px rgba(239,68,68,0.12)';
+    }
   });
-  t(3050,function(){
-    if(gl){ gl.style.transition='all 0.45s ease-out'; gl.style.opacity='0.8'; gl.style.boxShadow='0 0 65px 32px rgba(229,62,62,0.38)'; }
+
+  // ── Phase 5: Text rises up
+  t(1150, () => {
+    if(txt){
+      txt.style.transition = 'opacity 0.5s ease, transform 0.58s cubic-bezier(0.34,1.12,0.64,1)';
+      txt.style.opacity = '1';
+      txt.style.transform = 'translateY(0)';
+    }
   });
-  t(3650,function(){
-    if(gl){ gl.style.transition='all 0.45s ease-in'; gl.style.opacity='0'; gl.style.boxShadow='none'; }
+
+  // ── Phase 6: Second heartbeat glow pulse
+  t(2250, () => {
+    if(gl){
+      gl.style.transition = 'opacity 0.26s ease-out, box-shadow 0.26s ease-out';
+      gl.style.opacity = '0.6';
+      gl.style.boxShadow = '0 0 75px 32px rgba(239,68,68,0.48)';
+    }
   });
-  t(4250,function(){
-    ov.style.transition='opacity 0.72s ease-in'; ov.style.opacity='0';
+  t(2680, () => {
+    if(gl){
+      gl.style.transition = 'opacity 0.48s ease-in, box-shadow 0.48s ease-in';
+      gl.style.opacity = '0';
+      gl.style.boxShadow = 'none';
+    }
+  });
+
+  // ── Phase 7: Fade everything out
+  t(3500, () => {
+    const tr = 'opacity 0.72s ease-in, background 0.72s ease-in, backdrop-filter 0.72s ease-in, -webkit-backdrop-filter 0.72s ease-in';
+    ov.style.transition = tr;
+    ov.style.opacity = '0';
+    ov.style.background = 'rgba(0,0,0,0)';
+    ov.style.backdropFilter = 'blur(0px)';
+    ov.style.webkitBackdropFilter = 'blur(0px)';
+    ov.style.pointerEvents = 'none';
   });
 }
 
@@ -18689,6 +18910,11 @@ renderHomeName();
   startTick();
 
   await finishBootOverlay();
+
+  // แสดง lock animation ถ้าเปิดแอพขณะที่ gate ล็อกอยู่
+  if(isGateActiveToday() && gate.locked && !gate.passed){
+    setTimeout(() => showLock(), 280);
+  }
 
   el.extend5Btn?.addEventListener("click", ()=> extendCurrentQuestBy(5));
 el.extend10Btn?.addEventListener("click", ()=> extendCurrentQuestBy(10));
