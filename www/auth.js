@@ -26,6 +26,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 let currentUser = null;
+let googleAuthReady = false;
 
 function isCapacitor() {
   return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
@@ -113,14 +114,17 @@ async function loginWithGoogle() {
     if (isCapacitor()) {
       const GoogleAuth = window.Capacitor?.Plugins?.GoogleAuth;
       if (!GoogleAuth) throw new Error("GoogleAuth plugin not available");
-      try {
-        await GoogleAuth.initialize({
-          clientId: "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
-          scopes: ["profile", "email"],
-          grantOfflineAccess: true
-        });
-      } catch(initErr) {
-        console.warn("GoogleAuth.initialize error (might be ok):", initErr);
+      if (!googleAuthReady) {
+        try {
+          await GoogleAuth.initialize({
+            clientId: "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
+            scopes: ["profile", "email"],
+            grantOfflineAccess: true
+          });
+          googleAuthReady = true;
+        } catch(initErr) {
+          console.warn("GoogleAuth.initialize error (might be ok):", initErr);
+        }
       }
       const googleUser = await GoogleAuth.signIn();
       const idToken = googleUser?.authentication?.idToken;
@@ -152,6 +156,7 @@ async function logoutNow() {
         const GoogleAuth = window.Capacitor?.Plugins?.GoogleAuth;
         if (GoogleAuth) await GoogleAuth.signOut();
       } catch (e) {}
+      googleAuthReady = false;
     }
     await signOut(auth);
   } catch (error) {

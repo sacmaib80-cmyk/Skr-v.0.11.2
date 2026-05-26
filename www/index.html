@@ -5068,167 +5068,222 @@ body.in-app-browser #authGate{
 /* =========================
    HOME RUNNING SCREEN v1
 ========================= */
+/* ===== HOME RUN SCREEN (redesign) ===== */
 .homeRunScreen{
   position:fixed;
   inset:0;
   z-index:140;
   display:none;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:22px;
-  background:
-    radial-gradient(700px 420px at 50% 18%, rgba(34,197,94,.18), transparent 60%),
-    linear-gradient(180deg, rgba(248,251,255,.96), rgba(238,247,255,.92));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background:linear-gradient(180deg,#f0ebff 0%,#f8f5ff 55%,#f5f0ff 100%);
 }
-
 .homeRunScreen.show{
   display:flex;
 }
 
-.homeRunCard{
-  width:min(420px, 100%);
-  text-align:center;
-  padding:28px 20px 22px;
-  border-radius:34px;
-  background:rgba(255,255,255,.74);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:0 24px 70px rgba(15,23,42,.12);
-}
-
-.homeRunMascotSlot{
-  width:118px;
-  height:118px;
-  margin:0 auto 18px;
-  border-radius:34px;
-  display:grid;
-  place-items:center;
-  font-size:62px;
-  background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(219,234,254,.55));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 14px 34px rgba(96,165,250,.12);
-  animation:homeMascotFloat 2.4s ease-in-out infinite;
-}
-
-.homeRunTime{
-  font-size:clamp(54px, 13vw, 78px);
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:-.05em;
-  font-variant-numeric:tabular-nums;
-  color:#0f172a;
-}
-
-.homeRunQuest{
-  margin-top:10px;
+/* Category chip */
+.hrChip{
+  margin-top:52px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 20px;
+  border-radius:999px;
+  background:rgba(255,255,255,.80);
+  border:1px solid rgba(132,88,232,.18);
+  box-shadow:0 2px 10px rgba(132,88,232,.10);
   font-size:14px;
-  font-weight:850;
-  color:#64748b;
+  font-weight:800;
+  color:#5b21b6;
+  flex-shrink:0;
+}
+.hrChip .sqIcon{
+  flex-shrink:0;
+  transform:scale(0.62) rotate(0deg) !important;
+  transform-origin:center center !important;
 }
 
-.homeRunMainBtns{
-  margin-top:24px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
+/* Ring wrapper */
+.hrRingWrap{
+  position:relative;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:0;
+}
+.hrRingSvg{
+  width:min(84vw,320px);
+  height:min(84vw,320px);
+}
+.hrTrack{
+  fill:none;
+  stroke:rgba(139,100,240,.13);
+  stroke-width:10;
+}
+.hrArc{
+  fill:none;
+  stroke:#8458e8;
+  stroke-width:10;
+  stroke-linecap:round;
+  stroke-dasharray:791.68;
+  stroke-dashoffset:0;
+  transform:scale(-1,1) rotate(-90deg);
+  transform-origin:150px 150px;
+  transition:stroke-dashoffset .6s linear;
+}
+.hrDot{
+  fill:#8458e8;
+  stroke:#ffffff;
+  stroke-width:3;
 }
 
-/* 👇 สลับตำแหน่งด้วย order */
-#homeRunStopBtn{
-  order:1;   /* ไปซ้าย */
+/* Inner content overlaid on SVG */
+.hrInner{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  pointer-events:none;
+  width:min(60vw,230px);
+}
+.homeRunTime{
+  font-size:clamp(50px,13vw,70px);
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;
+  color:#1e1b4b;
+}
+.hrBadge{
+  margin-top:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 16px;
+  border-radius:999px;
+  background:rgba(132,88,232,.10);
+  border:1px solid rgba(132,88,232,.16);
+  font-size:13px;
+  font-weight:700;
+  color:#7c3aed;
+  white-space:nowrap;
+  max-width:min(70vw,220px);
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.hrBadgeStar{
+  display:block;
+  width:11px;
+  height:11px;
+  background:currentColor;
+  opacity:.7;
+  clip-path:polygon(50% 0%,62% 34%,98% 35%,69% 56%,79% 91%,50% 70%,21% 91%,31% 56%,2% 35%,38% 34%);
 }
 
-#homeRunPauseBtn{
-  order:2;   /* ไปขวา */
+/* Mascot placeholder */
+.hrMascot{
+  width:min(80vw,300px);
+  flex-shrink:0;
 }
 
-#homeRunStopBtn{
-  filter: brightness(.96);
-}
-
-#homeRunPauseBtn{
-  background: rgba(15,23,42,.08);
-}
-
-.homeRunBtn{
-  height:56px;
-  border-radius:20px;
-  font-size:17px;
-  font-weight:950;
-}
-
-.homeRunBtn.secondary{
-  background:rgba(15,23,42,.06);
-  color:#0f172a;
-  border:1px solid rgba(15,23,42,.08);
-  box-shadow:none;
-}
-
-.homeRunBtn.stop{
-  background:linear-gradient(180deg,#fb7185,#e11d48);
-  color:white;
-  box-shadow:0 12px 26px rgba(225,29,72,.22);
-}
-
-.homeRunExtraBtns{
-  margin-top:12px;
+/* Controls row */
+.hrControls{
+  width:100%;
+  padding:10px 14px 38px;
   display:flex;
   justify-content:center;
-  gap:10px;
+  align-items:flex-end;
+  gap:7px;
+  flex-shrink:0;
 }
 
-.homeRunExtraBtns button{
-  height:38px;
-  padding:0 14px;
-  border-radius:999px;
-  background:rgba(15,23,42,.05);
-  color:#64748b;
-  border:1px solid rgba(15,23,42,.07);
-  box-shadow:none;
-  font-size:13px;
-  font-weight:900;
+/* Pill buttons: +5, +10, Pause, Sound */
+.hrPill{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:4px;
+  min-width:56px;
+  height:62px;
+  padding:0 10px;
+  border-radius:20px;
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(132,88,232,.16);
+  box-shadow:0 2px 8px rgba(132,88,232,.08);
+  color:#5b21b6;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.hrPill:active{
+  transform:scale(0.88);
+  box-shadow:0 1px 3px rgba(132,88,232,.10);
 }
 
-@keyframes homeMascotFloat{
-  0%,100%{ transform:translateY(0); }
-  50%{ transform:translateY(-6px); }
+/* SVG icons inside buttons */
+.hrBtnIc{
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  display:block;
 }
 
+/* Stop button — big circle */
+.hrStop{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#b07ef8 0%,#8458e8 50%,#6b38d4 100%);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  box-shadow:0 8px 22px rgba(132,88,232,.42), 0 2px 6px rgba(132,88,232,.22);
+  flex-shrink:0;
+  letter-spacing:.01em;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.hrStop:active{
+  transform:scale(0.88);
+  box-shadow:0 4px 12px rgba(91,106,240,.30);
+}
+.hrStop .hrBtnIc{
+  width:22px;
+  height:22px;
+}
+
+/* Pause → Resume SVG swap */
 #homeRunPauseBtn{
-  transition:
-    transform .14s ease,
-    box-shadow .14s ease,
-    background .18s ease,
-    color .18s ease;
+  transition:background .18s, color .18s, box-shadow .14s, transform .12s ease;
 }
-
 #homeRunPauseBtn.resumeMode{
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 32%),
-    linear-gradient(180deg,#4ade80,#22c55e);
-  color:#ffffff;
-  border:1px solid rgba(34,197,94,.28);
-  box-shadow:
-    0 12px 26px rgba(34,197,94,.22),
-    inset 0 1px 0 rgba(255,255,255,.42);
-  animation: resumePulse 1.7s ease-in-out infinite;
+  background:linear-gradient(160deg,#6ee7b7,#22c55e);
+  color:#fff;
+  border-color:rgba(34,197,94,.22);
+  box-shadow:0 10px 24px rgba(34,197,94,.28);
 }
 
-@keyframes resumePulse{
-  0%,100%{
-    transform:scale(1);
-    box-shadow:
-      0 12px 26px rgba(34,197,94,.22),
-      0 0 0 0 rgba(34,197,94,.22),
-      inset 0 1px 0 rgba(255,255,255,.42);
-  }
-  50%{
-    transform:scale(1.025);
-    box-shadow:
-      0 16px 34px rgba(34,197,94,.30),
-      0 0 0 8px rgba(34,197,94,.08),
-      inset 0 1px 0 rgba(255,255,255,.5);
-  }
+/* Hidden quest text (for JS compat) */
+.hrQuestHidden{
+  display:none;
+  aria-hidden:true;
+}
+
+/* Hide fox when run screen is visible */
+body.homeRunVisible .foxMascot{
+  visibility:hidden;
+  pointer-events:none;
 }
 
 .hqQuickTime{
@@ -9194,22 +9249,56 @@ input, textarea {
 
   <!-- Home Running Screen -->
 <div id="homeRunScreen" class="homeRunScreen" aria-hidden="true">
-  <div class="homeRunCard">
-    <div class="homeRunMascotSlot">🦊</div>
 
-    <div id="homeRunTime" class="homeRunTime">00:00:00</div>
-    <div id="homeRunQuest" class="homeRunQuest">Quest running</div>
+  <!-- Category chip -->
+  <div class="hrChip" id="homeRunChip">
+    <i class="sqIcon" id="homeRunCatIcon" aria-hidden="true"></i>
+    <span id="homeRunCategory">Quest</span>
+  </div>
 
-    <div class="homeRunMainBtns">
-      <button id="homeRunPauseBtn" type="button" class="homeRunBtn secondary">Pause</button>
-      <button id="homeRunStopBtn" type="button" class="homeRunBtn stop">Stop</button>
-    </div>
-
-    <div class="homeRunExtraBtns">
-      <button id="homeRunPlus5Btn" type="button">+5m</button>
-      <button id="homeRunPlus10Btn" type="button">+10m</button>
+  <!-- Progress ring + time inside -->
+  <div class="hrRingWrap">
+    <svg class="hrRingSvg" viewBox="0 0 300 300" aria-hidden="true">
+      <circle class="hrTrack" cx="150" cy="150" r="126"/>
+      <circle class="hrArc"   id="hrArc"  cx="150" cy="150" r="126"/>
+      <circle class="hrDot"   id="hrDot"  cx="150" cy="24"  r="8"/>
+    </svg>
+    <div class="hrInner">
+      <div id="homeRunTime" class="homeRunTime">25:00</div>
+      <div class="hrBadge">
+        <span class="hrBadgeStar"></span>
+        <span id="homeRunSession">เซสชันที่ 1</span>
+      </div>
     </div>
   </div>
+
+  <!-- Mascot slot — user will add image here -->
+  <div class="hrMascot" id="hrMascot"></div>
+
+  <!-- Controls -->
+  <div class="hrControls">
+    <button id="homeRunPlus5Btn" type="button" class="hrPill">
+      <b>+5</b><span>นาที</span>
+    </button>
+    <button id="homeRunPlus10Btn" type="button" class="hrPill">
+      <b>+10</b><span>นาที</span>
+    </button>
+    <button id="homeRunStopBtn" type="button" class="hrStop">
+      <svg class="hrBtnIc" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="4" width="12" height="12" rx="2.5" fill="currentColor"/></svg>
+      <span>Stop</span>
+    </button>
+    <button id="homeRunPauseBtn" type="button" class="hrPill">
+      <svg class="hrBtnIc hrPauseIcSvg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="3" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="12" y="3" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
+      <span class="hrPauseLbl">Pause</span>
+    </button>
+    <button id="homeRunSoundBtn" type="button" class="hrPill">
+      <svg class="hrBtnIc" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 7.5h3.5L11 4v12l-4.5-3.5H3V7.5z" fill="currentColor"/><path d="M13.5 7c1 .8 1.7 2 1.7 3s-.7 2.2-1.7 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>เสียง</span>
+    </button>
+  </div>
+
+  <!-- Hidden quest name for JS compatibility -->
+  <div id="homeRunQuest" class="hrQuestHidden" aria-hidden="true"></div>
 </div>
 
 <!-- Home Report Intro -->
@@ -11754,7 +11843,7 @@ saveAll(all);
     if(el.gateQualifyDisplay) el.gateQualifyDisplay.textContent = `${GATE_RULES.qualifyMin}m`;
   }
 async function sendMorningGateNotification(){
-  if(document.visibilityState === "visible") return false;
+  if(!isCapacitorApp() && document.visibilityState === "visible") return false;
 
   if(isCapacitorApp()){
     const perm = await ensureNotificationPermission();
@@ -12097,6 +12186,7 @@ function closeTopMenu(){
 }
 
 function isStandaloneMode(){
+  if(isCapacitorApp()) return true;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: fullscreen)").matches ||
@@ -12362,29 +12452,11 @@ function checkAutoStop(){
       state.softDeadlineTs = targetTs + 10000;
       saveState();
 
-        now,
-        targetTs,
-        softDeadlineTs: state.softDeadlineTs,
-        questName: state.questName,
-        flowBaseName: state.flowBaseName,
-        flowIndex: state.flowIndex
-      });
-
       showTimerWarn(`ครบ ${state.cutMinutes} นาทีแล้ว — จะหยุดอัตโนมัติใน 10 วิ`);
       return;
     }
 
     if(state.targetEndTs && now >= state.targetEndTs){
-        now,
-        targetTs: state.targetEndTs,
-        questName: state.questName,
-        flowBaseName: state.flowBaseName,
-        flowIndex: state.flowIndex,
-        startDateKey: state.startDateKey,
-        lastElapsedMs: state.lastElapsedMs,
-        elapsedBefore: state.elapsedBefore
-      });
-
       // forceAutoStop handles split correctly via buildPendingSegmentsFromStoppedFlow
       forceAutoStop();
     }
@@ -12396,16 +12468,6 @@ function checkAutoStop(){
   if(!targetTs) return;
 
   if(now >= targetTs){
-      now,
-      targetTs,
-      questName: state.questName,
-      flowBaseName: state.flowBaseName,
-      flowIndex: state.flowIndex,
-      startDateKey: state.startDateKey,
-      lastElapsedMs: state.lastElapsedMs,
-      elapsedBefore: state.elapsedBefore
-    });
-
     forceAutoStop();
   }
 }
@@ -16390,6 +16452,7 @@ function showHomeRunScreen(){
 
   screen.classList.add("show");
   screen.setAttribute("aria-hidden", "false");
+  document.body.classList.add("homeRunVisible");
 
   syncHomeRunScreen();
 
@@ -16404,6 +16467,7 @@ function hideHomeRunScreen(){
 
   screen.classList.remove("show");
   screen.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("homeRunVisible");
 
   clearInterval(homeRunSyncTimer);
   homeRunSyncTimer = null;
@@ -16652,8 +16716,6 @@ function syncHomeRunScreen(){
 
   if(state.status === "stopped") {
     hideHomeRunScreen();
-    // เปิด home report เฉพาะถ้า homeRunEndTs ยังเซ็ตอยู่ (quest จบใน session นี้)
-    // ถ้า homeRunEndTs = 0 แสดงว่าโหลดมาจาก session เก่า → ไม่ warp
     const reportScreen = document.getElementById("homeReportScreen");
     if(window.homeRunEndTs > 0 && !reportScreen?.classList.contains("show")){
       setTimeout(()=> showHomeReportIntro(), 80);
@@ -16665,18 +16727,15 @@ function syncHomeRunScreen(){
     return;
   }
 
-  if(timeEl){
-    const remain = isPaused && homeRunPausedRemain !== null
-      ? homeRunPausedRemain
-      : Math.max(0, (window.homeRunEndTs || 0) - Date.now());
+  const remain = isPaused && homeRunPausedRemain !== null
+    ? homeRunPausedRemain
+    : Math.max(0, (window.homeRunEndTs || 0) - Date.now());
 
+  if(timeEl){
     const s = Math.floor(remain / 1000);
     const m = Math.floor(s / 60);
     const sec = s % 60;
-
-    timeEl.textContent =
-      String(m).padStart(2,"0") + ":" +
-      String(sec).padStart(2,"0");
+    timeEl.textContent = String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
 
     if(window.homeRunEndTs > 0 && remain <= 0 && state.status === "running"){
       hideHomeRunScreen();
@@ -16690,8 +16749,52 @@ function syncHomeRunScreen(){
   }
 
   if(pauseBtn){
-    pauseBtn.textContent = isPaused ? "Resume" : "Pause";
+    const lbl = pauseBtn.querySelector(".hrPauseLbl");
+    if(lbl) lbl.textContent = isPaused ? "Resume" : "Pause";
     pauseBtn.classList.toggle("resumeMode", isPaused);
+    const icSvg = pauseBtn.querySelector(".hrPauseIcSvg");
+    if(icSvg){
+      icSvg.innerHTML = isPaused
+        ? '<polygon points="4,3 17,10 4,17" fill="currentColor"/>'
+        : '<rect x="4" y="3" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="12" y="3" width="4" height="14" rx="1.5" fill="currentColor"/>';
+    }
+  }
+
+  // Ring progress
+  const arc = document.getElementById("hrArc");
+  const dot = document.getElementById("hrDot");
+  if(arc || dot){
+    const totalMs = (state.cutMinutes || 25) * 60000;
+    const fraction = totalMs > 0 ? Math.min(1, Math.max(0, remain / totalMs)) : 1;
+    const C = 791.68;
+    if(arc) arc.style.strokeDashoffset = (C * (1 - fraction)).toFixed(2);
+    if(dot){
+      const angle = -Math.PI / 2 + (1 - fraction) * 2 * Math.PI;
+      dot.setAttribute("cx", (150 + 126 * Math.cos(angle)).toFixed(2));
+      dot.setAttribute("cy", (150 + 126 * Math.sin(angle)).toFixed(2));
+    }
+  }
+
+  // Category chip
+  const catEl = document.getElementById("homeRunCategory");
+  const catIcon = document.getElementById("homeRunCatIcon");
+  if(catEl){
+    const catMap = {
+      "learning":     {label:"Learning",   cls:"sqIconLearn"},
+      "work/project": {label:"Work",        cls:"sqIconWork"},
+      "physical":     {label:"Physical",    cls:"sqIconPhysical"},
+      "connection":   {label:"Connection",  cls:"sqIconConnect"},
+    };
+    const key = (state.selectedCategory || "").toLowerCase();
+    const info = catMap[key] || {label: state.selectedCategory || "Quest", cls:""};
+    catEl.textContent = info.label;
+    if(catIcon) catIcon.className = "sqIcon" + (info.cls ? " " + info.cls : "");
+  }
+
+  // Quest name badge
+  const sessionEl = document.getElementById("homeRunSession");
+  if(sessionEl){
+    sessionEl.textContent = state.questName || el.questName?.value || "Quest";
   }
 }
 
@@ -16902,12 +17005,12 @@ function buildNotificationBody(quest){
 }
 
 function shouldUseSystemNotification(){
-  if(document.visibilityState === "visible"){
-    return false;
-  }
-
   if(isCapacitorApp()){
     return !!getLocalNotificationsPlugin();
+  }
+
+  if(document.visibilityState === "visible"){
+    return false;
   }
 
   if(!("Notification" in window)){
@@ -16921,13 +17024,6 @@ function shouldUseSystemNotification(){
   return true;
 }
 async function sendQuestDoneNotification(questSnapshot){
-    notified,
-    visibility: document.visibilityState,
-    permission: ("Notification" in window) ? Notification.permission : "unsupported",
-    questName: questSnapshot?.name || "",
-    category: questSnapshot?.category || ""
-  });
-
   if(notified){
     return false;
   }
@@ -16939,6 +17035,8 @@ async function sendQuestDoneNotification(questSnapshot){
 
   try{
     if(isCapacitorApp()){
+      const perm = await ensureNotificationPermission();
+      if(perm !== "granted") return false;
       const sent = await sendCapacitorNotification(
         buildNotificationTitle(questSnapshot),
         buildNotificationBody(questSnapshot),
@@ -16975,7 +17073,7 @@ async function sendSmartWarningNotification(){
   if(notificationMode !== "smart") return false;
   if(smartWarnSent) return false;
   if(!activeQuest) return false;
-  if(document.visibilityState === "visible") return false;
+  if(!isCapacitorApp() && document.visibilityState === "visible") return false;
 
   const emoji = getQuestCategoryEmoji(activeQuest.category);
 
