@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1069498952404",
+    "project_id": "sakuraq-b7f96",
+    "storage_bucket": "sakuraq-b7f96.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069498952404:android:1d460680fcd2b388da6941",
+        "android_client_info": {
+          "package_name": "com.sacmaib80.sakuraq"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069498952404-d170ed490u363rvugbsh7rjm1u3qr15p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sacmaib80.sakuraq",
+            "certificate_hash": "dc30c50dddd47ce9a997a370de513360eb17735b"
+          }
+        },
+        {
+          "client_id": "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLYTp1VX-RvYKCSlJMKHhPBMsehw-47Qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
