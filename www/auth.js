@@ -1,4 +1,3 @@
-console.log("AUTH LOADED");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
@@ -113,10 +112,7 @@ async function loginWithGoogle() {
 
     if (isCapacitor()) {
       const GoogleAuth = window.Capacitor?.Plugins?.GoogleAuth;
-      if (!GoogleAuth) {
-        alert("Plugin ไม่ได้โหลด: GoogleAuth = " + JSON.stringify(Object.keys(window.Capacitor?.Plugins || {})));
-        return;
-      }
+      if (!GoogleAuth) throw new Error("GoogleAuth plugin not available");
       try {
         await GoogleAuth.initialize({
           clientId: "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
@@ -127,12 +123,8 @@ async function loginWithGoogle() {
         console.warn("GoogleAuth.initialize error (might be ok):", initErr);
       }
       const googleUser = await GoogleAuth.signIn();
-      alert("DEBUG googleUser: " + JSON.stringify(googleUser));
       const idToken = googleUser?.authentication?.idToken;
-      if (!idToken) {
-        alert("ไม่มี idToken: " + JSON.stringify(googleUser?.authentication));
-        return;
-      }
+      if (!idToken) throw new Error("No idToken from Google");
       const credential = GoogleAuthProvider.credential(idToken);
       await signInWithCredential(auth, credential);
     } else {
@@ -142,14 +134,14 @@ async function loginWithGoogle() {
   } catch (error) {
     console.error("LOGIN ERROR:", error);
     if (error.code === "auth/popup-blocked") {
-      alert("Popup ถูกบล็อก");
+      alert("Popup ถูกบล็อก กรุณาอนุญาต popup");
       return;
     }
     if (error.code === "auth/unauthorized-domain") {
-      alert("ยังไม่ได้เพิ่ม domain ใน Firebase");
+      alert("Domain ไม่ได้รับอนุญาต กรุณาแจ้ง admin");
       return;
     }
-    alert("ERROR: " + (error.code || error.message || JSON.stringify(error)));
+    alert("Login ไม่สำเร็จ กรุณาลองใหม่");
   }
 }
 
@@ -172,7 +164,6 @@ window.loginWithGoogle = loginWithGoogle;
 window.logoutNow = logoutNow;
 
 onAuthStateChanged(auth, (user) => {
-  console.log("Auth state:", user);
   currentUser = user || null;
   syncAuthToWindow();
   document.body.classList.toggle("is-guest", !user);
@@ -188,15 +179,12 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.addEventListener("click", (e) => {
-  console.log("CLICK TARGET:", e.target);
   if (e.target.closest("#authGateLoginBtn, #googleLoginBtn")) {
-    console.log("LOGIN HIT");
     e.preventDefault();
     loginWithGoogle();
     return;
   }
   if (e.target.closest("#logoutBtn")) {
-    console.log("LOGOUT HIT");
     e.preventDefault();
     logoutNow();
   }

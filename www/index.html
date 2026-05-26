@@ -9674,6 +9674,7 @@ let questDurationMs = 0
 
 let questFinished = false
 let notified = false
+let lastTimerNotifMin = -1;
 
 let notificationMode = "quiet"   // "quiet" | "smart"
 let notificationSound = true
@@ -11091,8 +11092,15 @@ function loadState(){
   const saved = all.state;
 
   if(saved && typeof saved === "object" && !Array.isArray(saved)){
-Object.assign(state, saved);
-    if(state.homeRunEndTs) window.homeRunEndTs = Number(state.homeRunEndTs);  }
+    Object.assign(state, saved);
+    if(state.homeRunEndTs) window.homeRunEndTs = Number(state.homeRunEndTs);
+    // ถ้าเปิดแอพใหม่แล้ว status เป็น stopped/idle → ล้าง homeRunEndTs
+    // ป้องกัน auto-warp ไปหน้า report เก่าโดยไม่ตั้งใจ
+    if(state.status === "stopped" || state.status === "idle"){
+      window.homeRunEndTs = 0;
+      state.homeRunEndTs = 0;
+    }
+  }
 }
 function resetRuntimeForAccountSwitch(){
   if(tickHandle){
@@ -11746,14 +11754,23 @@ saveAll(all);
     if(el.gateQualifyDisplay) el.gateQualifyDisplay.textContent = `${GATE_RULES.qualifyMin}m`;
   }
 async function sendMorningGateNotification(){
+  if(document.visibilityState === "visible") return false;
+
+  if(isCapacitorApp()){
+    const perm = await ensureNotificationPermission();
+    if(perm !== "granted") return false;
+    return await sendCapacitorNotification(
+      "🚨 Morning Gate",
+      `ถึงเวลา ${gateCfg.triggerHHMM} แล้ว • เริ่มเควสแรกให้ทัน ${GATE_RULES.qualifyMin} นาที`,
+      10001
+    );
+  }
+
   if(!("Notification" in window)) return false;
   if(Notification.permission !== "granted") return false;
 
-  // ถ้า user กำลังเปิดหน้าแอปอยู่แล้ว ไม่ต้องยิง notification ซ้ำ
-  if(document.visibilityState === "visible") return false;
-
   try{
-        const reg = await getNotificationRegistration();
+    const reg = await getNotificationRegistration();
     if(!reg) return false;
 
     await reg.showNotification("🚨 Morning Gate", {
@@ -11764,11 +11781,7 @@ async function sendMorningGateNotification(){
       renotify: true,
       requireInteraction: true,
       vibrate: [300, 120, 300, 120, 300],
-      data: {
-        type: "morning-gate",
-        triggerHHMM: gateCfg.triggerHHMM,
-        dateKey: localDateKey()
-      }
+      data: { type: "morning-gate", triggerHHMM: gateCfg.triggerHHMM, dateKey: localDateKey() }
     });
 
     return true;
@@ -12158,7 +12171,6 @@ async function promptInstallApp(){
     deferredInstallPrompt.prompt();
     const choice = await deferredInstallPrompt.userChoice;
 
-    console.log("[PWA] install choice =", choice?.outcome);
 
     if(choice?.outcome === "accepted"){
       showTimerWarn?.("กำลังติดตั้ง SakuraQ...");
@@ -12295,6 +12307,7 @@ const reportMinutes = minutes;
   state.lastElapsedMs = lockedElapsed;
 
   clearCutDeadline();
+  cancelOngoingTimerNotification();
 
   questFinished = true;
   saveState();
@@ -12349,7 +12362,6 @@ function checkAutoStop(){
       state.softDeadlineTs = targetTs + 10000;
       saveState();
 
-      console.log("[auto-stop][soft] warn phase start", {
         now,
         targetTs,
         softDeadlineTs: state.softDeadlineTs,
@@ -12363,7 +12375,6 @@ function checkAutoStop(){
     }
 
     if(state.targetEndTs && now >= state.targetEndTs){
-      console.log("[auto-stop][soft] target reached", {
         now,
         targetTs: state.targetEndTs,
         questName: state.questName,
@@ -12385,7 +12396,6 @@ function checkAutoStop(){
   if(!targetTs) return;
 
   if(now >= targetTs){
-    console.log("[auto-stop][hard] target reached", {
       now,
       targetTs,
       questName: state.questName,
@@ -13831,6 +13841,13 @@ if(!isCurrentTabMasterNow()){
   await startQuest();
 
   if(state.status === "running"){
+    // Sync homeRunEndTs to actual targetEndTs — fixes 1-min deduction caused by
+    // async notification permission dialog running inside startQuest()
+    if(state.targetEndTs){
+      window.homeRunEndTs = state.targetEndTs;
+      state.homeRunEndTs = state.targetEndTs;
+      saveState();
+    }
     rqMarkDone(q.id, q.name);
     rqClearSelected();
     rqTickUI();
@@ -13939,6 +13956,15 @@ if(state.status === "running" && state.startTs){
     renderGateUX();
     maybeSendMorningGateNotification();
 
+    if(isCapacitorApp() && state.status === "running" && state.targetEndTs){
+      const remainMs = Math.max(0, state.targetEndTs - Date.now());
+      const remainMin = Math.ceil(remainMs / 60000);
+      if(remainMin !== lastTimerNotifMin){
+        lastTimerNotifMin = remainMin;
+        showOngoingTimerNotification(state.questName, remainMin);
+      }
+    }
+
     rqTickUI();
   }, 250);
 }
@@ -13976,7 +14002,6 @@ if(state.status === "running" && state.startTs){
 rememberQuestName(state.questName)
 
   const perm = await ensureNotificationPermission();
-  console.log("Notification permission:", perm);
 
   if(!gateCanStartQuest()){
     showTimerWarn("ติด Morning Gate");
@@ -14279,6 +14304,7 @@ const reportMinutes = minutes;
 
 
 clearCutDeadline();
+cancelOngoingTimerNotification();
 
 questFinished = true;
 saveState();
@@ -14322,6 +14348,7 @@ updateCapHint(dateKey, state.questName);
   if(el.questName) el.questName.value="";
 
 clearCutDeadline();
+cancelOngoingTimerNotification();
 
   // ล้าง flow segments ที่ค้างอยู่
   state.pendingSegments = [];
@@ -16253,6 +16280,11 @@ state.cutEnabled = true;
   setTimeout(async ()=>{
     await startQuest();
     if(state.status === "running"){
+      if(state.targetEndTs){
+        window.homeRunEndTs = state.targetEndTs;
+        state.homeRunEndTs = state.targetEndTs;
+        saveState();
+      }
       showHomeRunScreen();
     }
   }, 120);
@@ -16618,11 +16650,12 @@ function syncHomeRunScreen(){
 
   const isPaused = state.status === "paused";
 
-  // Bug 1 fix: quest stopped externally (forceAutoStop) → handle home run screen
   if(state.status === "stopped") {
     hideHomeRunScreen();
+    // เปิด home report เฉพาะถ้า homeRunEndTs ยังเซ็ตอยู่ (quest จบใน session นี้)
+    // ถ้า homeRunEndTs = 0 แสดงว่าโหลดมาจาก session เก่า → ไม่ warp
     const reportScreen = document.getElementById("homeReportScreen");
-    if(!reportScreen?.classList.contains("show")){
+    if(window.homeRunEndTs > 0 && !reportScreen?.classList.contains("show")){
       setTimeout(()=> showHomeReportIntro(), 80);
     }
     return;
@@ -16704,13 +16737,35 @@ document.getElementById("homeRunPlus10Btn")?.addEventListener("click", ()=>{
    NOTIFICATION SYSTEM v0.9
 ========================================= */
 
+function isCapacitorApp(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
+function getLocalNotificationsPlugin(){
+  return window.Capacitor?.Plugins?.LocalNotifications || null;
+}
+
 function canUseNotification(){
-  return ("Notification" in window)
+  if(isCapacitorApp()) return !!getLocalNotificationsPlugin();
+  return ("Notification" in window);
 }
 
 async function ensureNotificationPermission(){
-  if(!("Notification" in window)) return "unsupported";
+  if(isCapacitorApp()){
+    const LN = getLocalNotificationsPlugin();
+    if(!LN) return "unsupported";
+    try{
+      const status = await LN.checkPermissions();
+      if(status.display === "granted") return "granted";
+      const result = await LN.requestPermissions();
+      return result.display === "granted" ? "granted" : "denied";
+    }catch(err){
+      console.error("[NOTI] capacitor permission error:", err);
+      return "error";
+    }
+  }
 
+  if(!("Notification" in window)) return "unsupported";
   if(Notification.permission === "granted") return "granted";
   if(Notification.permission === "denied") return "denied";
 
@@ -16733,6 +16788,69 @@ async function getNotificationRegistration(){
     console.error("[NOTI] ready error:", err);
     return null;
   }
+}
+
+async function sendCapacitorNotification(title, body, id, vibrate){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return false;
+  try{
+    await LN.schedule({
+      notifications: [{
+        id: id || Math.floor(Math.random() * 100000),
+        title: title,
+        body: body,
+        schedule: { at: new Date(Date.now() + 300) },
+        smallIcon: "ic_stat_icon_config_sample",
+        iconColor: "#5b6af0",
+        sound: null
+      }]
+    });
+    return true;
+  }catch(err){
+    console.error("[NOTI] capacitor schedule error:", err);
+    return false;
+  }
+}
+
+const TIMER_NOTIF_ID = 20001;
+
+async function showOngoingTimerNotification(questName, remainMin){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return;
+  const perm = await ensureNotificationPermission();
+  if(perm !== "granted") return;
+
+  const isRunning = remainMin > 0;
+  const title = `⏱️ ${questName || "Quest"} • กำลังจับเวลา`;
+  const body = isRunning
+    ? `เหลืออีก ${remainMin} นาที`
+    : "ครบเวลาแล้ว! • กลับมาส่ง Report";
+
+  try{
+    await LN.schedule({
+      notifications: [{
+        id: TIMER_NOTIF_ID,
+        title,
+        body,
+        ongoing: true,
+        autoCancel: false,
+        schedule: { at: new Date(Date.now() + 100) },
+        smallIcon: "ic_stat_icon_config_sample",
+        iconColor: "#5b6af0"
+      }]
+    });
+  }catch(err){
+    console.error("[TIMER-NOTIF] error:", err);
+  }
+}
+
+async function cancelOngoingTimerNotification(){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return;
+  try{
+    await LN.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
+  }catch(err){}
+  lastTimerNotifMin = -1;
 }
 
 function getQuestCategoryEmoji(cat){
@@ -16785,25 +16903,24 @@ function buildNotificationBody(quest){
 
 function shouldUseSystemNotification(){
   if(document.visibilityState === "visible"){
-    console.log("[QUEST-NOTI] blocked: page visible");
     return false;
   }
 
+  if(isCapacitorApp()){
+    return !!getLocalNotificationsPlugin();
+  }
+
   if(!("Notification" in window)){
-    console.log("[QUEST-NOTI] blocked: Notification unsupported");
     return false;
   }
 
   if(Notification.permission !== "granted"){
-    console.log("[QUEST-NOTI] blocked: permission =", Notification.permission);
     return false;
   }
 
-  console.log("[QUEST-NOTI] pass shouldUseSystemNotification");
   return true;
 }
 async function sendQuestDoneNotification(questSnapshot){
-  console.log("[QUEST-NOTI] START", {
     notified,
     visibility: document.visibilityState,
     permission: ("Notification" in window) ? Notification.permission : "unsupported",
@@ -16812,30 +16929,29 @@ async function sendQuestDoneNotification(questSnapshot){
   });
 
   if(notified){
-    console.log("[QUEST-NOTI] exit: already notified");
     return false;
   }
 
   if(!shouldUseSystemNotification()){
-    console.log("[QUEST-NOTI] exit: shouldUseSystemNotification = false");
     return false;
   }
 
-  console.log("[QUEST-NOTI] passed guard");
 
   try{
-        console.log("[QUEST-NOTI] before getNotificationRegistration");
-
-    const reg = await getNotificationRegistration();
-
-    console.log("[QUEST-NOTI] reg =", reg);
-
-    if(!reg){
-      console.log("[QUEST-NOTI] exit: no reg");
-      return false;
+    if(isCapacitorApp()){
+      const sent = await sendCapacitorNotification(
+        buildNotificationTitle(questSnapshot),
+        buildNotificationBody(questSnapshot),
+        10002
+      );
+      if(sent){
+        playQuestDoneSound();
+        notified = true;
+      }
+      return sent;
     }
 
-    console.log("[QUEST-NOTI] before showNotification");
+    const reg = await getNotificationRegistration();
 
     await reg.showNotification(buildNotificationTitle(questSnapshot), {
       body: buildNotificationBody(questSnapshot),
@@ -16845,24 +16961,13 @@ async function sendQuestDoneNotification(questSnapshot){
       renotify: true,
       requireInteraction: true,
       vibrate: [200, 100, 200],
-      data: {
-        type: "quest-done",
-        questName: questSnapshot?.name || "",
-        category: questSnapshot?.category || "",
-        dateKey: localDateKey()
-      }
+      data: { type: "quest-done", questName: questSnapshot?.name || "", category: questSnapshot?.category || "", dateKey: localDateKey() }
     });
 
-        console.log("[QUEST-NOTI] showNotification sent");
-
     playQuestDoneSound();
-
     notified = true;
-    console.log("[QUEST-NOTI] success: notified=true");
-
     return true;
   }catch(err){
-    console.log("[QUEST-NOTI] ERROR", err);
     return false;
   }
 }
@@ -16871,22 +16976,27 @@ async function sendSmartWarningNotification(){
   if(smartWarnSent) return false;
   if(!activeQuest) return false;
   if(document.visibilityState === "visible") return false;
+
+  const emoji = getQuestCategoryEmoji(activeQuest.category);
+
+  if(isCapacitorApp()){
+    const perm = await ensureNotificationPermission();
+    if(perm !== "granted") return false;
+    const sent = await sendCapacitorNotification(
+      `${emoji} ${activeQuest.name || "Quest"}`,
+      "เหลืออีก 1 นาที",
+      10003
+    );
+    if(sent) smartWarnSent = true;
+    return sent;
+  }
+
   if(!("Notification" in window)) return false;
   if(Notification.permission !== "granted") return false;
 
   try{
-        console.log("[QUEST-NOTI] before getNotificationRegistration");
-
-const reg = await getNotificationRegistration();
-
-console.log("[QUEST-NOTI] reg =", reg);
-
-if(!reg){
-  console.log("[QUEST-NOTI] blocked: no reg");
-  return false;
-}
-
-    const emoji = getQuestCategoryEmoji(activeQuest.category);
+    const reg = await getNotificationRegistration();
+    if(!reg) return false;
 
     await reg.showNotification(`${emoji} ${activeQuest.name || "Quest"}`, {
       body: "เหลืออีก 1 นาที",
@@ -16895,15 +17005,8 @@ if(!reg){
       tag: "sakuraq-quest-smart-warning",
       renotify: true,
       vibrate: [140, 80, 140],
-      data: {
-        type: "smart-warning",
-        questName: activeQuest.name || "",
-        category: activeQuest.category || "",
-        dateKey: localDateKey()
-      }
+      data: { type: "smart-warning", questName: activeQuest.name || "", category: activeQuest.category || "", dateKey: localDateKey() }
     });
-
-    console.log("[QUEST-NOTI] showNotification sent");
 
     smartWarnSent = true;
     return true;
@@ -16919,16 +17022,13 @@ function resetNotificationFlags(){
 }
 async function registerSW(){
   if (!("serviceWorker" in navigator)) {
-    console.log("[PWA] service worker unsupported");
     return;
   }
 
   try{
     const reg = await navigator.serviceWorker.register("./sw.js");
-    console.log("[PWA] SW registered", reg.scope);
 
     if (reg.waiting) {
-      console.log("[PWA] waiting worker found -> skip");
       reg.waiting.postMessage({ type: "SKIP_WAITING" });
     }
 
@@ -16936,13 +17036,10 @@ async function registerSW(){
       const newWorker = reg.installing;
       if (!newWorker) return;
 
-      console.log("[PWA] updatefound");
 
       newWorker.addEventListener("statechange", () => {
-        console.log("[PWA] new worker state =", newWorker.state);
 
         if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-          console.log("[PWA] new version installed -> skip waiting");
           newWorker.postMessage({ type: "SKIP_WAITING" });
         }
       });
@@ -16952,12 +17049,10 @@ async function registerSW(){
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (refreshing) return;
       refreshing = true;
-      console.log("[PWA] controller changed -> reload");
       window.location.reload();
     });
 
     navigator.serviceWorker.ready.then(() => {
-      console.log("[PWA] SW ready");
       renderTopMenuUI?.();
     }).catch((err) => {
       console.error("[PWA] SW ready error:", err);
@@ -18477,7 +18572,6 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
   renderTopMenuUI();
-  console.log("[PWA] install prompt ready");
 
     renderPwaDebug();
 });
@@ -18486,7 +18580,6 @@ window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   renderTopMenuUI();
   showTimerWarn?.("ติดตั้ง SakuraQ สำเร็จ");
-  console.log("[PWA] app installed");
 });
 
 window.addEventListener("DOMContentLoaded", () => {
