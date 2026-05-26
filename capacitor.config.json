@@ -1,13 +1,17 @@
 {
   "appId": "com.sacmaib80.sakuraq",
   "appName": "SakuraQ",
-  "webDir": ".",
+  "webDir": "www",
   "server": {
     "androidScheme": "https"
   },
   "plugins": {
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     },
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon_config_sample",

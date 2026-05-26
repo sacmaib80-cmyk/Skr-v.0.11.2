@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SakuraQ</string>
+    <string name="title_activity_main">SakuraQ</string>
+    <string name="package_name">com.sacmaib80.sakuraq</string>
+    <string name="custom_url_scheme">com.sacmaib80.sakuraq</string>
+</resources>
