@@ -5076,7 +5076,7 @@ body.in-app-browser #authGate{
   display:none;
   flex-direction:column;
   align-items:center;
-  background:linear-gradient(180deg,#f0ebff 0%,#f8f5ff 55%,#f5f0ff 100%);
+  background:radial-gradient(ellipse 90% 65% at 50% 44%, #ece5ff 0%, #f3eeff 48%, #f9f6ff 100%);
 }
 .homeRunScreen.show{
   display:flex;
@@ -5084,19 +5084,20 @@ body.in-app-browser #authGate{
 
 /* Category chip */
 .hrChip{
-  margin-top:52px;
+  margin-top:48px;
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding:8px 20px;
+  padding:9px 22px;
   border-radius:999px;
-  background:rgba(255,255,255,.80);
-  border:1px solid rgba(132,88,232,.18);
-  box-shadow:0 2px 10px rgba(132,88,232,.10);
+  background:rgba(255,255,255,.90);
+  border:1px solid rgba(132,88,232,.20);
+  box-shadow:0 4px 16px rgba(132,88,232,.14), 0 1px 3px rgba(132,88,232,.08);
   font-size:14px;
   font-weight:800;
   color:#5b21b6;
   flex-shrink:0;
+  letter-spacing:.01em;
 }
 .hrChip .sqIcon{
   flex-shrink:0;
@@ -5113,20 +5114,38 @@ body.in-app-browser #authGate{
   justify-content:center;
   width:100%;
   min-height:0;
+  padding-bottom:24px;
+}
+.hrRingWrap::before{
+  content:"";
+  position:absolute;
+  width:min(74vw,290px);
+  height:min(74vw,290px);
+  border-radius:50%;
+  background:rgba(132,88,232,.16);
+  filter:blur(40px);
+  pointer-events:none;
+  animation:hrGlowPulse 3s ease-in-out infinite;
+}
+@keyframes hrGlowPulse{
+  0%,100%{ opacity:.16; transform:scale(1); }
+  50%{ opacity:.28; transform:scale(1.08); }
 }
 .hrRingSvg{
   width:min(84vw,320px);
   height:min(84vw,320px);
+  filter:drop-shadow(0 0 16px rgba(132,88,232,.25));
+  overflow:visible;
 }
 .hrTrack{
   fill:none;
-  stroke:rgba(139,100,240,.13);
-  stroke-width:10;
+  stroke:rgba(139,100,240,.15);
+  stroke-width:11;
 }
 .hrArc{
   fill:none;
   stroke:#8458e8;
-  stroke-width:10;
+  stroke-width:11;
   stroke-linecap:round;
   stroke-dasharray:791.68;
   stroke-dashoffset:0;
@@ -5175,29 +5194,19 @@ body.in-app-browser #authGate{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.hrBadgeStar{
-  display:block;
-  width:11px;
-  height:11px;
-  background:currentColor;
-  opacity:.7;
-  clip-path:polygon(50% 0%,62% 34%,98% 35%,69% 56%,79% 91%,50% 70%,21% 91%,31% 56%,2% 35%,38% 34%);
-}
-
-/* Mascot placeholder */
-.hrMascot{
-  width:min(80vw,300px);
-  flex-shrink:0;
+/* Mascot — hidden until asset ready */
+#hrMascot{
+  display:none;
 }
 
 /* Controls row */
 .hrControls{
   width:100%;
-  padding:10px 14px 38px;
+  padding:10px 14px 36px;
   display:flex;
   justify-content:center;
-  align-items:flex-end;
-  gap:7px;
+  align-items:center;
+  gap:8px;
   flex-shrink:0;
 }
 
@@ -5209,13 +5218,13 @@ body.in-app-browser #authGate{
   justify-content:center;
   text-align:center;
   gap:4px;
-  min-width:56px;
-  height:62px;
-  padding:0 10px;
-  border-radius:20px;
-  background:rgba(255,255,255,.85);
-  border:1px solid rgba(132,88,232,.16);
-  box-shadow:0 2px 8px rgba(132,88,232,.08);
+  min-width:58px;
+  height:64px;
+  padding:0 12px;
+  border-radius:22px;
+  background:rgba(255,255,255,.95);
+  border:1px solid rgba(132,88,232,.14);
+  box-shadow:0 4px 14px rgba(132,88,232,.12), 0 1px 3px rgba(0,0,0,.04);
   color:#5b21b6;
   font-size:11px;
   font-weight:700;
@@ -5224,7 +5233,7 @@ body.in-app-browser #authGate{
 }
 .hrPill:active{
   transform:scale(0.88);
-  box-shadow:0 1px 3px rgba(132,88,232,.10);
+  box-shadow:0 1px 4px rgba(132,88,232,.10);
 }
 
 /* SVG icons inside buttons */
@@ -5249,7 +5258,7 @@ body.in-app-browser #authGate{
   color:#fff;
   font-size:12px;
   font-weight:800;
-  box-shadow:0 8px 22px rgba(132,88,232,.42), 0 2px 6px rgba(132,88,232,.22);
+  box-shadow:0 0 0 4px rgba(255,255,255,0.55), 0 8px 22px rgba(132,88,232,.42), 0 2px 6px rgba(132,88,232,.22);
   flex-shrink:0;
   letter-spacing:.01em;
   transition:transform .12s ease, box-shadow .12s ease;
@@ -5265,6 +5274,7 @@ body.in-app-browser #authGate{
 
 /* Pause → Resume SVG swap */
 #homeRunPauseBtn{
+  width:66px;
   transition:background .18s, color .18s, box-shadow .14s, transform .12s ease;
 }
 #homeRunPauseBtn.resumeMode{
@@ -9266,7 +9276,6 @@ input, textarea {
     <div class="hrInner">
       <div id="homeRunTime" class="homeRunTime">25:00</div>
       <div class="hrBadge">
-        <span class="hrBadgeStar"></span>
         <span id="homeRunSession">เซสชันที่ 1</span>
       </div>
     </div>
