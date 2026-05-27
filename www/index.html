@@ -11198,14 +11198,18 @@ function loadState(){
       window.homeRunEndTs = 0;
       state.homeRunEndTs = 0;
     }
-    // ถ้า status ยัง "running"/"paused" แต่ timer หมดเวลาไปแล้ว → force reset เป็น idle
-    // ป้องกัน state ค้างหลัง reload / build
-    if((state.status === "running" || state.status === "paused") &&
-        state.homeRunEndTs > 0 && Date.now() > Number(state.homeRunEndTs)){
-      state.status = "idle";
-      state.startTs = null;
-      window.homeRunEndTs = 0;
-      state.homeRunEndTs = 0;
+    // ถ้า status ยัง "running"/"paused" แต่ timer หมดหรือไม่มี endTs → force reset
+    if(state.status === "running" || state.status === "paused"){
+      const now = Date.now();
+      const endExpired  = state.homeRunEndTs > 0 && now > Number(state.homeRunEndTs);
+      const noEnd       = !state.homeRunEndTs;
+      const startOld    = !state.startTs || (now - Number(state.startTs)) > 8 * 3600000;
+      if(endExpired || (noEnd && startOld)){
+        state.status   = "idle";
+        state.startTs  = null;
+        window.homeRunEndTs  = 0;
+        state.homeRunEndTs   = 0;
+      }
     }
   }
 }
