@@ -9142,6 +9142,10 @@ input, textarea {
   </div>
 </div>
 
+<button id="debugResetBtn2" type="button" style="width:100%;background:none;border:none;color:#a78bfa;font-size:11px;opacity:0.35;cursor:pointer;padding:12px 16px;text-align:center;">
+  ⚙ reset app state
+</button>
+
 </div>
 
 
@@ -11206,8 +11210,8 @@ function loadState(){
       window.homeRunEndTs = 0;
       state.homeRunEndTs = 0;
     }
-    // ถ้า status ยัง "running"/"paused" แต่ timer หมดหรือไม่มี endTs → force reset
-    if(state.status === "running" || state.status === "paused"){
+    // ถ้า status ค้างอยู่ที่ running/paused/stopped แต่ไม่มี timer → force reset
+    if(state.status === "running" || state.status === "paused" || state.status === "stopped"){
       const now = Date.now();
       const endExpired  = state.homeRunEndTs > 0 && now > Number(state.homeRunEndTs);
       const noEnd       = !state.homeRunEndTs;
@@ -11216,6 +11220,7 @@ function loadState(){
         state.startTs  = null;
         window.homeRunEndTs  = 0;
         state.homeRunEndTs   = 0;
+        saveState();
       }
     }
   }
@@ -15619,13 +15624,18 @@ on(el.claimProof, "input", ()=>{
 
   // debug reset button (long press 1.5s)
   (function(){
-    const btn = document.getElementById("debugResetBtn");
-    if(!btn) return;
-    let t = null;
-    btn.addEventListener("touchstart", ()=>{ t = setTimeout(()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")) { localStorage.removeItem("qps_timer_state_v4"); location.reload(); } }, 1500); }, {passive:true});
-    btn.addEventListener("touchend", ()=>{ clearTimeout(t); }, {passive:true});
-    btn.addEventListener("mousedown", ()=>{ t = setTimeout(()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")) { localStorage.removeItem("qps_timer_state_v4"); location.reload(); } }, 1500); });
-    btn.addEventListener("mouseup", ()=>{ clearTimeout(t); });
+    function attachReset(id){
+      const btn = document.getElementById(id);
+      if(!btn) return;
+      let t = null;
+      const doReset = ()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")){ Object.keys(localStorage).filter(k=>k.startsWith("qpsData_v4")).forEach(k=>{try{const d=JSON.parse(localStorage.getItem(k));if(d?.state){d.state.status="idle";d.state.homeRunEndTs=0;d.state.startTs=null;localStorage.setItem(k,JSON.stringify(d));}}catch(e){}});location.reload(); } };
+      btn.addEventListener("touchstart", ()=>{ t = setTimeout(doReset, 1500); }, {passive:true});
+      btn.addEventListener("touchend", ()=>{ clearTimeout(t); }, {passive:true});
+      btn.addEventListener("mousedown", ()=>{ t = setTimeout(doReset, 1500); });
+      btn.addEventListener("mouseup", ()=>{ clearTimeout(t); });
+    }
+    attachReset("debugResetBtn");
+    attachReset("debugResetBtn2");
   })();
 
   // onboarding
@@ -16263,8 +16273,19 @@ let homeQuestDraftCategory = state.selectedCategory || "Learning";
 
 function openHomeQuestFlow(category){
   if(state.status === "running" || state.status === "paused"){
-    showActionLockBar("ตอนนี้กำลังทำเควสอยู่ ต้องหยุดหรือส่งรายงานก่อนนะ");
-    return;
+    const timerExpired = !window.homeRunEndTs || Date.now() >= window.homeRunEndTs;
+    if(timerExpired){
+      state.status = "idle";
+      state.startTs = null;
+      window.homeRunEndTs = 0;
+      state.homeRunEndTs = 0;
+      saveState();
+      hideHomeRunScreen();
+      updateUI();
+    } else {
+      showActionLockBar("ตอนนี้กำลังทำเควสอยู่ ต้องหยุดหรือส่งรายงานก่อนนะ");
+      return;
+    }
   }
 
   homeQuestDraftCategory = category || state.selectedCategory || "Learning";
