@@ -1,7 +1,7 @@
 # SakuraQ — Build APK for Firebase App Distribution
 # Run from D:\git  (PowerShell)
 
-$version    = "v15-center-timer"
+$version    = "v17-stuck-fix2"
 $apkName    = "sakuraq-$version.apk"
 $apkDebug   = "android\app\build\outputs\apk\debug\app-debug.apk"
 
@@ -22,13 +22,14 @@ $buildOk = $?
 Set-Location ..
 if (-not $buildOk) { Write-Host "Gradle build failed" -ForegroundColor Red; exit 1 }
 
-# 3. Copy to root with release name
+# 3. Copy to Downloads with release name
 Write-Host "`n[3/3] Copying APK..." -ForegroundColor Yellow
+$apkDest = "$env:USERPROFILE\Downloads\$apkName"
 if (Test-Path $apkDebug) {
-    Copy-Item $apkDebug $apkName -Force
-    $sizeMB = [math]::Round((Get-Item $apkName).Length / 1MB, 1)
+    Copy-Item $apkDebug $apkDest -Force
+    $sizeMB = [math]::Round((Get-Item $apkDest).Length / 1MB, 1)
     Write-Host ""
-    Write-Host "Done!  $apkName  ($sizeMB MB)" -ForegroundColor Green
+    Write-Host "Done!  $apkDest  ($sizeMB MB)" -ForegroundColor Green
     Write-Host ""
     Write-Host "Upload to Firebase App Distribution:" -ForegroundColor Cyan
     Write-Host "  https://console.firebase.google.com/project/sakuraq/appdistribution" -ForegroundColor White

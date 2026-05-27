@@ -8930,6 +8930,14 @@ input, textarea {
   </div><!-- /hpContainer -->
 </section>
 
+    <!-- Debug Reset -->
+    <div style="text-align:center;padding:32px 0 16px;">
+      <button id="debugResetBtn" type="button"
+        style="background:none;border:none;color:#c4b5fd;font-size:11px;opacity:0.4;cursor:pointer;padding:8px 16px;-webkit-user-select:none;user-select:none;">
+        ⚙ reset app state
+      </button>
+    </div>
+
     <!-- ONBOARDING -->
     <div class="overlay" id="onOverlay">
       <div class="onboard">
@@ -11203,8 +11211,7 @@ function loadState(){
       const now = Date.now();
       const endExpired  = state.homeRunEndTs > 0 && now > Number(state.homeRunEndTs);
       const noEnd       = !state.homeRunEndTs;
-      const startOld    = !state.startTs || (now - Number(state.startTs)) > 8 * 3600000;
-      if(endExpired || (noEnd && startOld)){
+      if(endExpired || noEnd){
         state.status   = "idle";
         state.startTs  = null;
         window.homeRunEndTs  = 0;
@@ -15609,6 +15616,17 @@ on(el.claimProof, "input", ()=>{
 });
   on(el.appScroll, "scroll", ()=>{ if(el.tooltip?.classList.contains("show")) hideTooltip(); }, { passive:true });
   on(window, "resize", ()=>{ if(el.tooltip?.classList.contains("show")) hideTooltip(); });
+
+  // debug reset button (long press 1.5s)
+  (function(){
+    const btn = document.getElementById("debugResetBtn");
+    if(!btn) return;
+    let t = null;
+    btn.addEventListener("touchstart", ()=>{ t = setTimeout(()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")) { localStorage.removeItem("qps_timer_state_v4"); location.reload(); } }, 1500); }, {passive:true});
+    btn.addEventListener("touchend", ()=>{ clearTimeout(t); }, {passive:true});
+    btn.addEventListener("mousedown", ()=>{ t = setTimeout(()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")) { localStorage.removeItem("qps_timer_state_v4"); location.reload(); } }, 1500); });
+    btn.addEventListener("mouseup", ()=>{ clearTimeout(t); });
+  })();
 
   // onboarding
   on(el.openOnboardBtn, "click", ()=> openOnboarding());
