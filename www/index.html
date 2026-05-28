@@ -3327,6 +3327,800 @@ background-size: 200% 100%;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z'/%3E%3C/svg%3E");
 }
+/* PLAN — calendar icon */
+.navIconSchedule {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2z'/%3E%3C/svg%3E");
+}
+
+/* ===== SCHEDULE PAGE ===== */
+#schedulePage { overflow-y: auto; }
+.scheduleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 4px 10px;
+}
+.schedHeaderTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.schedHeaderDate {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.scheduleTimeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 4px 0 12px;
+}
+/* Vertical line — same as tpQuestList */
+.scheduleTimeline::before {
+  content: "";
+  position: absolute;
+  left: 34px;
+  top: 28px;
+  bottom: 88px;
+  width: 2px;
+  background: linear-gradient(180deg,
+    rgba(167,139,250,.55) 0%,
+    rgba(167,139,250,.35) 65%,
+    transparent 100%);
+  border-radius: 999px;
+  z-index: 0;
+}
+/* Row wrapper */
+.schedItem {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  position: relative;
+}
+/* Time label */
+.schedItemTime {
+  width: 38px; flex: 0 0 38px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.3;
+  z-index: 1;
+}
+/* Dot column */
+.schedItemDotCol {
+  width: 18px; flex: 0 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.schedItemDot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18), 0 0 0 5px rgba(139,92,246,.06);
+}
+.schedItem[data-cat="Learning"] .schedItemDot   { background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.20), 0 0 0 5px rgba(52,211,153,.07); }
+.schedItem[data-cat="Work/Project"] .schedItemDot { background: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.20), 0 0 0 5px rgba(96,165,250,.07); }
+.schedItem[data-cat="Physical"] .schedItemDot   { background: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,.22), 0 0 0 5px rgba(167,139,250,.08); }
+.schedItem[data-cat="Connection"] .schedItemDot { background: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,.20), 0 0 0 5px rgba(244,114,182,.07); }
+.schedTimelineEmpty {
+  width: 100%;
+  min-height: 200px;
+  border: 2.5px dashed rgba(91,90,214,.28);
+  border-radius: var(--r2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.schedTimelineEmpty:active {
+  background: rgba(91,90,214,.04);
+  border-color: rgba(91,90,214,.5);
+}
+.schedTimelineEmpty .schedEmptyPlus {
+  font-size: 36px;
+  font-weight: 300;
+  color: rgba(91,90,214,.35);
+  line-height: 1;
+  user-select: none;
+}
+.schedAddInline {
+  min-height: 64px;
+  margin-top: 10px;
+}
+.schedCard {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255,255,255,.92);
+  border-radius: 18px;
+  padding: 10px 36px 10px 12px;
+  margin-left: 8px;
+  box-shadow: 0 0 0 1px rgba(15,23,42,.04), 0 2px 4px rgba(15,23,42,.04), 0 8px 20px rgba(15,23,42,.05);
+  position: relative;
+  overflow: hidden;
+}
+.schedCardBar {
+  width: 5px;
+  flex-shrink: 0;
+  border-radius: var(--r2) 0 0 var(--r2);
+}
+.schedCard[data-cat="Learning"] .schedCardBar   { background: linear-gradient(160deg,#34d399,#059669); }
+.schedCard[data-cat="Work/Project"] .schedCardBar { background: linear-gradient(160deg,#60a5fa,#2563eb); }
+.schedCard[data-cat="Physical"] .schedCardBar   { background: linear-gradient(160deg,#a78bfa,#7c3aed); }
+.schedCard[data-cat="Connection"] .schedCardBar { background: linear-gradient(160deg,#f472b6,#db2777); }
+.schedCardMain {
+  flex: 1;
+  padding: 12px 10px 12px 14px;
+  min-width: 0;
+}
+.schedCardTime {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+  margin-bottom: 3px;
+}
+.schedCardName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.schedCardMeta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.schedCardDel {
+  position: absolute;
+  right: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.40;
+  transition: opacity .14s;
+  border-radius: 50%;
+}
+.schedCardDel:active { opacity: 1; }
+.addScheduleBtn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: var(--r2);
+  border: 2px dashed rgba(91,90,214,.25);
+  background: rgba(91,90,214,.04);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .14s, border-color .14s;
+}
+.addScheduleBtn:active {
+  background: rgba(91,90,214,.1);
+  border-color: rgba(91,90,214,.4);
+}
+
+/* ── Schedule Page: single-column notecard layout ── */
+.schedPageScroll { padding: 14px 12px 90px; }
+
+/* Notecard form — looks like a physical card you write on */
+.schedNotecard {
+  background: #fffef5;
+  border-radius: var(--r2);
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 2px 6px rgba(15,23,42,.05),
+    0 8px 24px rgba(15,23,42,.07);
+  margin-bottom: 14px;
+  transform: rotate(-0.4deg);
+  transform-origin: top center;
+  transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease;
+  overflow: hidden;
+}
+.schedNotecard.collapsed {
+  transform: rotate(0deg);
+  box-shadow: 0 1px 4px rgba(15,23,42,.05);
+}
+
+/* Handle bar — tap to expand/collapse */
+.schedNotecardHandle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(124,58,237,.09), rgba(109,40,217,.04));
+  border-bottom: 1px solid rgba(15,23,42,.06);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.schedNotecardHandle:active { background: rgba(124,58,237,.13); }
+.schedNotecardHandleTitle {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .2px;
+}
+.schedNotecardChevron {
+  font-size: 13px;
+  color: var(--accent);
+  opacity: .55;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  line-height: 1;
+}
+.schedNotecard.collapsed .schedNotecardChevron { transform: rotate(-90deg); }
+
+/* Form body — accordion */
+.schedFormBody {
+  overflow: hidden;
+  max-height: 700px;
+  padding: 12px 14px 14px;
+  transition: max-height .36s cubic-bezier(.4,0,.2,1),
+              opacity .25s ease,
+              padding .36s cubic-bezier(.4,0,.2,1);
+  opacity: 1;
+}
+.schedNotecard.collapsed .schedFormBody {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Form field overrides inside notecard */
+.schedFormBody .schedGroup {
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(15,23,42,.07);
+  padding: 10px 2px 12px;
+  margin-bottom: 0;
+}
+.schedFormBody .schedCatPicker { gap: 8px; }
+.schedFormBody .schedCatBtn {
+  background: #fffef5;
+  border: 1.5px solid rgba(15,23,42,.10);
+  box-shadow: none;
+  flex: 1;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 8px 4px;
+}
+.schedFormBody .schedCatBtn.active {
+  border-color: var(--accent);
+  background: rgba(124,58,237,.06);
+  color: var(--accent);
+  box-shadow: none;
+}
+.schedFormBody .schedCatIcon { width: 22px; height: 22px; margin: 0; }
+.schedFormBody .schedGroup .hqSliderWrap {
+  padding: 4px 0 2px;
+  margin: 6px 0 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.schedFormBody .hqSliderTimeDisplay { font-size: 18px; margin-bottom: 6px; }
+.schedFormBody .hqSliderTrack { background: rgba(15,23,42,.10); }
+.schedFormBody .hqSliderFill  { background: rgba(15,23,42,.28); box-shadow: none; }
+.schedFormBody .hqSliderThumb { background: #fff; border: 2px solid rgba(15,23,42,.30); }
+.schedFormBody .hqSliderLabelItem { color: var(--muted); }
+.schedFormBody .hqSliderLabelItem.snap-active { color: var(--ink); background: none; }
+.schedFormBody .schedTimePicker {
+  height: 132px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.schedFormBody .schedTimeCol { height: 132px; }
+.schedFormBody .schedTimePickerHighlight {
+  background: transparent;
+  border-top: 1px solid rgba(15,23,42,.10);
+  border-bottom: 1px solid rgba(15,23,42,.10);
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+}
+.schedFormBody .schedTimePicker::before {
+  background: linear-gradient(to bottom, #fffef5 10%, transparent 100%);
+}
+.schedFormBody .schedTimePicker::after {
+  background: linear-gradient(to top, #fffef5 10%, transparent 100%);
+}
+.schedFormBody .schedModalActions { margin-top: 10px; gap: 6px; }
+
+/* ── Card physics animations ── */
+
+/* New card drops in from above with tilt + bounce */
+@keyframes schedCardDrop {
+  0%   { transform: translateY(-28px) rotate(-2.5deg) scale(.92); opacity: 0; }
+  55%  { transform: translateY(5px) rotate(.7deg) scale(1.015); opacity: 1; }
+  75%  { transform: translateY(-2px) rotate(-.2deg); }
+  100% { transform: none; opacity: 1; }
+}
+.schedItem.is-new .schedCard {
+  animation: schedCardDrop .52s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* Touch: card lifts up like picking it off a surface */
+.schedCard {
+  transition: transform .15s ease, box-shadow .15s ease;
+  will-change: transform;
+}
+.schedCard:active {
+  transform: translateY(-6px) rotate(-0.7deg) scale(1.01);
+  box-shadow:
+    0 18px 38px rgba(15,23,42,.16),
+    0 4px 12px rgba(15,23,42,.10),
+    0 0 0 1px rgba(15,23,42,.04);
+}
+
+/* Delete: card flies away before removal */
+@keyframes schedCardExit {
+  to { transform: translateY(-36px) rotate(3deg) scale(.86); opacity: 0; }
+}
+.schedItem.is-exiting {
+  animation: schedCardExit .27s cubic-bezier(.4,0,1,1) forwards;
+  pointer-events: none;
+}
+
+/* Drop slot pulses when receiving a card */
+@keyframes schedSlotReceive {
+  0%   { transform: scale(1); border-color: rgba(91,90,214,.28); }
+  38%  { transform: scale(1.025); border-color: rgba(139,92,246,.9); background: rgba(139,92,246,.06); }
+  65%  { transform: scale(.987); }
+  100% { transform: scale(1); border-color: rgba(91,90,214,.28); background: transparent; }
+}
+.schedAddInline.is-receiving {
+  animation: schedSlotReceive .55s cubic-bezier(.34,1.56,.64,1);
+}
+/* Drop zone lights up when card is dragged over it */
+.schedAddInline.drop-target-active {
+  border-color: rgba(139,92,246,.85) !important;
+  background: rgba(139,92,246,.07);
+  transform: scale(1.02);
+  transition: border-color .1s, background .1s, transform .15s;
+}
+
+/* ── Pending card staging area ── */
+.schedPendingArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 4px 0;
+}
+.schedPendingHint {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .2px;
+  text-align: center;
+  opacity: .8;
+}
+/* The floating card */
+.schedPendingCardEl {
+  width: calc(100% - 8px);
+  background: #fff;
+  border-radius: 20px;
+  padding: 12px 16px;
+  box-shadow:
+    0 4px 16px rgba(15,23,42,.11),
+    0 1px 4px rgba(15,23,42,.07),
+    0 0 0 1px rgba(15,23,42,.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  z-index: 10;
+}
+/* Float animation — gentle hover + slight tilt like holding a card */
+.schedPendingCardEl.is-floating {
+  animation: schedPendingFloat 2.8s ease-in-out infinite;
+}
+@keyframes schedPendingFloat {
+  0%,100% { transform: translateY(0) rotate(-0.4deg);
+            box-shadow: 0 4px 16px rgba(15,23,42,.11), 0 1px 4px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04); }
+  30%     { transform: translateY(-7px) rotate(0.4deg);
+            box-shadow: 0 12px 32px rgba(15,23,42,.15), 0 4px 12px rgba(15,23,42,.10); }
+  70%     { transform: translateY(-4px) rotate(-0.6deg);
+            box-shadow: 0 9px 24px rgba(15,23,42,.13), 0 3px 8px rgba(15,23,42,.08); }
+}
+/* Grabbed state — feels heavier, stops floating */
+.schedPendingCardEl.is-grabbed {
+  cursor: grabbing;
+  animation: none !important;
+  box-shadow:
+    0 22px 55px rgba(15,23,42,.24),
+    0 8px 20px rgba(15,23,42,.14),
+    0 0 0 1px rgba(15,23,42,.06);
+  z-index: 500;
+}
+/* Trash drop zone — slides up during drag, dashed red */
+.schedTrashZone {
+  position: fixed;
+  top: 0;
+  left: 20px; right: 20px;
+  height: 52px;
+  border: 2px dashed rgba(239,68,68,.42);
+  border-radius: 0 0 16px 16px;   /* only bottom corners */
+  border-top: none;                /* no top border — it's off screen */
+  background: rgba(239,68,68,.04);
+  display: flex;
+  align-items: flex-end;           /* content sits in the visible bottom half */
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  z-index: 490;
+  transform: translateY(-100%);    /* fully hidden above */
+  transition: transform .26s cubic-bezier(.4,0,.2,1), border-color .14s, background .14s;
+  pointer-events: none;
+}
+.schedTrashZone.is-visible {
+  transform: translateY(-50%);     /* half peeks out from top edge */
+  pointer-events: auto;
+}
+.schedTrashZone.drop-target-active {
+  border-color: rgba(239,68,68,.9);
+  background: rgba(239,68,68,.10);
+}
+.schedTrashSvg {
+  width: 18px; height: 18px;
+  color: rgba(239,68,68,.52);
+  flex-shrink: 0;
+  transition: color .14s;
+}
+.schedTrashLabel {
+  font-size: 11px; font-weight: 700;
+  color: rgba(239,68,68,.52);
+  letter-spacing: .2px;
+  transition: color .14s;
+}
+.schedTrashZone.drop-target-active .schedTrashSvg,
+.schedTrashZone.drop-target-active .schedTrashLabel { color: rgba(239,68,68,.95); }
+
+/* Category dot on pending card */
+.spcDot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.spcDot[data-cat="Learning"]     { background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.20); }
+.spcDot[data-cat="Work/Project"] { background: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.20); }
+.spcDot[data-cat="Physical"]     { background: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,.22); }
+.spcDot[data-cat="Connection"]   { background: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,.20); }
+.spcInfo { flex: 1; min-width: 0; }
+.spcName { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spcMeta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.spcTime { font-size: 13px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+
+/* Schedule Modal */
+.scheduleModalCard {
+  width: min(360px, 92vw);
+  padding: 8px 20px 20px;
+}
+.scheduleModalCard::before {
+  content: "";
+  display: block;
+  width: 36px; height: 4px;
+  background: rgba(15,23,42,.13);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+.schedModalTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 14px;
+  letter-spacing: -0.2px;
+}
+.schedCatPicker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.schedCatBtn {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  background: var(--bg2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .14s;
+  text-align: left;
+}
+.schedCatBtn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(91,90,214,.08);
+}
+.schedCatIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.75);
+  flex-shrink: 0;
+  overflow: visible;
+  position: relative;
+}
+.schedCatIcon .sqIcon {
+  transform: scale(0.65);
+  transform-origin: center;
+  flex-shrink: 0;
+}
+.schedModalLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  margin-bottom: 6px;
+  opacity: .7;
+}
+.schedNameInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 500;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+.schedNameInput:focus { border-color: var(--accent); }
+.schedDurPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.schedDurBtn {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .14s;
+  font-family: inherit;
+}
+.schedDurBtn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(91,90,214,.08);
+}
+.schedConflictMsg {
+  background: rgba(251,113,133,.10);
+  border: 1px solid rgba(251,113,133,.30);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #be123c;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.schedModalActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.schedSaveBtn {
+  flex: 2;
+  padding: 13px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow: 0 4px 0 #4c1d95, 0 8px 20px rgba(109,40,217,.28), inset 0 1px 0 rgba(255,255,255,.22);
+  letter-spacing: -0.1px;
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.schedSaveBtn:active {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 1px 0 #4c1d95, 0 4px 10px rgba(109,40,217,.20), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.schedCancelBtn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(15,23,42,.10);
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: none;
+  transition: transform .12s ease;
+}
+.schedCancelBtn:active {
+  transform: scale(0.93);
+}
+
+/* Scroll Time Picker */
+.schedTimePicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: var(--bg2);
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  position: relative;
+  height: 132px;
+  margin-bottom: 14px;
+}
+.schedTimePicker::before,
+.schedTimePicker::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 44px;
+  pointer-events: none;
+  z-index: 2;
+}
+.schedTimePicker::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg2) 10%, transparent 100%);
+}
+.schedTimePicker::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg2) 10%, transparent 100%);
+}
+.schedTimePickerHighlight {
+  position: absolute;
+  left: 8px; right: 8px;
+  top: 50%; transform: translateY(-50%);
+  height: 44px;
+  background: rgba(91,90,214,.10);
+  border: 1.5px solid rgba(91,90,214,.22);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+.schedTimeCol {
+  flex: 1;
+  height: 132px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.schedTimeCol::-webkit-scrollbar { display: none; }
+.schedTimeColon {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  padding: 0 2px;
+  z-index: 3;
+  position: relative;
+  flex-shrink: 0;
+}
+.schedTimeItem {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: color .1s;
+  user-select: none;
+}
+.schedTimeItem.ghost { visibility: hidden; }
+
+/* ---- Schedule Modal card groups ---- */
+.schedGroup {
+  background: var(--bg2);
+  border: 1px solid rgba(15,23,42,.07);
+  border-radius: 14px;
+  padding: 12px 14px 10px;
+  margin-bottom: 8px;
+}
+.schedGroupLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  opacity: .6;
+}
+/* Slider inside group — tone down the purple wash */
+.schedGroup .hqSliderWrap {
+  margin: 8px 0 0;
+  padding: 10px 10px 8px;
+  background: rgba(91,90,214,.05);
+  border-color: rgba(91,90,214,.12);
+}
+.schedGroup .hqSliderTimeDisplay {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+/* Name input inside group — no extra border on an already-bordered card */
+.schedNameInGroup {
+  background: rgba(255,255,255,.75);
+  margin-bottom: 0;
+}
+/* Time picker inside group — remove double-box */
+.schedTimePickerInGroup {
+  border: none !important;
+  background: transparent !important;
+  margin-bottom: 0;
+  padding: 0;
+}
+/* Category icon wrappers in modal */
+.schedCatIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.schedCatBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Card category dot */
+.schedCardCatIcon {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.schedCardCatIcon.cat-learn   { background: linear-gradient(160deg,#34d399,#059669); }
+.schedCardCatIcon.cat-work    { background: linear-gradient(160deg,#60a5fa,#2563eb); }
+.schedCardCatIcon.cat-physical{ background: linear-gradient(160deg,#a78bfa,#7c3aed); }
+.schedCardCatIcon.cat-connect { background: linear-gradient(160deg,#f472b6,#db2777); }
 
 /* กัน content ชน nav */
 #homeScene{
@@ -6557,55 +7351,37 @@ body.homeRunVisible .foxMascot{
 .sqIconPhysical::after{  right:-5px; }
 
 /* CONNECT — Heart */
+/* CONNECT — Speech Bubble */
 .sqIconConnect{
-  width: 18px;
+  width: 22px;
   height: 18px;
+  background: linear-gradient(160deg, #f472b6, #db2777);
+  border-radius: 7px 7px 7px 0;
   position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+  display: block;
+  transform: none;
   margin: auto;
-
-  transform: rotate(-45deg) translateY(1px);
+  flex: 0 0 auto;
+  box-shadow: 0 2px 6px rgba(244,114,182,.30);
 }
-
-.sqIconConnect::before{
+.sqIconConnect::before{ /* tail — border triangle เข้ากับ gradient */
   content: "";
   position: absolute;
-
-  width: 18px;
-  height: 18px;
-
-  background: linear-gradient(160deg, #f472b6, #db2777);
-
-  border-radius: 4px;
-
+  bottom: -5px;
   left: 0;
-  top: 0;
-
-  box-shadow:
-    0 2px 6px rgba(244,114,182,.18),
-    inset 0 1px 1px rgba(255,255,255,.22);
+  width: 0; height: 0;
+  border-top: 6px solid #db2777;
+  border-right: 6px solid transparent;
 }
-
-.sqIconConnect::after{
+.sqIconConnect::after{ /* three dots */
   content: "";
   position: absolute;
-
-  width: 18px;
-  height: 18px;
-
-  background: linear-gradient(160deg, #f472b6, #db2777);
-
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px; height: 3px;
   border-radius: 50%;
-
-  left: 0;
-  top: -9px;
-
-  box-shadow:
-    9px 9px 0 #db2777;
+  background: rgba(255,255,255,.95);
+  box-shadow: -6px 0 0 rgba(255,255,255,.95), 6px 0 0 rgba(255,255,255,.95);
 }
 
 /* ===== ANIMATIONS ===== */
@@ -7357,9 +8133,8 @@ input, textarea {
   flex-shrink: 0;
 }
 
-/* หัวใจ — คงการหมุนไว้ แต่ scale ให้เล็กลง + ตรงกลาง */
 .tpQuestIconBox .sqIconConnect{
-  transform: scale(0.70) rotate(-45deg) translateY(1px) !important;
+  transform: scale(0.70) !important;
   display: block !important;
   margin: auto !important;
 }
@@ -7927,7 +8702,7 @@ input, textarea {
   flex:0 0 auto;
 }
 .rqResultEmojiWrap .sqIconConnect{
-  transform:scale(2.0) rotate(-45deg) translateY(1px) !important;
+  transform:scale(2.0) !important;
   display:block;
   margin:auto;
 }
@@ -8195,7 +8970,7 @@ input, textarea {
   flex:0 0 20px; vertical-align:-4px; margin-right:5px; overflow:hidden;
 }
 .catInlineIcon .sqIcon{ transform:scale(.58); }
-.catInlineIcon .sqIconConnect{ transform:scale(.58) rotate(-45deg) translateY(1px) !important; }
+.catInlineIcon .sqIconConnect{ transform:scale(.58) !important; }
 .catInlineLearn { background:rgba(52,211,153,.18); }
 .catInlineWork  { background:rgba(59,130,246,.15); }
 .catInlinePhys  { background:rgba(139,92,246,.16); }
@@ -8930,14 +9705,6 @@ input, textarea {
   </div><!-- /hpContainer -->
 </section>
 
-    <!-- Debug Reset -->
-    <div style="text-align:center;padding:32px 0 16px;">
-      <button id="debugResetBtn" type="button"
-        style="background:none;border:none;color:#c4b5fd;font-size:11px;opacity:0.4;cursor:pointer;padding:8px 16px;-webkit-user-select:none;user-select:none;">
-        ⚙ reset app state
-      </button>
-    </div>
-
     <!-- ONBOARDING -->
     <div class="overlay" id="onOverlay">
       <div class="onboard">
@@ -9073,6 +9840,96 @@ input, textarea {
   </div>
 </section>
 
+<!-- SCHEDULE PAGE -->
+<section id="schedulePage" class="app page">
+  <div class="appScroll schedPageScroll">
+    <div class="scheduleHeader">
+      <div class="schedHeaderTitle">ตารางพรุ่งนี้</div>
+      <div id="scheduleDateLabel" class="schedHeaderDate"></div>
+    </div>
+    <!-- Notecard form -->
+    <div class="schedNotecard" id="schedNotecard">
+      <div class="schedNotecardHandle" id="schedNotecardHandle">
+        <span class="schedNotecardHandleTitle">✏️ เขียนการ์ด</span>
+        <span class="schedNotecardChevron">▾</span>
+      </div>
+      <div class="schedFormBody">
+        <div class="schedGroup">
+          <div class="schedGroupLabel">หมวด</div>
+          <div id="schedCatPicker" class="schedCatPicker">
+            <button class="schedCatBtn active" type="button" data-cat="Learning">
+              <span class="schedCatIcon"><span class="sqIcon sqIconLearn"></span></span>Learn
+            </button>
+            <button class="schedCatBtn" type="button" data-cat="Work/Project">
+              <span class="schedCatIcon"><span class="sqIcon sqIconWork"></span></span>Work
+            </button>
+            <button class="schedCatBtn" type="button" data-cat="Physical">
+              <span class="schedCatIcon"><span class="sqIcon sqIconPhysical"></span></span>Phys
+            </button>
+            <button class="schedCatBtn" type="button" data-cat="Connection">
+              <span class="schedCatIcon"><span class="sqIcon sqIconConnect"></span></span>Chat
+            </button>
+          </div>
+        </div>
+        <div class="schedGroup">
+          <div class="schedGroupLabel">ชื่อ Quest</div>
+          <input id="schedNameInput" class="schedNameInput schedNameInGroup" type="text" maxlength="40" placeholder="ชื่อ...">
+          <div class="schedGroupLabel" style="margin-top:10px;margin-bottom:0">เวลาที่ใช้</div>
+          <div class="hqSliderWrap">
+            <div class="hqSliderTimeDisplay" id="schedDurDisplay">20<span class="hqSliderTimeUnit">min</span></div>
+            <div class="hqSliderTrackWrap">
+              <input type="range" class="hqSliderInput" id="schedDurInput" min="5" max="60" step="5" value="20">
+              <div class="hqSliderTrack">
+                <div class="hqSliderFill" id="schedDurFill"></div>
+                <div class="hqSliderThumb" id="schedDurThumb"></div>
+              </div>
+            </div>
+            <div class="hqSliderLabels" id="schedDurLabels">
+              <span class="hqSliderLabelItem" data-snap="5">5m</span>
+              <span class="hqSliderLabelItem" data-snap="15">15m</span>
+              <span class="hqSliderLabelItem snap-active" data-snap="20">20m</span>
+              <span class="hqSliderLabelItem" data-snap="30">30m</span>
+              <span class="hqSliderLabelItem" data-snap="45">45m</span>
+              <span class="hqSliderLabelItem" data-snap="60">60m</span>
+            </div>
+          </div>
+        </div>
+        <div class="schedGroup">
+          <div class="schedGroupLabel">เริ่มเวลา</div>
+          <div class="schedTimePicker schedTimePickerInGroup" id="schedTimePicker">
+            <div class="schedTimePickerHighlight"></div>
+            <div class="schedTimeCol" id="schedHourCol"></div>
+            <div class="schedTimeColon">:</div>
+            <div class="schedTimeCol" id="schedMinCol"></div>
+          </div>
+        </div>
+        <div id="schedConflictMsg" class="schedConflictMsg" style="display:none"></div>
+        <div class="schedModalActions">
+          <button id="schedCancelBtn" class="schedCancelBtn" type="button">ล้าง</button>
+          <button id="schedSaveBtn" class="schedSaveBtn" type="button">บันทึก</button>
+        </div>
+      </div>
+    </div>
+    <!-- Pending card staging area — card lives here after save, until dragged to slot -->
+    <div id="schedPendingArea" class="schedPendingArea" style="display:none">
+      <div class="schedPendingHint">✋ กดค้างแล้วลากไปวางในช่อง +</div>
+      <div id="schedPendingCardEl" class="schedPendingCardEl"></div>
+    </div>
+    <!-- Timeline -->
+    <div id="scheduleTimeline" class="scheduleTimeline"></div>
+  </div>
+  <!-- Trash zone — fixed, appears only during drag -->
+  <div id="schedTrashZone" class="schedTrashZone">
+    <svg class="schedTrashSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6l-1 14H6L5 6"/>
+      <path d="M10 11v6M14 11v6"/>
+      <path d="M9 6V4h6v2"/>
+    </svg>
+    <span class="schedTrashLabel">ลากมาวางเพื่อยกเลิก</span>
+  </div>
+</section>
+
 <!-- TOP MENU -->
 <div class="topMenuBackdrop" id="topMenuBackdrop"></div>
 
@@ -9142,9 +9999,6 @@ input, textarea {
   </div>
 </div>
 
-<button id="debugResetBtn2" type="button" style="width:100%;background:none;border:none;color:#a78bfa;font-size:11px;opacity:0.35;cursor:pointer;padding:12px 16px;text-align:center;">
-  ⚙ reset app state
-</button>
 
 </div>
 
@@ -9414,6 +10268,10 @@ input, textarea {
   <button class="bottomNavBtn" type="button" data-page="historyPage">
     <span class="navIcon navIconHistory"></span>
     <span>History</span>
+  </button>
+  <button class="bottomNavBtn" type="button" data-page="schedulePage">
+    <span class="navIcon navIconSchedule"></span>
+    <span>Plan</span>
   </button>
   <button class="bottomNavBtn" type="button" data-page="appPage" data-target="menu">
     <span class="navIcon navIconMenu"></span>
@@ -10294,6 +11152,7 @@ function canClaimPlus6({
     profile: {},
     streak: {},
     days: {},
+    schedule: {},
     updatedAt: 0
   };
 }
@@ -10309,6 +11168,7 @@ function normalizeAppData(raw){
     profile: raw.profile && typeof raw.profile === "object" && !Array.isArray(raw.profile) ? raw.profile : {},
     streak: raw.streak && typeof raw.streak === "object" && !Array.isArray(raw.streak) ? raw.streak : {},
     days: raw.days && typeof raw.days === "object" && !Array.isArray(raw.days) ? raw.days : {},
+    schedule: raw.schedule && typeof raw.schedule === "object" && !Array.isArray(raw.schedule) ? JSON.parse(JSON.stringify(raw.schedule)) : {},
     updatedAt: Number.isFinite(raw.updatedAt) ? raw.updatedAt : 0
   };
 }
@@ -12699,7 +13559,14 @@ function ensureFlowMetaForCurrentQuest(){
   if(!currentName) return;
 
   if(!state.flowBaseName){
-    state.flowBaseName = currentName;
+    // strip trailing " N" — "main quest 2" → base="main quest", index=2
+    const m = currentName.match(/^(.*)\s+(\d+)$/);
+    if(m){
+      state.flowBaseName = m[1];
+      if(state.flowIndex <= 1) state.flowIndex = parseInt(m[2], 10);
+    } else {
+      state.flowBaseName = currentName;
+    }
   }
 
   if(!state.flowIndex || state.flowIndex < 1){
@@ -14278,19 +15145,20 @@ function buildPendingSegmentsFromStoppedFlow(totalMinutes){
   if(pendingCount <= 0) return null; // exact cap hit → no split, report full 60 min
 
   const built = [];
+  const startIndex = (state.flowIndex >= 1 ? state.flowIndex : 1);
 
   for(let i = 0; i < pendingCount; i++){
     built.push({
       chainId: state.flowChainId,
       flowBaseName: baseName,
-      index: i + 1,
-      questName: buildFlowQuestName(baseName, i + 1),
+      index: startIndex + i,
+      questName: buildFlowQuestName(baseName, startIndex + i),
       minutes: capMin,
       createdAt: Date.now() + i
     });
   }
 
-  const nextIndex = pendingCount + 1;
+  const nextIndex = startIndex + pendingCount;
   const currentName = buildFlowQuestName(baseName, nextIndex);
 
   state.flowBaseName = baseName;
@@ -15622,22 +16490,6 @@ on(el.claimProof, "input", ()=>{
   on(el.appScroll, "scroll", ()=>{ if(el.tooltip?.classList.contains("show")) hideTooltip(); }, { passive:true });
   on(window, "resize", ()=>{ if(el.tooltip?.classList.contains("show")) hideTooltip(); });
 
-  // debug reset button (long press 1.5s)
-  (function(){
-    function attachReset(id){
-      const btn = document.getElementById(id);
-      if(!btn) return;
-      let t = null;
-      const doReset = ()=>{ t=null; if(confirm("รีเซ็ต app state?\n(ล้าง timer state แล้ว reload)")){ Object.keys(localStorage).filter(k=>k.startsWith("qpsData_v4")).forEach(k=>{try{const d=JSON.parse(localStorage.getItem(k));if(d?.state){d.state.status="idle";d.state.homeRunEndTs=0;d.state.startTs=null;localStorage.setItem(k,JSON.stringify(d));}}catch(e){}});location.reload(); } };
-      btn.addEventListener("touchstart", ()=>{ t = setTimeout(doReset, 1500); }, {passive:true});
-      btn.addEventListener("touchend", ()=>{ clearTimeout(t); }, {passive:true});
-      btn.addEventListener("mousedown", ()=>{ t = setTimeout(doReset, 1500); });
-      btn.addEventListener("mouseup", ()=>{ clearTimeout(t); });
-    }
-    attachReset("debugResetBtn");
-    attachReset("debugResetBtn2");
-  })();
-
   // onboarding
   on(el.openOnboardBtn, "click", ()=> openOnboarding());
   on(el.okOnBtn, "click", ()=> closeOnboarding(true));
@@ -15955,6 +16807,9 @@ function switchPage(pageId){
 
     if(pageId === "todayPage"){
       renderTodayPage();
+    }
+    if(pageId === "schedulePage"){
+      renderSchedulePage();
     }
   }
 }
@@ -16963,7 +17818,7 @@ async function sendCapacitorNotification(title, body, id, vibrate){
         id: id || Math.floor(Math.random() * 100000),
         title: title,
         body: body,
-        schedule: { at: new Date(Date.now() + 300) },
+        schedule: { at: new Date(Date.now() + 500) },
         smallIcon: "ic_stat_icon_config_sample",
         iconColor: "#5b6af0",
         sound: null
@@ -18678,8 +19533,11 @@ const localQuestCount = Object.values(localData.days || {})
 if(cloudQuestCount === 0 && localQuestCount > 0){
   console.warn("🛡️ skip cloud → local because cloud is empty but local has data");
 }else if(cloudTime > localTime){
+  // Merge schedule: keep any local dates not present in cloud to prevent data loss
+  const mergedSchedule = Object.assign({}, localData.schedule || {}, safeCloudData.schedule || {});
+  safeCloudData.schedule = mergedSchedule;
   localStorage.setItem(makeScopedKey(KEY_DATA), JSON.stringify(safeCloudData));
-  console.log("☁️ cloud → local");
+  console.log("☁️ cloud → local (schedule merged)");
 }else{
   console.log("⚠️ local newer/equal, skip cloud");
 }
@@ -18871,6 +19729,506 @@ function deleteQuestFromToday(origIndex){
   renderToday();
 }
 window.deleteQuestFromToday = deleteQuestFromToday;
+
+// ============================================================
+// SCHEDULE PAGE — helpers, CRUD, render, modal
+// ============================================================
+
+function parseHHMMtoMin(hhmm){
+  const parts = String(hhmm || "").split(":");
+  return (parseInt(parts[0],10)||0)*60 + (parseInt(parts[1],10)||0);
+}
+
+function schedHHMMtoTs(hhmm, dateKey){
+  const [h,m] = hhmm.split(":").map(Number);
+  const [yr,mo,dy] = dateKey.split("-").map(Number);
+  return new Date(yr, mo-1, dy, h, m, 0, 0).getTime();
+}
+
+function getScheduleItems(dateKey){
+  const all = loadAll();
+  const items = all.schedule?.[dateKey];
+  return Array.isArray(items) ? items : [];
+}
+
+function saveScheduleItems(dateKey, items){
+  const all = loadAll();
+  if(!all.schedule || typeof all.schedule !== "object") all.schedule = {};
+  all.schedule[dateKey] = items;
+  saveAll(all);
+}
+
+function scheduleConflictWith(startHHMM, durationMin, items, excludeId){
+  const newStart = parseHHMMtoMin(startHHMM);
+  const newEnd   = newStart + Number(durationMin);
+  for(const item of items){
+    if(item.id === excludeId) continue;
+    const iStart = parseHHMMtoMin(item.startHHMM);
+    const iEnd   = iStart + Number(item.durationMin);
+    if(newStart < iEnd && newEnd > iStart) return item;
+  }
+  return null;
+}
+
+async function scheduleItemNotif(item, dateKey){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return;
+  const ts = schedHHMMtoTs(item.startHHMM, dateKey);
+  if(ts <= Date.now()) return;
+  const emoji = getQuestCategoryEmoji(item.category);
+  try{
+    await LN.schedule({ notifications:[{
+      id: item.notifId,
+      title: `${emoji} ${item.name}`,
+      body: `ถึงเวลาแล้ว! Quest ${item.durationMin} นาที`,
+      schedule: { at: new Date(ts) },
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#5b6af0",
+      sound: null
+    }]});
+  }catch(err){ console.error("[SCHED] notif error:", err); }
+}
+
+async function cancelItemNotif(notifId){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return;
+  try{ await LN.cancel({ notifications:[{ id: notifId }] }); }catch(e){}
+}
+
+async function rescheduleAllTodayNotifs(){
+  const LN = getLocalNotificationsPlugin();
+  if(!LN) return;
+  try{
+    const ids = Array.from({length:99},(_,i)=>({ id: 30001+i }));
+    await LN.cancel({ notifications: ids });
+  }catch(e){}
+  // re-schedule tomorrow's pending items
+  const tomorrow = addDays(localDateKey(), 1);
+  const items    = getScheduleItems(tomorrow);
+  const now      = Date.now();
+  for(const item of items){
+    const ts = schedHHMMtoTs(item.startHHMM, tomorrow);
+    if(ts > now) await scheduleItemNotif(item, tomorrow);
+  }
+}
+
+function schedNextNotifId(items){
+  const used = new Set(items.map(i=>i.notifId));
+  for(let i=30001; i<=30099; i++){
+    if(!used.has(i)) return i;
+  }
+  return 30001;
+}
+
+async function addScheduleItem({ name, category, durationMin, startHHMM }){
+  const tomorrow = addDays(localDateKey(), 1);
+  const items    = getScheduleItems(tomorrow);
+  const conflict = scheduleConflictWith(startHHMM, durationMin, items);
+  if(conflict) return { ok:false, conflict };
+  const newItem = {
+    id: "s_" + Date.now(),
+    name: String(name).trim(),
+    category,
+    durationMin: Number(durationMin),
+    startHHMM,
+    notifId: schedNextNotifId(items)
+  };
+  items.push(newItem);
+  saveScheduleItems(tomorrow, items);
+  await scheduleItemNotif(newItem, tomorrow);
+  return { ok:true, item: newItem };
+}
+
+async function deleteScheduleItem(itemId){
+  // fly-away animation before removal
+  const cardEl = document.querySelector(`.schedItem[data-id="${itemId}"]`);
+  if(cardEl){
+    cardEl.classList.add("is-exiting");
+    await new Promise(r=>setTimeout(r,280));
+  }
+  const tomorrow = addDays(localDateKey(), 1);
+  const items    = getScheduleItems(tomorrow);
+  const target   = items.find(i=>i.id===itemId);
+  if(target) await cancelItemNotif(target.notifId);
+  saveScheduleItems(tomorrow, items.filter(i=>i.id!==itemId));
+  renderSchedulePage();
+}
+window.deleteScheduleItem = deleteScheduleItem;
+
+function schedCatDotClass(cat){
+  const k = String(cat||"").toLowerCase();
+  if(k.includes("learn"))    return "cat-learn";
+  if(k.includes("work"))     return "cat-work";
+  if(k.includes("physical")) return "cat-physical";
+  if(k.includes("connect"))  return "cat-connect";
+  return "cat-learn";
+}
+
+function renderSchedulePage(){
+  const dateEl = document.getElementById("scheduleDateLabel");
+  const timeline = document.getElementById("scheduleTimeline");
+  if(!dateEl || !timeline) return;
+
+  const tomorrow = addDays(localDateKey(), 1);
+  const tm = new Date(); tm.setDate(tm.getDate()+1);
+  const days = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัส","ศุกร์","เสาร์"];
+  dateEl.textContent = `${days[tm.getDay()]} ${tm.getDate()}/${tm.getMonth()+1}`;
+
+  const items = getScheduleItems(tomorrow);
+  items.sort((a,b)=>parseHHMMtoMin(a.startHHMM)-parseHHMMtoMin(b.startHHMM));
+
+  const newId = schedNewlyAddedId;
+  schedNewlyAddedId = null;
+
+  const itemsHTML = items.map(item=>{
+    const startMin = parseHHMMtoMin(item.startHHMM);
+    const endMin   = startMin + item.durationMin;
+    const endHHMM  = `${String(Math.floor(endMin/60)).padStart(2,"0")}:${String(endMin%60).padStart(2,"0")}`;
+    const isNew    = item.id === newId ? " is-new" : "";
+    return `<div class="schedItem${isNew}" data-cat="${item.category}" data-id="${item.id}">
+      <div class="schedItemTime">${item.startHHMM}<br><span style="opacity:.5">${endHHMM}</span></div>
+      <div class="schedItemDotCol"><div class="schedItemDot"></div></div>
+      <div class="schedCard" data-cat="${item.category}">
+        <div class="schedCardName">${item.name}</div>
+        <div class="schedCardMeta">${item.category} · ${item.durationMin} นาที</div>
+        <button class="schedCardDel" type="button" onclick="deleteScheduleItem('${item.id}')" aria-label="ลบ">✕</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  const addBoxHTML = `<div class="schedTimelineEmpty schedAddInline" id="schedEmptyBox">
+    <span class="schedEmptyPlus">+</span>
+  </div>`;
+
+  timeline.innerHTML = itemsHTML + addBoxHTML;
+
+  // clicking the slot expands the notecard form if it's collapsed
+  const emptyBox = document.getElementById("schedEmptyBox");
+  if(emptyBox){
+    emptyBox.addEventListener("click", ()=>{
+      const nc = document.getElementById("schedNotecard");
+      if(nc && nc.classList.contains("collapsed")){
+        nc.classList.remove("collapsed");
+      }
+    });
+  }
+}
+
+// ---- Schedule Modal state ----
+let schedModalCat    = "Learning";
+let schedModalDur    = 20;
+let schedNewlyAddedId = null;
+let schedPendingData  = null;   // card waiting to be dropped into timeline
+let schedDragging     = false;
+
+function schedBuildTimeCol(colEl, values){
+  colEl.innerHTML = "";
+  // ghost top
+  const gt = document.createElement("div");
+  gt.className = "schedTimeItem ghost"; gt.textContent = "00";
+  colEl.appendChild(gt);
+  values.forEach(v=>{
+    const el = document.createElement("div");
+    el.className = "schedTimeItem";
+    el.textContent = String(v).padStart(2,"0");
+    colEl.appendChild(el);
+  });
+  // ghost bottom
+  const gb = document.createElement("div");
+  gb.className = "schedTimeItem ghost"; gb.textContent = "00";
+  colEl.appendChild(gb);
+}
+
+function schedGetColValue(colEl){
+  const itemH = 44;
+  const idx = Math.round(colEl.scrollTop / itemH);
+  const items = colEl.querySelectorAll(".schedTimeItem:not(.ghost)");
+  const item = items[Math.min(idx, items.length-1)];
+  return item ? item.textContent.trim() : "00";
+}
+
+function schedScrollToValue(colEl, val){
+  const items = Array.from(colEl.querySelectorAll(".schedTimeItem:not(.ghost)"));
+  const idx = items.findIndex(el=>el.textContent.trim()===String(val).padStart(2,"0"));
+  if(idx >= 0) colEl.scrollTop = idx * 44;
+}
+
+function openScheduleModal(){
+  schedModalCat = "Learning";
+  schedModalDur = 20;
+
+  // reset category
+  document.querySelectorAll(".schedCatBtn").forEach(b=>b.classList.toggle("active", b.dataset.cat==="Learning"));
+  // reset duration slider to 20
+  const durSlider = document.getElementById("schedDurInput");
+  if(durSlider){ durSlider.value = 20; durSlider.dispatchEvent(new Event("input")); }
+
+  // clear name + conflict
+  const nameEl = document.getElementById("schedNameInput");
+  if(nameEl) nameEl.value = "";
+  const conflictEl = document.getElementById("schedConflictMsg");
+  if(conflictEl){ conflictEl.style.display="none"; conflictEl.textContent=""; }
+
+  // build scroll picker
+  const hourCol = document.getElementById("schedHourCol");
+  const minCol  = document.getElementById("schedMinCol");
+  if(!hourCol || !minCol) return;
+  const hours = Array.from({length:24},(_,i)=>i);
+  const mins  = Array.from({length:12},(_,i)=>i*5);
+  schedBuildTimeCol(hourCol, hours);
+  schedBuildTimeCol(minCol, mins);
+
+  // default to next round hour
+  const defH = (new Date().getHours() + 1) % 24;
+  setTimeout(()=>{
+    schedScrollToValue(hourCol, defH);
+    schedScrollToValue(minCol, 0);
+  }, 60);
+}
+
+function closeScheduleModal(){
+  openScheduleModal();
+}
+
+async function saveScheduleModal(){
+  const nameEl     = document.getElementById("schedNameInput");
+  const conflictEl = document.getElementById("schedConflictMsg");
+  const hourCol    = document.getElementById("schedHourCol");
+  const minCol     = document.getElementById("schedMinCol");
+  const name = nameEl?.value.trim() || "";
+  if(!name){
+    if(nameEl){ nameEl.focus(); nameEl.style.borderColor="#fb7185"; setTimeout(()=>nameEl.style.borderColor="",1200); }
+    return;
+  }
+  if(schedPendingData){
+    if(conflictEl){ conflictEl.textContent = "ลากการ์ดที่มีอยู่ไปวางก่อนนะ 🃏"; conflictEl.style.display="block"; }
+    return;
+  }
+  const h = schedGetColValue(hourCol);
+  const m = schedGetColValue(minCol);
+  const time = `${h}:${m}`;
+  const tomorrow = addDays(localDateKey(), 1);
+  const existingItems = getScheduleItems(tomorrow);
+  // block duplicate name
+  const nameLower = name.toLowerCase();
+  if(existingItems.some(i => i.name.trim().toLowerCase() === nameLower)){
+    if(nameEl){ nameEl.style.borderColor="#fb7185"; setTimeout(()=>nameEl.style.borderColor="",1400); }
+    if(conflictEl){ conflictEl.textContent = `"${name}" มีอยู่แล้ว`; conflictEl.style.display="block"; }
+    return;
+  }
+  // pre-check time conflict against already-committed items
+  const conflict = scheduleConflictWith(time, schedModalDur, existingItems);
+  if(conflict){
+    const cEndMin = parseHHMMtoMin(conflict.startHHMM)+conflict.durationMin;
+    const cEnd = `${String(Math.floor(cEndMin/60)).padStart(2,"0")}:${String(cEndMin%60).padStart(2,"0")}`;
+    if(conflictEl){ conflictEl.textContent = `ซ้อนทับกับ "${conflict.name}" (${conflict.startHHMM}–${cEnd})`; conflictEl.style.display="block"; }
+    return;
+  }
+  // card is ready — show it as a floating pending card, don't save to timeline yet
+  showPendingCard({ name, category: schedModalCat, durationMin: schedModalDur, startHHMM: time });
+  // collapse form + reset so user can read timeline
+  const nc = document.getElementById("schedNotecard");
+  if(nc) nc.classList.add("collapsed");
+  openScheduleModal();
+}
+
+function showPendingCard(data){
+  schedPendingData = data;
+  const area = document.getElementById("schedPendingArea");
+  const card = document.getElementById("schedPendingCardEl");
+  if(!area || !card) return;
+  card.innerHTML = `
+    <div class="spcDot" data-cat="${data.category}"></div>
+    <div class="spcInfo">
+      <div class="spcName">${data.name}</div>
+      <div class="spcMeta">${data.category} · ${data.durationMin} min</div>
+    </div>
+    <div class="spcTime">${data.startHHMM}</div>`;
+  card.style.cssText = "";
+  card.classList.remove("is-grabbed");
+  // tiny delay so layout is settled before animation starts
+  requestAnimationFrame(()=> card.classList.add("is-floating"));
+  area.style.display = "flex";
+}
+
+function clearPendingCard(){
+  schedPendingData = null;
+  const area = document.getElementById("schedPendingArea");
+  if(area) area.style.display = "none";
+  const card = document.getElementById("schedPendingCardEl");
+  if(card){ card.style.cssText = ""; card.classList.remove("is-floating","is-grabbed"); }
+}
+
+async function commitPendingCard(){
+  if(!schedPendingData) return;
+  const data = schedPendingData;
+  clearPendingCard();
+  const result = await addScheduleItem(data);
+  if(result.ok){
+    schedNewlyAddedId = result.item.id;
+    renderSchedulePage();
+  }
+}
+
+function initPendingCardDrag(){
+  const card = document.getElementById("schedPendingCardEl");
+  if(!card) return;
+
+  let startX = 0, startY = 0, curDX = 0, curDY = 0;
+
+  function showTrash(){
+    const t = document.getElementById("schedTrashZone");
+    if(!t) return;
+    t.style.display = "flex";
+    requestAnimationFrame(()=> t.classList.add("is-visible"));
+  }
+  function hideTrash(){
+    const t = document.getElementById("schedTrashZone");
+    if(!t) return;
+    t.classList.remove("is-visible","drop-target-active");
+    setTimeout(()=>{ if(!schedDragging) t.style.display="none"; }, 260);
+  }
+
+  card.addEventListener("pointerdown", e=>{
+    if(!schedPendingData) return;
+    schedDragging = true;
+    card.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    curDX = 0; curDY = 0;
+    card.classList.remove("is-floating");
+    card.classList.add("is-grabbed");
+    card.style.transition = "box-shadow .15s ease, transform .12s ease";
+    card.style.transform  = "rotate(2deg) scale(1.05)";
+    showTrash();
+    e.preventDefault();
+  }, { passive:false });
+
+  card.addEventListener("pointermove", e=>{
+    if(!schedDragging) return;
+    curDX = e.clientX - startX;
+    curDY = e.clientY - startY;
+    card.style.transform = `translate(${curDX}px,${curDY}px) rotate(2deg) scale(1.05)`;
+    const cr = card.getBoundingClientRect();
+    // drop slot highlight
+    const slot = document.getElementById("schedEmptyBox");
+    if(slot){
+      const sr = slot.getBoundingClientRect();
+      slot.classList.toggle("drop-target-active",
+        cr.left < sr.right && cr.right > sr.left && cr.top < sr.bottom && cr.bottom > sr.top);
+    }
+    // trash zone highlight
+    const trash = document.getElementById("schedTrashZone");
+    if(trash){
+      const tr = trash.getBoundingClientRect();
+      trash.classList.toggle("drop-target-active",
+        cr.left < tr.right && cr.right > tr.left && cr.top < tr.bottom && cr.bottom > tr.top);
+    }
+  });
+
+  async function onRelease(){
+    if(!schedDragging) return;
+    schedDragging = false;
+    card.classList.remove("is-grabbed");
+
+    const slot  = document.getElementById("schedEmptyBox");
+    const trash = document.getElementById("schedTrashZone");
+    const onSlot  = slot?.classList.contains("drop-target-active");
+    const onTrash = trash?.classList.contains("drop-target-active");
+    slot?.classList.remove("drop-target-active");
+    trash?.classList.remove("drop-target-active");
+    hideTrash();
+
+    if(onSlot){
+      // fly to slot center + collapse
+      const cr = card.getBoundingClientRect();
+      const sr = slot.getBoundingClientRect();
+      const tx = curDX + (sr.left + sr.width/2  - cr.left - cr.width/2);
+      const ty = curDY + (sr.top  + sr.height/2 - cr.top  - cr.height/2);
+      card.style.transition = "transform .28s cubic-bezier(.4,0,1,1), opacity .22s ease";
+      card.style.transform  = `translate(${tx}px,${ty}px) rotate(5deg) scale(0.1)`;
+      card.style.opacity    = "0";
+      slot.classList.add("is-receiving");
+      setTimeout(()=> slot.classList.remove("is-receiving"), 600);
+      await new Promise(r=>setTimeout(r,300));
+      await commitPendingCard();
+    } else if(onTrash){
+      // discard — shrink and vanish
+      card.style.transition = "transform .22s cubic-bezier(.4,0,1,1), opacity .18s ease";
+      card.style.transform  = `translate(${curDX}px,${curDY}px) rotate(-5deg) scale(0.08)`;
+      card.style.opacity    = "0";
+      await new Promise(r=>setTimeout(r,240));
+      clearPendingCard();
+    } else {
+      // spring back + resume float
+      card.style.transition = "transform .44s cubic-bezier(.34,1.56,.64,1)";
+      card.style.transform  = "";
+      setTimeout(()=>{ card.style.transition=""; card.classList.add("is-floating"); }, 460);
+    }
+  }
+
+  function onCancel(){
+    if(!schedDragging) return;
+    schedDragging = false;
+    card.classList.remove("is-grabbed");
+    document.getElementById("schedEmptyBox")?.classList.remove("drop-target-active");
+    document.getElementById("schedTrashZone")?.classList.remove("drop-target-active");
+    hideTrash();
+    card.style.transition = "transform .44s cubic-bezier(.34,1.56,.64,1)";
+    card.style.transform  = "";
+    setTimeout(()=>{ card.style.transition=""; card.classList.add("is-floating"); }, 460);
+  }
+
+  card.addEventListener("pointerup",     onRelease);
+  card.addEventListener("pointercancel", onCancel);
+}
+
+function initSchedDurSlider(){
+  const slider  = document.getElementById("schedDurInput");
+  const fill    = document.getElementById("schedDurFill");
+  const thumb   = document.getElementById("schedDurThumb");
+  const display = document.getElementById("schedDurDisplay");
+  if(!slider) return;
+  function pct(v){ return ((v-Number(slider.min))/(Number(slider.max)-Number(slider.min)))*100; }
+  function updateDurUI(v){
+    if(fill)    fill.style.width  = pct(v)+"%";
+    if(thumb)   thumb.style.left  = pct(v)+"%";
+    if(display) display.innerHTML = v+'<span class="hqSliderTimeUnit">min</span>';
+    schedModalDur = v;
+    document.querySelectorAll("#schedDurLabels .hqSliderLabelItem").forEach(lb=>{
+      lb.classList.toggle("snap-active", Number(lb.dataset.snap)===v);
+    });
+  }
+  slider.addEventListener("input",()=>updateDurUI(Number(slider.value)));
+  document.querySelectorAll("#schedDurLabels .hqSliderLabelItem").forEach(lb=>{
+    lb.addEventListener("click",()=>{ slider.value=lb.dataset.snap; updateDurUI(Number(lb.dataset.snap)); });
+  });
+  updateDurUI(Number(slider.value));
+}
+
+function initScheduleModalEvents(){
+  // category picker
+  document.querySelectorAll(".schedCatBtn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      schedModalCat = btn.dataset.cat;
+      document.querySelectorAll(".schedCatBtn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+  // duration slider
+  initSchedDurSlider();
+  on(document.getElementById("schedSaveBtn"), "click", saveScheduleModal);
+  on(document.getElementById("schedCancelBtn"), "click", openScheduleModal);
+  // notecard accordion toggle
+  const handle = document.getElementById("schedNotecardHandle");
+  const nc     = document.getElementById("schedNotecard");
+  if(handle && nc){
+    handle.addEventListener("click", ()=> nc.classList.toggle("collapsed"));
+  }
+  // drag-and-drop for pending card
+  initPendingCardDrag();
+  // build initial state
+  openScheduleModal();
+}
 
 function renderTodayPage(){
   const dateHeader = document.getElementById('tpPageDate');
@@ -19237,6 +20595,8 @@ function showLock() {
   startTabHeartbeat();
 
   ensureNotificationPermission();
+  rescheduleAllTodayNotifs();
+  initScheduleModalEvents();
   gateEnforceStartButton();
   rqShowIfEligible();
   rqTickUI();

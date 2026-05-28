@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>เรียน JS กับ Claude</title>
+<style>
+  body { font-family: system-ui; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #0f0f0f; color: #e0e0e0; }
+  h1 { color: #a78bfa; }
+  h2 { color: #c4b5fd; margin-top: 40px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+  .lesson { background: #1a1a2e; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .explain { color: #94a3b8; line-height: 1.7; margin-bottom: 12px; }
+  .code-area { width: 100%; min-height: 80px; background: #0d0d1a; color: #7dd3fc; border: 1px solid #334; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 14px; resize: vertical; }
+  button { background: #7c3aed; color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; margin-top: 8px; font-size: 14px; }
+  button:hover { background: #6d28d9; }
+  .output { margin-top: 10px; background: #0d1117; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 13px; min-height: 32px; color: #4ade80; border: 1px solid #1f2937; white-space: pre-wrap; }
+  .error { color: #f87171; }
+  .hint { color: #fbbf24; font-size: 13px; margin-top: 6px; display: none; }
+  .hint-btn { background: #374151; font-size: 12px; padding: 4px 10px; }
+</style>
+</head>
+<body>
+
+<h1>🌸 เรียน JavaScript ทีละขั้น</h1>
+<p style="color:#64748b">เปิดไฟล์นี้ในเบราว์เซอร์ → แก้โค้ด → กด Run ดูผล</p>
+
+<!-- ============ บทที่ 1 ============ -->
+<h2>บทที่ 1 — ตัวแปร (Variable)</h2>
+
+<div class="lesson">
+  <div class="explain">
+    ตัวแปรคือ "กล่อง" เก็บข้อมูล<br>
+    ใช้ <code>let</code> ประกาศตัวแปร แล้วใส่ค่าด้วย <code>=</code>
+  </div>
+  <pre style="color:#c4b5fd;background:#0d0d1a;padding:12px;border-radius:8px">let ชื่อ = "ค่า"</pre>
+  <div class="explain" style="margin-top:12px">
+    ✏️ <b>แบบฝึกหัด:</b> สร้างตัวแปรชื่อ <code>myName</code> ใส่ชื่อตัวเองเข้าไป แล้ว console.log มันออกมา
+  </div>
+  <textarea class="code-area" id="ex1">// เขียนโค้ดตรงนี้
+let myName = ""
+console.log(myName)
+</textarea>
+  <br>
+  <button onclick="runCode('ex1','out1')">▶ Run</button>
+  <button class="hint-btn" onclick="toggleHint('hint1')">💡 Hint</button>
+  <div class="hint" id="hint1">let myName = "ชื่อกู"<br>console.log(myName)</div>
+  <div class="output" id="out1"></div>
+</div>
+
+<div class="lesson">
+  <div class="explain">
+    ตัวแปรเก็บได้หลายแบบ:<br>
+    • <b>string</b> = ข้อความ → ใส่ใน " "<br>
+    • <b>number</b> = ตัวเลข → ใส่ตรงๆ<br>
+    • <b>boolean</b> = จริง/เท็จ → <code>true</code> หรือ <code>false</code>
+  </div>
+  <div class="explain">
+    ✏️ <b>แบบฝึกหัด:</b> สร้าง 3 ตัวแปร ชื่อ age (อายุ), score (คะแนน), isAwesome (เท่มั้ย) แล้ว log ทั้งหมด
+  </div>
+  <textarea class="code-area" id="ex2">let age =
+let score =
+let isAwesome =
+
+console.log(age, score, isAwesome)
+</textarea>
+  <button onclick="runCode('ex2','out2')">▶ Run</button>
+  <button class="hint-btn" onclick="toggleHint('hint2')">💡 Hint</button>
+  <div class="hint" id="hint2">let age = 20<br>let score = 9999<br>let isAwesome = true</div>
+  <div class="output" id="out2"></div>
+</div>
+
+<!-- ============ บทที่ 2 ============ -->
+<h2>บทที่ 2 — การคำนวณ</h2>
+
+<div class="lesson">
+  <div class="explain">
+    JS คำนวณได้เหมือนเครื่องคิดเลข: <code>+ - * /</code><br>
+    แล้วยังมี <code>%</code> (เหลือจากหาร) และ <code>**</code> (ยกกำลัง)
+  </div>
+  <div class="explain">
+    ✏️ <b>แบบฝึกหัด:</b> คำนวณ XP ที่ได้จาก quest<br>
+    baseXP = 100, bonus = 50, สมมติทำ 3 quest → totalXP = ?
+  </div>
+  <textarea class="code-area" id="ex3">let baseXP = 100
+let bonus = 50
+let questCount = 3
+
+let totalXP = // คำนวณตรงนี้
+
+console.log("XP ทั้งหมด:", totalXP)
+</textarea>
+  <button onclick="runCode('ex3','out3')">▶ Run</button>
+  <button class="hint-btn" onclick="toggleHint('hint3')">💡 Hint</button>
+  <div class="hint" id="hint3">let totalXP = (baseXP + bonus) * questCount</div>
+  <div class="output" id="out3"></div>
+</div>
+
+<!-- ============ บทที่ 3 ============ -->
+<h2>บทที่ 3 — เงื่อนไข (if/else)</h2>
+
+<div class="lesson">
+  <div class="explain">
+    <code>if</code> ใช้เช็คเงื่อนไข ถ้าจริงก็ทำ ถ้าเท็จก็ข้าม
+  </div>
+  <pre style="color:#c4b5fd;background:#0d0d1a;padding:12px;border-radius:8px">if (เงื่อนไข) {
+  // ทำถ้าจริง
+} else {
+  // ทำถ้าเท็จ
+}</pre>
+  <div class="explain" style="margin-top:12px">
+    ✏️ <b>แบบฝึกหัด:</b> ถ้า score >= 80 ให้พิมพ์ "ผ่าน" ไม่งั้นพิมพ์ "ไม่ผ่าน"<br>
+    ลองเปลี่ยนค่า score แล้วรันดูผลต่างกัน
+  </div>
+  <textarea class="code-area" id="ex4">let score = 75
+
+if (score >= 80) {
+  console.log("ผ่าน")
+} else {
+  console.log("ไม่ผ่าน")
+}
+</textarea>
+  <button onclick="runCode('ex4','out4')">▶ Run</button>
+  <div class="output" id="out4"></div>
+</div>
+
+<!-- ============ บทที่ 4 ============ -->
+<h2>บทที่ 4 — ฟังก์ชัน (Function)</h2>
+
+<div class="lesson">
+  <div class="explain">
+    ฟังก์ชันคือ "สูตร" ที่เขียนครั้งเดียว เรียกใช้ได้กี่ครั้งก็ได้
+  </div>
+  <pre style="color:#c4b5fd;background:#0d0d1a;padding:12px;border-radius:8px">function ชื่อ(input) {
+  return ผลลัพธ์
+}</pre>
+  <div class="explain" style="margin-top:12px">
+    ✏️ <b>แบบฝึกหัด:</b> เขียนฟังก์ชัน <code>calcXP</code> รับ minutes แล้ว return XP (1 นาที = 2 XP)
+  </div>
+  <textarea class="code-area" id="ex5">function calcXP(minutes) {
+  return // คำนวณตรงนี้
+}
+
+console.log(calcXP(30))   // ควรได้ 60
+console.log(calcXP(60))   // ควรได้ 120
+console.log(calcXP(15))   // ควรได้ 30
+</textarea>
+  <button onclick="runCode('ex5','out5')">▶ Run</button>
+  <button class="hint-btn" onclick="toggleHint('hint5')">💡 Hint</button>
+  <div class="hint" id="hint5">return minutes * 2</div>
+  <div class="output" id="out5"></div>
+</div>
+
+<!-- ============ บทที่ 5 ============ -->
+<h2>บทที่ 5 — Array (รายการ)</h2>
+
+<div class="lesson">
+  <div class="explain">
+    Array คือรายการของข้อมูลหลายชิ้นในกล่องเดียว<br>
+    เข้าถึงด้วย index เริ่มจาก 0
+  </div>
+  <textarea class="code-area" id="ex6">let quests = ["อ่านหนังสือ", "ออกกำลังกาย", "เขียนโค้ด"]
+
+console.log(quests[0])        // ชิ้นแรก
+console.log(quests.length)    // จำนวนทั้งหมด
+
+// เพิ่มชิ้นใหม่
+quests.push("นั่งสมาธิ")
+console.log(quests)
+</textarea>
+  <button onclick="runCode('ex6','out6')">▶ Run</button>
+  <div class="output" id="out6"></div>
+</div>
+
+<!-- ============ Sandbox ============ -->
+<h2>🧪 Sandbox — เล่นเองได้เลย</h2>
+<div class="lesson">
+  <div class="explain">โซนอิสระ เขียนอะไรก็ได้ ทดลองได้เต็มที่</div>
+  <textarea class="code-area" id="sandbox" style="min-height:150px">// เล่นได้เลย
+
+</textarea>
+  <button onclick="runCode('sandbox','sandbox-out')">▶ Run</button>
+  <button onclick="document.getElementById('sandbox-out').textContent=''">🗑 Clear output</button>
+  <div class="output" id="sandbox-out"></div>
+</div>
+
+<script>
+function runCode(editorId, outputId) {
+  const code = document.getElementById(editorId).value;
+  const out = document.getElementById(outputId);
+  out.className = 'output';
+  const logs = [];
+  const origLog = console.log;
+  console.log = (...args) => {
+    logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '));
+  };
+  try {
+    eval(code);
+    out.textContent = logs.length ? logs.join('\n') : '(ไม่มี output)';
+  } catch(e) {
+    out.textContent = '❌ Error: ' + e.message;
+    out.classList.add('error');
+  }
+  console.log = origLog;
+}
+
+function toggleHint(id) {
+  const h = document.getElementById(id);
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Sakura petal shape for notification icon (white on transparent) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,2C12,2 9,5 9,8C9,9.66 9.84,11.12 11,12C9.84,12.88 9,14.34 9,16C9,19 12,22 12,22C12,22 15,19 15,16C15,14.34 14.16,12.88 13,12C14.16,11.12 15,9.66 15,8C15,5 12,2 12,2Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M2,12C2,12 5,9 8,9C9.66,9 11.12,9.84 12,11C12.88,9.84 14.34,9 16,9C19,9 22,12 22,12C22,12 19,15 16,15C14.34,15 12.88,14.16 12,13C11.12,14.16 9.66,15 8,15C5,15 2,12 2,12Z" />
+</vector>
