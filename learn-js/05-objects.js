@@ -61,12 +61,9 @@ console.log(quest)
 // Hint: player.xp = player.xp + 500
 
 // เขียนด้านล่าง:
-let level = {
-player: 500,
-xp:500
-}
-
-console.log(level.player+xp)
+player.xp = player.xp + 500
+player.level = 6
+console.log(player)
 
 // ============================================
 // โจทย์ 3 — Array of Objects
@@ -88,5 +85,13 @@ let quests = [
 
 //
 // Hint: ใช้ .filter() แล้วต่อด้วย .forEach()
+
+let questsdone = quests.filter(function(n) {
+return n.done === true
+})
+
+questsdone.forEach(function(n) {
+  console.log("✅"+ n.title )
+})
 
 // เขียนด้านล่าง:

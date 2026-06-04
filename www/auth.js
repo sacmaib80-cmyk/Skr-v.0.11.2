@@ -24,6 +24,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" }); // บังคับแสดง account chooser ทุกครั้ง
 
 let currentUser = null;
 let googleAuthReady = false;
@@ -126,6 +127,9 @@ async function loginWithGoogle() {
           console.warn("GoogleAuth.initialize error (might be ok):", initErr);
         }
       }
+      // เคลียร์บัญชี Google ที่ค้างก่อนเสมอ → บังคับให้หน้าจอ "เลือกบัญชี" โผล่ทุกครั้ง
+      // (แก้บั๊ก: logout แล้วสลับ ID ไม่ได้ เพราะ plugin คืนบัญชีเดิมอัตโนมัติ)
+      try { await GoogleAuth.signOut(); } catch (e) { /* ไม่มีบัญชีค้าง = ข้ามได้ */ }
       const googleUser = await GoogleAuth.signIn();
       const idToken = googleUser?.authentication?.idToken;
       if (!idToken) throw new Error("No idToken from Google");
@@ -149,19 +153,45 @@ async function loginWithGoogle() {
   }
 }
 
+let _loggingOut = false;
 async function logoutNow() {
+  if (_loggingOut) return;          // กัน double-fire → กัน native crash จาก GoogleAuth.signOut ซ้อน
+  _loggingOut = true;
+
+  const btn = document.getElementById("logoutBtn");
+  if (btn) btn.disabled = true;
+
   try {
-    if (isCapacitor()) {
-      try {
-        const GoogleAuth = window.Capacitor?.Plugins?.GoogleAuth;
-        if (GoogleAuth) await GoogleAuth.signOut();
-      } catch (e) {}
-      googleAuthReady = false;
-    }
+    // Firebase signOut ก่อนเสมอ — สำคัญสุดและไม่ทำให้แอพ crash
+    // (ทำก่อน GoogleAuth.signOut เผื่อ native call มีปัญหา อย่างน้อย session ฝั่ง Firebase ก็หลุดแล้ว)
     await signOut(auth);
+
+    // เคลียร์ native Google session (best-effort) — ต้อง initialize ก่อน
+    // ไม่งั้นเรียก signOut บน plugin ที่ยังไม่ init จะ crash ระดับ native (catch ใน JS ไม่ได้)
+    if (isCapacitor()) {
+      const GoogleAuth = window.Capacitor?.Plugins?.GoogleAuth;
+      if (GoogleAuth) {
+        try {
+          if (!googleAuthReady) {
+            await GoogleAuth.initialize({
+              clientId: "1069498952404-r337mi9jggc4fcf6mtfstcenp9mpie03.apps.googleusercontent.com",
+              scopes: ["profile", "email"],
+              grantOfflineAccess: true
+            });
+            googleAuthReady = true;
+          }
+          await GoogleAuth.signOut();
+        } catch (e) {
+          console.warn("GoogleAuth.signOut skipped:", e);
+        }
+        googleAuthReady = false;
+      }
+    }
   } catch (error) {
     console.error("Logout error:", error);
-    alert("Logout failed");
+  } finally {
+    _loggingOut = false;
+    if (btn) btn.disabled = false;
   }
 }
 

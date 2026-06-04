@@ -1,7 +1,7 @@
 # SakuraQ — Build APK for Firebase App Distribution
 # Run from D:\git  (PowerShell)
 
-$version    = "v19-stopped-fix"
+$version    = "v0.15.1"
 $apkName    = "sakuraq-$version.apk"
 $apkDebug   = "android\app\build\outputs\apk\debug\app-debug.apk"
 

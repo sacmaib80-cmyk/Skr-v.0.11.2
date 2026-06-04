@@ -141,7 +141,6 @@ async function logoutNow() {
     await signOut(auth);
   } catch (error) {
     console.error("Logout error:", error);
-    alert("Logout failed");
   }
 }
 

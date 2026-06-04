@@ -1,4 +1,4 @@
-const CACHE_NAME = "sakuraq-v0-11-4";
+const CACHE_NAME = "sakuraq-v0-13-19";
 
 const APP_SHELL = [
   "/index.html",
@@ -39,20 +39,30 @@ self.addEventListener("message", (event) => {
   if(event.data?.type === "SCHEDULE_NOTIFICATION"){
     const { title, body, delayMs, tag } = event.data;
 
-    setTimeout(async () => {
-      const clientList = await self.clients.matchAll({ type: "window" });
-      const isVisible = clientList.some(c => c.visibilityState === "visible");
-
-      if(!isVisible){
-        self.registration.showNotification(title, {
-          body,
-          icon: "./logo-192.png",
-          tag: tag || "sakuraq-quest-done",
-          requireInteraction: true,
-          vibrate: [200, 100, 200]
-        });
-      }
-    }, delayMs);
+    // event.waitUntil keeps the SW alive until the promise resolves,
+    // preventing the browser from terminating it before the timer fires.
+    // Note: browsers cap SW lifetime ~30s, so delayMs > 30000 is unreliable.
+    event.waitUntil(
+      new Promise(resolve => {
+        setTimeout(async () => {
+          try {
+            const clientList = await self.clients.matchAll({ type: "window" });
+            const isVisible = clientList.some(c => c.visibilityState === "visible");
+            if(!isVisible){
+              await self.registration.showNotification(title, {
+                body,
+                icon: "./logo-192.png",
+                tag: tag || "sakuraq-quest-done",
+                requireInteraction: true,
+                vibrate: [200, 100, 200]
+              });
+            }
+          } finally {
+            resolve();
+          }
+        }, delayMs);
+      })
+    );
   }
 });
 
