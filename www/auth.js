@@ -105,7 +105,7 @@ function renderSignedIn(user) {
 
 async function loginWithGoogle() {
   if (isInAppBrowser()) {
-    alert("ถ้าจะล็อกอิน Google ให้เปิดใน Chrome/Safari ก่อน แต่ตอนนี้ยังใช้แบบ Guest ได้");
+    alert(window.t ? window.t("auth.inAppBrowser") : "ถ้าจะล็อกอิน Google ให้เปิดใน Chrome/Safari ก่อน แต่ตอนนี้ยังใช้แบบ Guest ได้");
     return;
   }
 
@@ -142,14 +142,14 @@ async function loginWithGoogle() {
   } catch (error) {
     console.error("LOGIN ERROR:", error);
     if (error.code === "auth/popup-blocked") {
-      alert("Popup ถูกบล็อก กรุณาอนุญาต popup");
+      alert(window.t ? window.t("auth.popupBlocked") : "Popup ถูกบล็อก กรุณาอนุญาต popup");
       return;
     }
     if (error.code === "auth/unauthorized-domain") {
-      alert("Domain ไม่ได้รับอนุญาต กรุณาแจ้ง admin");
+      alert(window.t ? window.t("auth.unauthorizedDomain") : "Domain ไม่ได้รับอนุญาต กรุณาแจ้ง admin");
       return;
     }
-    alert("Login ไม่สำเร็จ กรุณาลองใหม่");
+    alert(window.t ? window.t("auth.loginFailed") : "Login ไม่สำเร็จ กรุณาลองใหม่");
   }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "sakuraq-v0-13-19";
+const CACHE_NAME = "sakuraq-v0-16-2";
 
 const APP_SHELL = [
   "/index.html",

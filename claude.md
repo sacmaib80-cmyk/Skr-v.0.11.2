@@ -55,6 +55,8 @@ After editing `www/`, you **must** `npx cap sync android` before building or cha
 
 - `index.html` is huge; use Grep to locate a function/selector, edit in place. Match the surrounding plain-JS style — no modules, no arrow-only dogma, lots of null-guards (`if(el.x) …`).
 - VS Code's CSS linter flags inline `style="display:none;"` inside HTML as errors — these are **false positives**, not real bugs. Real errors show in the browser console (F12).
+- **Beware smart/curly quotes (`”` `“` `’`) in pasted markup.** They look like straight quotes but break HTML silently: `class=”x”` makes the class literally `”x”`, so CSS won't match, `getElementById` returns null, and `data-i18n` lookups fail (raw keys render). When a freshly-added block shows *all* of: no styling + JS can't find its element + i18n keys showing raw → it's almost always curly quotes in the markup, **not** a cache/i18n/runtime bug. Check the raw HTML attributes FIRST before theorizing. Scan: `node -e "...test(/[“”‘’]/)..."`.
+- **i18n coverage sweeps — อย่าข้ามส่วน markup.** ไฟล์เรียงเป็น `<head><style>` → `<body>` **HTML markup** → `<script>` (i18n engine + `I18N` dict + JS ทั้งหมด). บทเรียน: เคยเขียน sweep หาภาษาไทยที่ยังไม่แปลโดยใช้ `if(i <= dictEndLine) continue` เพื่อข้าม dict — **แต่ markup อยู่ก่อน dict** เลยถูกข้ามทั้งก้อน ทำให้ UI ของฟีเจอร์ใหม่ (เช่น Break Time panel/modal/banner) หลุดการตรวจ. วิธีที่ถูก: sweep **ช่วง markup แยกต่างหาก** (`<body>` → บรรทัดที่ขึ้นต้น main script) แล้วค่อย sweep ช่วง JS code (หลัง dict). และตอนเช็ค "ติด `data-i18n` หรือยัง" ต้องดู**บรรทัด opening tag** ไม่ใช่บรรทัด content — element หลายบรรทัด (เช่น `data-i18n-html` ที่มี `<br>`) จะมี attribute อยู่บน tag เปิด ส่วนข้อความไทยอยู่บรรทัดถัดๆ ไป (false positive ถ้าเช็คแค่บรรทัดเดียว). หลังแก้เสร็จทุกครั้ง verify ด้วย `node -e` 2 อย่าง: (1) syntax check inline `<script>` ผ่าน `new Function()`, (2) key ที่อ้างถึงมีครบทั้ง `th`+`en` (นับ `"key":` = 2).
 - Commit/push only when asked.
 
 ## Business Operator Mode (เปิดทำงานเฉพาะเมื่อ User ถามเรื่องหาเงิน/ธุรกิจ/การตลาด หรือสั่งเปิดโหมดนี้เท่านั้น)
@@ -106,6 +108,68 @@ PHASE 5 — execute mode (generate actual assets: copy, scripts, names, outreach
 
 ### งานล่าสุด
 
+- **[2026-06-09] Break Time Feature** — ทำใน `www/index.html` ยังไม่ได้ commit/cap sync
+  - **ฟีเจอร์ใหม่**: ระบบบังคับพักหลังเควส + หักคะแนนถ้าพักนานเกิน
+  - **Menu**: ปุ่ม "Break Time" ลำดับ 2 ใน `#topMenu` (หลัง Morning Gate)
+  - **Break Panel**: `#breakPanel` (`.dataPanel` pattern) มี info tooltip, mascord.png warning, enable/disable button, 2hr cooldown hint
+  - **Confirm Modal**: `#break-enable-confirm-modal` (mascord.png + คำเตือน) ก่อนเปิด
+  - **Home Banner**: `#homeBreakBanner` แสดง countdown (green→amber→red) ในหน้า home
+  - **Logic**: `triggerBreak(mins)` หลัง `stopQuest()`/`forceAutoStop()` → breakEndTs = now + (10 + floor(mins/2)) นาที, graceEndTs = breakEndTs + 1 นาที
+  - **Penalty**: `applyBreakPenalty()` เขียนใน `day.breakPenalties[]` ใน appData (sync cloud); -2/-4/-6 pts ตาม tier; detect ผ่าน tick loop (250ms) + `checkBreakPenaltyOnStart()` ใน `startQuest()`
+  - **Score**: `calcEffectiveDayTotal()` = totalQps - sum(penalties) ใช้ใน renderToday/renderTodayPage/renderHomeProgress/renderHomeHud/updateHomeGreeting/getHistorySummary/getHistoryExtraStats/getHistoryTrendData
+  - **Today cards**: penalty card (orange/lightRed/darkRed) ใน `#todayList` + tpQuestList
+  - **Storage**: `KEY_BREAK_CFG`/`KEY_BREAK_STATE` ใน localStorage scoped (ไม่อยู่ใน appData เหมือน gate bug fix)
+  - **Cooldown**: toggle ได้ทุก 2 ชั่วโมง (`BREAK_TOGGLE_COOLDOWN_MS`)
+  - **OS Noti**: `scheduleBreakEndOS()`/`cancelBreakEndOS()` schedule notification ตอนพักหมด
+  - **i18n**: `break.*`, `noti.break.*` ทั้ง th/en
+  - **bug fix #1**: breakTickHandle แยก interval (1s) → banner countdown ไม่แช่แข็ง
+  - **bug fix #2**: History page ใช้ `calcEffectiveDayTotal()` ทุกจุด (summary/extra/chart/selectedTotal)
+  - **bug fix #3**: `updateHomeGreeting()` ใช้ `calcEffectiveDayTotal()` แทน `calcDayTotal()`
+  - **bug fix #4**: `discardReport()` เรียก `clearBreakState(); renderBreakUI()` — break reset ตอน discard
+  - **bug fix #6**: `applyBreakPenalty()` ใช้ `localDateKey()` แทน `triggeredAtDateKey` — penalty ไปวันที่หักเงิน ไม่ใช่วันเควส
+  - **bug fix #7**: `triggerBreak()` guard `if(questMinutes < 1) return` — เควส 0 นาทีไม่ trigger break
+  - **bug ที่ยังไม่แก้ (ค่อยทำทีหลัง)**:
+    - **#5**: Banner แสดงแค่หน้า Home ไม่แสดงหน้า Today/History/Schedule
+    - **#8**: mascot warning ใน panel แสดงตลอด แม้แค่ดู info ไม่ได้กด enable
+    - **#9**: `calcLifetimeQps()` ไม่หัก break penalties — ตัวเลข lifetime สูงเกิน
+    - **#10**: streak calculation อาจได้รับผลกระทบจาก penalty ที่ทำให้คะแนนวันนั้นเป็น 0
+  - ผ่าน node syntax check (0 errors)
+
+- **[2026-06-06] Morning Gate UI — Color & Glow Redesign** — ทำใน `www/index.html` ยังไม่ได้ commit/cap sync
+  - **สีการ์ด**: `#a52020→#520a0a` → **`#B51D1D→#8E1313`** (สว่าง/สะอาดขึ้น ตาม mockup)
+  - **Glow**: ขยาย box-shadow 3 ชั้น (35→50px, 85→110px, 170→220px spread) + opacity เพิ่ม
+  - **Ring**: gradient orange→pink (`#FF9CB5→#FF6B7A`), dot gold→pink `#FF9CB5`
+  - **MORNING GATE badge**: glass style `rgba(255,255,255,.10)` + border `rgba(255,107,122,.35)`
+  - **ตัวเลขวงนาฬิกา**: `36px → 30px`
+  - **bug fix**: เพิ่ม `z-index:1` ให้ `.gateCard` ป้องกัน mascot หายเมื่อมี backdrop-filter child; ลบ `backdrop-filter` ออกจาก `.gateTitlePill` (ทำให้ compositing layer พัง)
+  - **ยังเหลือ**: user รู้สึก UI น่าจะดีได้มากกว่านี้ → ค่อย polish ครั้งหน้า
+
+- **[2026-06-06] Bilingual i18n — Phase 3 (Random Quest: history-weighted language + coherent per-quest)** — ทำใน `www/index.html` (RQ engine) ยังไม่ได้ commit/cap sync
+  - **ปัญหาที่แก้:** เควสสุ่มเคยผสมภาษาในชื่อเดียว (domain ไทยจาก history + action อังกฤษ) เพราะ domain ดึงจาก history ทุกภาษา
+  - **`rqPickGenLang()`** (ข้าง `rqLoc`): เลือกภาษา **1 ภาษาต่อ 1 การสุ่ม** นับ history `lookbackDays` วัน → ภาษาปัจจุบันได้ขั้นต่ำ ~50%, ภาษาเก่าโผล่ได้สูงสุด 50% ตามสัดส่วน (`pOther = otherN/total * 0.5`), ไม่มี history → ปัจจุบัน 100%. `rqDetectLang(name)` = มีอักขระไทย→th
+  - **`_rqRollLang`** state + แก้ `rqLoc(key)` ให้อ่านภาษานี้ (อ่านจาก `I18N[lang][key]` ตรงๆ ไม่ใช่ `tList`); ตั้งค่าครั้งเดียวต้น `rqPick()` ก่อน loop → ทุก templated part กลมกลืนภาษาเดียว
+  - **กัน mixing:** `rqBuildLearningQuest`/`rqBuildWorkQuest` กรอง `rqGetDomainsFromHistory(cat)` ให้เหลือเฉพาะ domain ที่ `rqDetectLang === _rqRollLang` ก่อน pick; ถ้าไม่มี → fallback `rqLoc(...)` (ภาษาที่เลือก)
+  - **คงเดิม:** repeat method (~40%) ยังคืนชื่อที่ผู้ใช้พิมพ์เอง verbatim (ไม่ผ่าน rqLoc); rqMatchIndex ยัง match 2 ภาษา. rqLoc ถูกเรียกเฉพาะใน builders (ผ่าน rqPick) → stale `_rqRollLang` ระหว่างรอบไม่มีผล
+  - ผ่าน node syntax check (0 errors) + sim distribution ถูกต้อง
+
+- **[2026-06-06] Bilingual i18n — Phase 2 (Random Quest generator + คำที่ตกหล่น)** — ทำใน `www/index.html` ยังไม่ได้ commit/cap sync
+  - **คำที่ตกหล่น**: `hpHeroLabel` "คะแนนรวม"→`hist.totalScore`, `hqCatDesc` 4 หมวด→`cat.desc.*`, `hqQuestName` placeholder→`hq.namePh`
+  - **Random Quest generator เป็น 2 ภาษาจริง**: ย้ายเนื้อหา pool ทั้งหมดเข้า dict `rq.*` (workflow/bodypart/cardio/connection/learn.language|math|generic/learnDomains/workDomains/fallback.low|mid|high) เป็น array th/en เรียง index เดียวกัน. `SQ_DICE_GEN` เหลือแค่ `durations`/`kw`/`fallbackCat` (language-neutral); ลบ `SQ_WORK_FLOW` ทิ้ง
+  - **helper ใหม่** (ข้าง generator): `rqLoc(key)`=`tList(key)` (ภาษาปัจจุบัน), `rqMatchIndex(name,key)`=คืน index ที่ name มี substring ตรงกับ th **หรือ** en → stored history ภาษาไหนก็ map กลับเป็น id เดิมได้
+  - **logic ทำงานบน index แทนข้อความไทย**: `rqGetLastWorkActionForDomain`คืน index, `rqPickProgressedWorkAction`ไล่สเต็ปบน index+คืน label ภาษาปัจจุบัน, bodypart dedup ใช้ index (`rqGetPhysicalBodyPartFromName`/`rqQuestIsPhysicalCardioName`→`rqMatchIndex`), `bodyPart` เก็บเป็น index (ระวัง index 0 = chest → ใช้ `>= 0`/`Number.isInteger` ไม่ใช่ truthy)
+  - **AI prompt 2 ภาษา**: `getAICoachComment`/`getQuestSuggestions` → ย้าย prompt+timeLabel เข้า dict `ai.*`, ฝั่ง EN สั่งโมเดลตอบอังกฤษ
+  - **คงไว้ตั้งใจ**: `SQ_DICE_GEN.kw.language/.math` (keyword matcher, มีทั้งไทย+อังกฤษ, ไม่ display) + code comments
+  - ผ่าน node syntax check (0 errors), rq.* keys ครบ, ไม่มี SQ_WORK_FLOW/fallbackPool/learningActivities หลงเหลือ
+
+- **[2026-06-06] Bilingual i18n (ไทย/อังกฤษ)** — ทำใน `www/index.html` + `www/auth.js` ยังไม่ได้ commit/cap sync
+  - **i18n engine** วางต้น `<script>` หลัก (~บรรทัด 11652): `currentLang`, `I18N={th,en}`, `t(key,vars)`, `tList(key,vars)` (สำหรับ `pick()` arrays), `applyStaticI18n(root)` (กวาด `data-i18n` / `data-i18n-html` / `data-i18n-ph` / `data-i18n-aria`), `applyLanguage(lang,{persist})`, `detectInitialLang()`. expose `window.t/tList/applyLanguage/getLang`
+  - **Dictionary** เพิ่มแบบ `addI18N({th,en})` หลาย section (มี marker `/* === END I18N SECTIONS === */` ให้ append ก่อนเสมอ) — ครอบ menu/timer/report/home/gate/history/schedule/rq/onboarding/toasts(warn.*/lock.*)/alert/prompt/notifications(noti.*)/tips/install/boot/greet.* + auth.*
+  - **แถบ Language** ใน `#topMenu` (สไตล์เดียวกับ Data Management) + modal `#langPanel` (copy `.dataPanel`) เลือก ไทย/English, badge `#topMenuLangState` (TH/EN) อัปเดตใน `renderTopMenuUI()`
+  - **เก็บค่า** ใน `all.prefs.language` (เพิ่ม `prefs:{}` ใน `createEmptyAppData`+`normalizeAppData`) → sync cloud อัตโนมัติ. boot อ่าน pref/auto-detect แล้ว `applyLanguage()` (hook หลัง `loadState()`); re-apply ตอน `sq-user-changed`
+  - **greeting กวนๆ** (`getHomeGreetingTexts`) เขียนใหม่เป็น data-driven → `tList("greet.<period>.<bucket>.prefix/.sub")` (5 ช่วงเวลา × 6 บัคเก็ตคะแนน), แปลอังกฤษให้ได้อารมณ์เดิม
+  - **ยังเหลือเป็นไทย (ตั้งใจเว้นไว้)**: เนื้อหา Random Quest generator (SQ_WORK_FLOW / suggestion pools / AI domain lists / AI prompt ~บรรทัด 15560-16115) เพราะผูกกับ normalizer/dedup ที่ match Thai substring + keyword matcher arrays (ไม่ได้ display) + โค้ดคอมเมนต์. ถ้าจะทำต่อต้องแก้ normalizer ให้รองรับ 2 ภาษา
+  - ผ่าน node syntax check (0 errors), 30 greet keys ครบ
+
 - **[2026-06-05] Cross-device compatibility fixes** — ทำใน `www/index.html` ทั้งหมด ยังไม่ได้ commit/cap sync
   - **`--vh` polyfill** (ใน `<head>`): JS set `--vh` จาก `window.innerHeight` แก้ `dvh`/`svh` ที่ไม่รองรับ WebView เก่า
   - **แทนที่ `dvh`/`svh` ทั้งหมด** → `calc(var(--vh,1vh)*100)` ทุก 9 จุด
@@ -122,6 +186,9 @@ PHASE 5 — execute mode (generate actual assets: copy, scripts, names, outreach
   - กราฟ: smooth bezier curve + gradient fill + spike detection dots + `--vh` aware
   - Log tab: date carousel (arrows + pagination dots fade)
   - diceFab drag bug fix: `getBoundingClientRect()` แทน `offsetLeft/offsetTop` + guard `moved`
+
+- **[2026-06-06] Release v0.16.0 (versionCode 30)** — APK build + copy ไป Downloads
+  - รวม Bilingual i18n Phase 1+2 (ไทย/อังกฤษ), Random Quest generator 2 ภาษา
 
 - **[2026-06-05] Release v0.15.1 (versionCode 29)** — APK build + copy ไป Downloads
   - รวม cross-device fixes + history redesign ทั้งหมดข้างบน
