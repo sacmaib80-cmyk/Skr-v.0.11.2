@@ -14913,8 +14913,10 @@ function loadState(){
       window.homeRunEndTs = 0;
       state.homeRunEndTs = 0;
     }
-    // ถ้า status ค้างอยู่ที่ running/paused/stopped แต่ไม่มี timer → force reset
-    if(state.status === "running" || state.status === "paused" || state.status === "stopped"){
+    // ถ้า status ค้างอยู่ที่ running/paused แต่ไม่มี timer → force reset
+    // หมายเหตุ: "stopped" ไม่รวมอยู่ที่นี่ เพราะ stopped = report ยังไม่ submit
+    // การ reset จะทำให้ข้อมูลเควสและหน้า report หายไปทันที
+    if(state.status === "running" || state.status === "paused"){
       const now = Date.now();
       const endExpired  = state.homeRunEndTs > 0 && now > Number(state.homeRunEndTs);
       const noEnd       = !state.homeRunEndTs;
@@ -15033,6 +15035,13 @@ window.addEventListener("sq-user-changed", async () => {
     if(window.homeRunEndTs){
       setTimeout(()=> showHomeRunScreen(), 200);
     }
+  }
+
+  // ถ้าเควสจบแล้วแต่ยังไม่ได้ submit report → restore หน้า report ทันที
+  // (ป้องกัน data หายตอน user ปิดแอพระหว่างกรอก report)
+  if(state.status === "stopped"){
+    switchPage("homeScene");
+    setTimeout(()=> showHomeReportScreen(), 200);
   }
 });
   let diceDrag = {
@@ -16540,6 +16549,10 @@ function extendCurrentQuestBy(extraMinutes){
 
   if(state.targetEndTs){
     state.targetEndTs += actualAdd * 60000;
+    // sync homeRunEndTs atomically — prevents syncHomeRunScreen race where
+    // it fires between targetEndTs update and the event-handler update and sees remain=0
+    window.homeRunEndTs = state.targetEndTs;
+    state.homeRunEndTs  = state.targetEndTs;
   }
 
   if(state.cutMode === "soft" && state.softWarned && state.softDeadlineTs){
@@ -16793,41 +16806,14 @@ const SQ_DICE_GEN = {
 };
 
 /* ---------- bilingual generator helpers ----------
-   rqLoc(key)         → localized array for the CURRENT language (generation/display)
+   rqLoc(key)         → localized array for the CURRENT app language (generation/display).
+                        The built-in pools we ship always follow currentLang, so one rolled
+                        quest never mixes our Thai + English supplementary data in its name.
+                        (History-derived domains are exempt — see the builders below.)
    rqMatchIndex(name,key) → index of the item whose th OR en label is a substring of `name`,
                             so stored history in EITHER language still maps to a stable id.   */
-// Language chosen for the CURRENT roll (coherent per quest). Set in rqPick().
-// rqLoc() reads it so every templated part of one rolled name shares one language.
-let _rqRollLang = null;
 function rqLoc(key){
-  const lang = _rqRollLang || currentLang;
-  return ((I18N[lang] && I18N[lang][key]) || I18N.th[key] || []).slice();
-}
-// detect the language of a stored/generated quest name (Thai chars → "th", else "en")
-function rqDetectLang(name){ return /[฀-๿]/.test(String(name || "")) ? "th" : "en"; }
-// Pick the language for this roll, weighted by history usage.
-// Current app language always keeps a base share (≥ ~50%); the other language
-// scales up to MAX_OTHER (50%) proportional to how much it appears in history.
-function rqPickGenLang(){
-  const cur = currentLang;
-  const other = cur === "th" ? "en" : "th";
-  const all = loadAll();
-  const today = localDateKey();
-  let curN = 0, otherN = 0;
-  for(let i = 0; i < SQ_DICE_RULES.lookbackDays; i++){
-    const day = all.days?.[addDays(today, -i)];
-    if(!day?.quests) continue;
-    for(const q of day.quests){
-      const nm = normQuestName(q.questName);
-      if(!nm) continue;
-      if(rqDetectLang(nm) === cur) curN++; else otherN++;
-    }
-  }
-  const total = curN + otherN;
-  if(total === 0) return cur;
-  const MAX_OTHER = 0.5;
-  const pOther = (otherN / total) * MAX_OTHER;
-  return Math.random() < pOther ? other : cur;
+  return ((I18N[currentLang] && I18N[currentLang][key]) || I18N.th[key] || []).slice();
 }
 function rqMatchIndex(name, key){
   const n = String(name || "");
@@ -17239,8 +17225,9 @@ function rqChooseCategorySmart(energy){
 /* ---------- quest builder ---------- */
 function rqBuildLearningQuest(energy){
   const duration = rqPickDuration(energy);
-  // keep only history domains that match this roll's language (no mixed-language names)
-  const domains = rqGetDomainsFromHistory("Learning").filter(d => rqDetectLang(d) === (_rqRollLang || currentLang));
+  // history domains flow through in whatever language the user logged them (mixing OK);
+  // only the built-in fallback/action below is forced to the current language via rqLoc().
+  const domains = rqGetDomainsFromHistory("Learning");
   // ขยายหมวดการเรียนรู้ให้ครอบคลุม Soft Skills และเรื่องทั่วไป
   const fallbackLearning = rqPickOne(rqLoc("rq.learnDomains"));
 const domain = rqPickTopDomainAntiStreak(domains, "Learning") || fallbackLearning;
@@ -17258,8 +17245,9 @@ const domain = rqPickTopDomainAntiStreak(domains, "Learning") || fallbackLearnin
 }
 function rqBuildWorkQuest(energy){
   const duration = rqPickDuration(energy);
-  // keep only history domains that match this roll's language (no mixed-language names)
-  const domains = rqGetDomainsFromHistory("Work/Project").filter(d => rqDetectLang(d) === (_rqRollLang || currentLang));
+  // history domains flow through in whatever language the user logged them (mixing OK);
+  // only the built-in fallback/action below is forced to the current language via rqLoc().
+  const domains = rqGetDomainsFromHistory("Work/Project");
   // เปลี่ยนเป็นโดเมนงานกว้างๆ ที่ครอบคลุมทั้งนักเรียน คนทำงาน และงานบ้าน
   const fallbackWork = rqPickOne(rqLoc("rq.workDomains"));
 const domain = rqPickTopDomainAntiStreak(domains, "Work/Project") || fallbackWork;
@@ -17480,11 +17468,6 @@ function rqValidateQuestCandidate(q, doneSet){
 /* ---------- main pick ---------- */
 function rqPick(energy){
   const done = rqGetDoneSet();
-
-  // Decide the language for this whole roll (history-weighted, coherent per quest).
-  // Only affects templated generation via rqLoc(); the repeat method below keeps the
-  // user's own quest name verbatim regardless.
-  _rqRollLang = rqPickGenLang();
 
   // QPS priority: a core category with ZERO activity this week must be pulled in first,
   // ahead of the repeat method. (rqChooseCategorySmart then returns the forced category.)
@@ -19094,14 +19077,17 @@ function renderBreakPanelUI(){
 
   const now       = Date.now();
   const remaining = (breakCfg.lastToggledAt + BREAK_TOGGLE_COOLDOWN_MS) - now;
+  const inCooldown = remaining > 0 && breakCfg.lastToggledAt > 0;
   if(cooldownHint){
-    if(remaining > 0 && breakCfg.lastToggledAt > 0){
+    if(inCooldown){
       cooldownHint.style.display = "block";
       cooldownHint.textContent   = t("break.cooldownHint", { time: msToHuman(remaining) });
     } else {
       cooldownHint.style.display = "none";
     }
   }
+  btn.disabled = inCooldown;
+  btn.style.opacity = inCooldown ? "0.45" : "";
 }
 
 function openBreakPanel(){
@@ -21278,16 +21264,16 @@ document.getElementById("homeRunStopBtn")?.addEventListener("click", ()=>{
 document.getElementById("homeRunPlus5Btn")?.addEventListener("click", ()=>{
   const added = extendCurrentQuestBy(5);
   if(added > 0){
-    window.homeRunEndTs = (window.homeRunEndTs || Date.now()) + added * 60000;
-    state.homeRunEndTs = window.homeRunEndTs;
+    saveState();
+    syncHomeRunScreen();
   }
 });
 
 document.getElementById("homeRunPlus10Btn")?.addEventListener("click", ()=>{
   const added = extendCurrentQuestBy(10);
   if(added > 0){
-    window.homeRunEndTs = (window.homeRunEndTs || Date.now()) + added * 60000;
-    state.homeRunEndTs = window.homeRunEndTs;
+    saveState();
+    syncHomeRunScreen();
   }
 });
 

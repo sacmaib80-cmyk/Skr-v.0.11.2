@@ -108,6 +108,13 @@ PHASE 5 — execute mode (generate actual assets: copy, scripts, names, outreach
 
 ### งานล่าสุด
 
+- **[2026-06-16] Dice language fix — built-in pools ตาม currentLang เสมอ, ไม่ปนข้ามภาษา** — ทำใน `www/index.html` ยังไม่ได้ commit/cap sync
+  - **ปัญหา:** ลูกเต๋าเอา "ข้อมูลเสริมที่เราใส่ไว้" (pool `rq.*`) ของอีกภาษามาปนในชื่อเดียวได้ แม้สลับภาษาแล้ว เพราะ `rqPickGenLang()` เลือกภาษาต่อรอบแบบ history-weighted (ภาษาอื่นโผล่ได้สูงสุด 50%)
+  - **แก้:** ลบ `rqPickGenLang()` + `_rqRollLang` + `rqDetectLang()` ทิ้ง → `rqLoc(key)` อ่าน `I18N[currentLang]` ตรงๆ เสมอ. built-in pools (workflow/bodypart/cardio/connection/learn*/work*/fallback*) จึงตามภาษาปัจจุบันเสมอ
+  - **history ไม่ถูกแตะ (ตามที่ user สั่ง):** เอา `.filter(d => rqDetectLang(d) === …)` ออกจาก `rqBuildLearningQuest`/`rqBuildWorkQuest` → domain จาก history ไหลผ่านได้ทุกภาษา (ปนได้ ไม่เป็นไร). `rqMatchIndex()` ยัง match th+en เพื่อ map ชื่อ history กลับเป็น index คงเดิม
+  - **แทนที่ Phase 3** (history-weighted language) ด้วย logic นี้ — เจตนาเปลี่ยนตาม user (built-in = ภาษาเดียว, history = ปนได้)
+  - ยังไม่ได้ run node syntax check (ไม่มี node ใน environment นี้) — ตรวจ braces/refs ด้วยตา + grep ยืนยันไม่มี ref ของ symbol ที่ลบหลงเหลือ
+
 - **[2026-06-09] Break Time Feature** — ทำใน `www/index.html` ยังไม่ได้ commit/cap sync
   - **ฟีเจอร์ใหม่**: ระบบบังคับพักหลังเควส + หักคะแนนถ้าพักนานเกิน
   - **Menu**: ปุ่ม "Break Time" ลำดับ 2 ใน `#topMenu` (หลัง Morning Gate)
