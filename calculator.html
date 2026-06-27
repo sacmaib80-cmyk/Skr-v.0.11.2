@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>เครื่องคิดเลข</title>
+<style>
+  :root{
+    --bg1:#1a1c2e;
+    --bg2:#10111c;
+    --panel:rgba(255,255,255,.06);
+    --panel-border:rgba(255,255,255,.10);
+    --txt:#f4f5ff;
+    --muted:#8b8fb5;
+    --num:rgba(255,255,255,.07);
+    --num-hover:rgba(255,255,255,.13);
+    --op:#5b6af0;
+    --op-hover:#6f7cf5;
+    --accent:#7c7de8;
+    --warn:#f0676a;
+    --shadow:0 30px 70px rgba(0,0,0,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(1200px 700px at 50% -10%, #272a47 0%, var(--bg1) 45%, var(--bg2) 100%);
+    color:var(--txt);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100dvh;
+    padding:20px;
+  }
+  .calc{
+    width:min(360px,100%);
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border:1px solid var(--panel-border);
+    border-radius:28px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  .brand{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px;padding-left:4px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--op);box-shadow:0 0 12px var(--op);}
+
+  .screen{
+    background:rgba(0,0,0,.22);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:18px;
+    padding:16px 18px;
+    text-align:right;
+    margin-bottom:18px;
+    min-height:112px;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    overflow:hidden;
+  }
+  .history{
+    color:var(--muted);
+    font-size:16px;
+    font-weight:500;
+    min-height:22px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    direction:ltr;
+  }
+  .display{
+    font-size:44px;
+    font-weight:700;
+    line-height:1.1;
+    margin-top:6px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    direction:ltr;
+  }
+
+  .keys{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:11px;
+  }
+  button.key{
+    border:0;
+    border-radius:18px;
+    height:62px;
+    font-size:22px;
+    font-weight:600;
+    color:var(--txt);
+    background:var(--num);
+    cursor:pointer;
+    transition:transform .08s ease, background-color .18s ease, box-shadow .18s ease;
+    user-select:none;
+  }
+  button.key:hover{background:var(--num-hover);}
+  button.key:active{transform:scale(.94);}
+  .key.fn{
+    background:rgba(255,255,255,.04);
+    color:var(--accent);
+    font-weight:800;
+  }
+  .key.fn:hover{background:rgba(124,125,232,.18);}
+  .key.op{
+    background:linear-gradient(180deg,var(--op),#4a57d6);
+    color:#fff;
+    font-weight:800;
+    box-shadow:0 8px 20px rgba(91,106,240,.35);
+  }
+  .key.op:hover{background:var(--op-hover);}
+  .key.op.active{
+    background:#fff;color:var(--op);
+    box-shadow:0 0 0 2px rgba(255,255,255,.4) inset;
+  }
+  .key.eq{
+    background:linear-gradient(180deg,#7c7de8,var(--op));
+    color:#fff;font-weight:800;
+    box-shadow:0 8px 22px rgba(124,125,232,.45);
+  }
+  .key.zero{grid-column:span 2;}
+  .key.clear{color:var(--warn);}
+</style>
+</head>
+<body>
+  <div class="calc">
+    <div class="brand"><span class="dot"></span>เครื่องคิดเลข</div>
+    <div class="screen">
+      <div class="history" id="history"></div>
+      <div class="display" id="display">0</div>
+    </div>
+    <div class="keys" id="keys">
+      <button class="key fn clear" data-action="clear">AC</button>
+      <button class="key fn" data-action="sign">±</button>
+      <button class="key fn" data-action="percent">%</button>
+      <button class="key op" data-op="/">÷</button>
+
+      <button class="key" data-num="7">7</button>
+      <button class="key" data-num="8">8</button>
+      <button class="key" data-num="9">9</button>
+      <button class="key op" data-op="*">×</button>
+
+      <button class="key" data-num="4">4</button>
+      <button class="key" data-num="5">5</button>
+      <button class="key" data-num="6">6</button>
+      <button class="key op" data-op="-">−</button>
+
+      <button class="key" data-num="1">1</button>
+      <button class="key" data-num="2">2</button>
+      <button class="key" data-num="3">3</button>
+      <button class="key op" data-op="+">+</button>
+
+      <button class="key zero" data-num="0">0</button>
+      <button class="key" data-num=".">.</button>
+      <button class="key eq" data-action="equals">=</button>
+    </div>
+  </div>
+
+<!-- โหลด JS ที่ compile มาจาก calculator.ts (รัน: tsc calculator.ts) -->
+<!-- โหลด JS ที่ compile มาจาก calculator.ts (รัน: tsc calculator.ts) -->
+<script src="calculator.js"></script>
+</body>
+</html>

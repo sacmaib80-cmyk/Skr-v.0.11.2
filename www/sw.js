@@ -1,9 +1,12 @@
-const CACHE_NAME = "sakuraq-v0-16-2";
+const CACHE_NAME = "sakuraq-v0-17-3-dice";
 
 const APP_SHELL = [
   "/index.html",
   "/manifest.webmanifest",
-  "/logo-192.png"
+  "/logo-192.png",
+  "/rive.min.js",
+  "/rive.wasm",
+  "/fox-idle.webm"
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SakuraQ Mascot — CSS cat-level demo</title>
+<style>
+  :root{ --mx:0; --my:0; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; font-family:"Segoe UI",system-ui,sans-serif;
+    background:radial-gradient(ellipse 90% 60% at 50% 0%, #efe9ff 0%, #e7edff 50%, #f6f7ff 100%);
+    color:#27306b; display:flex; flex-direction:column; align-items:center; overflow-x:hidden;
+  }
+  h1{ font-size:17px; margin:16px 0 2px; }
+  p.sub{ margin:0 0 10px; font-size:12.5px; color:#6b73a8; }
+  .stage{ position:relative; width:min(92vw,360px); perspective:1000px; margin-bottom:4px; }
+  /* container ขนาดเท่ารูป เพื่อวางลูกตาเป็น % ได้ตรง */
+  .dogWrap{
+    position:relative; width:100%; transform-style:preserve-3d;
+    transition:transform .1s ease-out; will-change:transform;
+  }
+  .dog{ width:100%; height:auto; display:block; filter:drop-shadow(0 16px 24px rgba(40,30,90,.18)); }
+
+  /* ลูกตา (พิวพิล + ประกาย) วางทับตาเดิม */
+  .pupil{
+    position:absolute; width:6%; aspect-ratio:1; border-radius:50%;
+    background:red; outline:1px solid yellow;
+    transform:translate(-50%,-50%);
+    transition:left .08s linear, top .08s linear;
+    pointer-events:none;
+  }
+  .pupil::after{ /* ประกายขาว */
+    content:""; position:absolute; width:34%; aspect-ratio:1; border-radius:50%;
+    background:rgba(255,255,255,.92); top:20%; left:22%;
+    box-shadow:0 0 4px rgba(255,255,255,.6);
+  }
+  /* ตำแหน่งฐานของตาแต่ละข้าง (กึ่งกลางไอริส) — ปรับค่าตรงนี้ให้ตรงตา */
+  .pupL{ --bx:30.5%; --by:40.3%; }
+  .pupR{ --bx:61%;   --by:40.3%; }
+
+  .mode-on .dogWrap{
+    transform:
+      rotateY(calc(var(--mx) * 9deg))
+      rotateX(calc(var(--my) * -7deg))
+      translateX(calc(var(--mx) * 5px));
+  }
+  .mode-on .pupil{
+    left:calc(var(--bx) + var(--mx) * 2.6%);
+    top:calc(var(--by) + var(--my) * 2.6%);
+  }
+  /* idle ตอนไม่ขยับ */
+  .dogWrap{ animation:floaty 3.4s ease-in-out infinite; }
+  @keyframes floaty{ 0%,100%{ translate:0 0; } 50%{ translate:0 -8px; } }
+
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0 2px; }
+  button{
+    border:1px solid #c7ccf0; background:#fff; color:#3a4391; padding:8px 13px;
+    border-radius:12px; font-size:12.5px; font-weight:700; cursor:pointer;
+    box-shadow:0 4px 10px rgba(60,70,160,.10);
+  }
+  button.active{ background:linear-gradient(180deg,#7c7de8,#5b6af0); color:#fff; border-color:transparent; }
+  .note{ max-width:340px; font-size:12.5px; line-height:1.7; color:#5a6296; text-align:center;
+    background:rgba(255,255,255,.6); border:1px solid #dfe3fa; border-radius:14px; padding:11px 14px; margin-top:8px; }
+  .tag{ font-weight:800; color:#5b6af0; }
+  label.calib{ font-size:11px; color:#8089b8; display:flex; gap:6px; align-items:center; }
+</style>
+</head>
+<body>
+  <h1>🐺 ระดับ "แมวตามเมาส์" — เวอร์ชัน CSS</h1>
+  <p class="sub">ขยับเมาส์ดู — ลูกตาเลื่อนตาม + หัวเอียงนิดๆ (บนหมาจริง)</p>
+
+  <div class="stage">
+    <div class="dogWrap mode-on" id="dogWrap">
+      <img class="dog" id="dog" src="./mascot.png" alt="dog" draggable="false">
+      <div class="pupil pupL" id="pupL"></div>
+      <div class="pupil pupR" id="pupR"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="btnEye" class="active">โชว์ลูกตา: เปิด</button>
+    <button id="btnTilt" class="active">หัวเอียง: เปิด</button>
+  </div>
+
+  <div class="note">
+    <span class="tag">นี่คือเวอร์ชัน CSS ของเอฟเฟกต์แมว</span> — ลูกตาดำเลื่อนตามเมาส์ + หัวเอียง.
+    ตอนนี้กูเติม "ตาดำ" ลงบนตาวิ้งของหมา (ลุคเปลี่ยนนิดนึง). ถ้าอยากคงตาวิ้งเดิมเป๊ะ
+    ต้องตัดตาออกมาเลื่อนแทน (งานตัดอาร์ต).
+  </div>
+
+<script>
+  let tx=0,ty=0,cx=0,cy=0;
+  window.addEventListener('pointermove',(e)=>{
+    const r=document.querySelector('.stage').getBoundingClientRect();
+    tx=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(r.width*0.75)));
+    ty=Math.max(-1,Math.min(1,(e.clientY-(r.top+r.height/2))/(r.width*0.75)));
+  });
+  window.addEventListener('pointerleave',()=>{tx=0;ty=0;});
+  (function loop(){
+    cx+=(tx-cx)*0.12; cy+=(ty-cy)*0.12;
+    document.documentElement.style.setProperty('--mx',cx.toFixed(3));
+    document.documentElement.style.setProperty('--my',cy.toFixed(3));
+    requestAnimationFrame(loop);
+  })();
+
+  const wrap=document.getElementById('dogWrap');
+  let eyeOn=true, tiltOn=true;
+  document.getElementById('btnEye').addEventListener('click',function(){
+    eyeOn=!eyeOn; this.classList.toggle('active',eyeOn); this.textContent='โชว์ลูกตา: '+(eyeOn?'เปิด':'ปิด');
+    document.getElementById('pupL').style.display=eyeOn?'':'none';
+    document.getElementById('pupR').style.display=eyeOn?'':'none';
+  });
+  document.getElementById('btnTilt').addEventListener('click',function(){
+    tiltOn=!tiltOn; this.classList.toggle('active',tiltOn); this.textContent='หัวเอียง: '+(tiltOn?'เปิด':'ปิด');
+    wrap.classList.toggle('mode-on',true);
+    wrap.style.setProperty('--tiltScale', tiltOn?1:0);
+  });
+</script>
+</body>
+</html>

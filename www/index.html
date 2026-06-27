@@ -737,7 +737,6 @@ backdrop-filter: blur(12px);
 
   z-index: 10041;  /* เหนือ gateTopBar (10040) เพื่อกัน gate bar บัง topMenu */
 }
-body.gateBarOn .topMenu{ top: 84px; }  /* ตอน gate bar ขึ้น เลื่อน menu ลงตาม */
 
 .topMenu.show{
   opacity: 1;
@@ -1401,64 +1400,108 @@ button.danger:active:not(:disabled){
         letter-spacing:.3px;
       }
 
-      /* ===== Morning Gate TOP BAR = การ์ดแนวนอนลอยบนสุด (ทุกหน้า) ===== */
+      /* ===== Morning Gate FAB = ไอคอนกุญแจลอย ลากได้ อยู่ทุกหน้า (แทนแถบบนเดิม) ===== */
       .gateTopBar{
-        position:fixed; left:8px; right:8px; top:8px;
+        position:fixed;
+        top:calc(10px + env(safe-area-inset-top, 0px));
+        right:14px;
         z-index:10040; display:none;
-        background:linear-gradient(180deg,#FFF7F7 0%,#FFECEC 100%);
-        border:1.5px solid rgba(255,90,90,.5);
-        border-radius:18px;
-        box-shadow:0 6px 18px rgba(255,80,80,.16);
-        padding:8px 12px;
+        flex-direction:column; align-items:center; gap:5px;
+        touch-action:none;
+        user-select:none; -webkit-user-select:none;
+        cursor:grab;
       }
-      .gateTopBar.show{ display:block; }
-      .gateTopInner{
-        display:flex; align-items:center; gap:11px;
-        max-width:860px; margin:0 auto;
+      .gateTopBar.show{ display:flex; }
+      .gateTopBar.dragging{ cursor:grabbing; }
+
+      /* ปุ่มกุญแจ = badge หกเหลี่ยมแดง + กุญแจขาว (ดึงออกมาจากแถบเดิม) */
+      .gateFabBtn{
+        position:relative;
+        width:66px; height:66px;
+        border:none; background:transparent; padding:0;
+        appearance:none; -webkit-appearance:none;
+        outline:none; box-shadow:none;
+        display:flex; align-items:center; justify-content:center;
+        cursor:inherit; -webkit-tap-highlight-color:transparent;
+        /* กรอบแสงสว่าง (ขาวคม + แดงอบอุ่นเรือง) เกาะตามหกเหลี่ยม → เด้งออกจากฉาก ไม่ใช่ glow มืด */
+        filter:
+          drop-shadow(0 0 2px rgba(255,255,255,.95))
+          drop-shadow(0 0 9px rgba(255,120,120,.75))
+          drop-shadow(0 4px 9px rgba(229,57,53,.30));
+        animation:gateFabGlow 2.6s ease-in-out infinite;
+        transition:transform .16s ease;
+      }
+      .gateFabBtn:focus, .gateFabBtn:focus-visible{ outline:none; box-shadow:none; }
+      @keyframes gateFabGlow{
+        0%,100%{ filter:
+          drop-shadow(0 0 2px rgba(255,255,255,.85))
+          drop-shadow(0 0 7px rgba(255,120,120,.6))
+          drop-shadow(0 4px 9px rgba(229,57,53,.30)); }
+        50%   { filter:
+          drop-shadow(0 0 3px rgba(255,255,255,1))
+          drop-shadow(0 0 14px rgba(255,120,120,.92))
+          drop-shadow(0 4px 9px rgba(229,57,53,.30)); }
+      }
+      .gateTopBar:active .gateFabBtn{ transform:scale(.93); }
+      .gateTopBar.dragging .gateFabBtn{
+        transform:translateY(-4px) scale(1.06);
+        animation:gateFabWiggle .5s ease-in-out infinite;
+      }
+      @keyframes gateFabWiggle{
+        0%,100%{ transform:translateY(-4px) scale(1.06) rotate(-2.5deg); }
+        50%    { transform:translateY(-4px) scale(1.06) rotate(2.5deg); }
       }
       /* hexagon badge + กุญแจขาว */
-      .gateTopBadge{
-        flex:0 0 auto; position:relative;
-        width:42px; height:42px;
+      .gateFabBadge{
+        position:relative; z-index:2;
+        width:62px; height:62px;
         display:flex; align-items:center; justify-content:center;
         clip-path:polygon(50% 0%, 100% 26%, 100% 74%, 50% 100%, 0% 74%, 0% 26%);
         background:
-          radial-gradient(72% 44% at 50% 16%, rgba(255,255,255,.45), transparent 60%),
+          radial-gradient(72% 44% at 50% 16%, rgba(255,255,255,.5), transparent 60%),
           linear-gradient(180deg,#FF6B6B 0%,#E53935 100%);
-        filter:drop-shadow(0 3px 6px rgba(229,57,53,.4));
       }
-      .gateTopBadge .sqLock{ transform:scale(.82); }
-      /* ข้อความ */
-      .gateTopLeft{ display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 1 auto; }
-      .gateTopTitle{
-        font-size:15px; font-weight:900; color:#C62828; letter-spacing:-.01em;
-        line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      }
-      .gateTopSub{
-        font-size:11px; font-weight:600; color:#7a5b5b; line-height:1.2;
-        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      }
-      .gateTopPill{
-        flex:0 0 auto;
+      .gateFabBadge .sqLock{ transform:scale(1.08); }
+
+      /* ป้ายนับถอยหลัง / สถานะ ใต้กุญแจ (คล้ายลูกเต๋า) */
+      .gateFabCd{
+        min-width:54px; text-align:center;
         background:#E53935; color:#fff;
-        font-size:10px; font-weight:800; letter-spacing:1.2px;
-        padding:5px 14px; border-radius:999px;
-        box-shadow:0 2px 6px rgba(229,57,53,.4);
+        font-size:11px; font-weight:900; letter-spacing:.6px;
+        padding:3px 11px; border-radius:999px;
+        box-shadow:0 3px 8px rgba(229,57,53,.4);
         white-space:nowrap; cursor:pointer; user-select:none;
-        touch-action:manipulation;
+        touch-action:manipulation; font-variant-numeric:tabular-nums;
       }
-      .gateTopPill:active{ transform:scale(.94); }
-      .gateTopBtn{
-        flex:0 0 auto;
-        padding:7px 13px; border-radius:999px;
-        font-size:12px; font-weight:800; color:#fff;
-        background:linear-gradient(180deg,#FF6B6B,#E53935);
-        border:none; box-shadow:0 2px 6px rgba(229,57,53,.35);
-        white-space:nowrap; touch-action:manipulation;
+      .gateFabCd:active{ transform:scale(.94); }
+      .gateFabHidden{ display:none; }
+
+      /* ===== โทนสี ===== */
+      /* default/active/locked = แดง (ตัวตน Morning Gate) — base style ข้างบนเป็นแดงอยู่แล้ว */
+      /* done = เขียว */
+      .gateTopBar.done .gateFabBadge{
+        background:
+          radial-gradient(72% 44% at 50% 16%, rgba(255,255,255,.5), transparent 60%),
+          linear-gradient(180deg,#34d399 0%,#10b981 100%);
       }
-      /* ดันเนื้อหาลงทุกหน้า ไม่ให้แถบทับ */
-      body.gateBarOn .app{ padding-top:74px; }
-      body.gateBarOn #homeScene .homeHeroPanel{ top:92px; }
+      .gateTopBar.done .gateFabBtn{
+        animation:none;
+        filter:
+          drop-shadow(0 0 2px rgba(255,255,255,.95))
+          drop-shadow(0 0 10px rgba(52,211,153,.8))
+          drop-shadow(0 4px 9px rgba(16,185,129,.3));
+      }
+      .gateTopBar.done .gateFabCd{ background:#10b981; box-shadow:0 3px 8px rgba(16,185,129,.4); }
+
+      /* ===== ไฟ (โชว์เฉพาะตอนนับถอยหลังในช่วง 10 นาที = .firing) ===== */
+      .gateFabFire{
+        position:absolute; inset:-6px -8px -2px -8px;
+        pointer-events:none; z-index:1;
+        opacity:0; transition:opacity .22s ease;
+      }
+      .gateTopBar.firing .gateFabFire{ opacity:1; }
+      /* ไฟ = ตัวตนของฟีเจอร์ → ให้ลุกเสมอ แม้เครื่องเปิด "ลดการเคลื่อนไหว" */
+      .gateFabFire .sqFireFlame{ bottom:0; }
 
       /* Random Quest box (simple) */
       .rqBox{
@@ -2111,9 +2154,33 @@ button.danger:active:not(:disabled){
   z-index:20;
 
   pointer-events:none;
-  object-fit:contain;
 
   filter: drop-shadow(0 16px 26px rgba(15,23,42,.14));
+}
+
+/* media layers inside the mascot wrapper — video (fallback) defines the box,
+   Rive canvas overlays it exactly */
+.foxMascot .mascotVideo{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+}
+.foxMascot .mascotRive{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+/* before Rive loads: canvas hidden, video shown (hidden attr handles it).
+   after Rive loads: keep video in layout (visibility) so wrapper keeps its
+   height, but make it invisible + paused; show canvas + let it receive pokes */
+.foxMascot.riveOn .mascotVideo{
+  visibility:hidden;
+}
+.foxMascot.riveOn .mascotRive{
+  pointer-events:auto;
 }
 
 /* =========================
@@ -3081,7 +3148,7 @@ button.danger:active:not(:disabled){
   gap: 2px;
   padding: 5px;
   border-radius: 28px;
-  width: min(calc(100vw - 28px), 340px);
+  width: min(calc(100vw - 20px), 392px);
   background: rgba(255,255,255,.96);
   border: 1px solid rgba(148,163,184,.14);
   box-shadow:
@@ -3100,10 +3167,11 @@ body.keyboard-open .bottomNav {
 
 .bottomNavBtn {
   flex: 1;
+  min-width: 0;
   border: 0;
   background: transparent;
   color: #94a3b8;
-  padding: 10px 4px 9px;
+  padding: 10px 2px 9px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3184,11 +3252,335 @@ body.keyboard-open .bottomNav {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z'/%3E%3C/svg%3E");
 }
+/* STORE — storefront */
+.navIconStore {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z'/%3E%3C/svg%3E");
+}
 /* PLAN — calendar icon */
 .navIconSchedule {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2z'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2z'/%3E%3C/svg%3E");
 }
+
+/* ===== STORE PAGE ===== */
+#storePage { overflow-y: auto; }
+.storePageScroll {
+  padding: 18px 16px calc(120px + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  margin: 0 auto;
+}
+.storeHeader { padding: 6px 2px 14px; }
+.storeHeaderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.storeHeaderTitle {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: #1e1b4b;
+}
+.storeWallet {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(91,106,240,.10), rgba(124,58,237,.08));
+  border: 1px solid rgba(124,58,237,.18);
+}
+.storeWalletLabel { font-size: 11px; font-weight: 700; color: #6d28d9; opacity: .8; }
+.storeWalletValue { font-size: 18px; font-weight: 800; color: #5b6af0; }
+.storeHeaderSub { margin-top: 8px; font-size: 13px; color: #94a3b8; font-weight: 600; }
+
+.storeGrid { display: flex; flex-direction: column; gap: 22px; margin-top: 6px; }
+.storeSlot { }
+.storeSlotTitle {
+  margin: 0 0 11px 2px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.storeSlotGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+}
+@media (max-width: 380px){ .storeSlotGrid { grid-template-columns: repeat(2, 1fr); } }
+.storeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 10px 12px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(148,163,184,.20);
+  box-shadow: 0 1px 3px rgba(15,23,42,.05);
+}
+.storeCardLocked { opacity: .55; }
+.storeSwatch {
+  width: 100%;
+  height: 54px;
+  border-radius: 12px;
+  background: #eef0fb;
+  border: 1px solid rgba(148,163,184,.18);
+}
+.storeSwatchEmpty {
+  background:
+    repeating-linear-gradient(45deg, #f1f5f9 0 8px, #e9eef5 8px 16px);
+}
+.storeCardName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
+  line-height: 1.25;
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+}
+.storeBtn {
+  width: 100%;
+  padding: 8px 6px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-align: center;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.storeBtnBuy { background: #5b6af0; color: #fff; }
+.storeBtnBuy:active { background: #4d59d6; }
+.storeBtnEquip { background: #fff; color: #6d28d9; border-color: rgba(124,58,237,.35); }
+.storeBtnEquip:active { background: rgba(124,58,237,.06); }
+.storeBtnEquipped { background: rgba(16,185,129,.12); color: #059669; border-color: rgba(16,185,129,.30); }
+.storeBtnLocked { background: #f1f5f9; color: #94a3b8; cursor: default; }
+.storeFootNote {
+  margin-top: 24px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #94a3b8;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===== STORE: FIRE BUTTON SKIN — flat orange→red base + cartoon flames on hover/press ===== */
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire{
+  /* VIVID orange→red (like the mockup) but FLAT — no inset highlight / no glossy bulge */
+  background: linear-gradient(180deg, #ff8a22 0%, #ff5a1c 46%, #e8211b 100%) !important;
+  box-shadow:
+    0 7px 16px rgba(222,40,25,.30),
+    0 0 9px rgba(255,193,77,.55),
+    0 0 2px rgba(255,214,102,.65) !important;   /* subtle warm-yellow glow */
+  animation: none !important;          /* no pulse / no constant effect */
+  overflow: visible !important;        /* let hover flames rise above the top edge */
+}
+/* no shimmer sweep on the fire skin (it would overflow once clipping is off) */
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire::before{ display:none !important; }
+/* keep label/icon/arrow above the flame overlay */
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire > *:not(.sqFireFx){ position:relative; z-index:2; }
+/* hide the default paw, show the flame icon instead */
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire .cssDogPaw{ display:none !important; }
+
+/* left flame icon — hand-tuned white flame w/ inner notch (evenodd hole), not an emoji */
+.sqFireIcon{
+  width:21px; height:21px; flex:0 0 auto; display:inline-block;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23fff' fill-rule='evenodd' d='M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16Zm0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  filter: drop-shadow(0 1px 1px rgba(140,20,0,.30));
+}
+
+/* flame particles — hidden until hover / press. Each one rises a little, fades, respawns. */
+/* scoped + !important so a generic button-span rule can't force it back to position:relative */
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire .sqFireFx{
+  /* sit ENTIRELY above the button (bottom edge of the zone overlaps the button top a touch) */
+  position:absolute !important; left:2px; right:2px;
+  top:auto !important; bottom:100% !important; height:30px;
+  margin-bottom:-6px;
+  width:auto !important;
+  z-index:1 !important; pointer-events:none;
+  opacity:0;
+  transition: opacity .14s ease;
+}
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire:hover  .sqFireFx,
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire:active .sqFireFx,
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire:focus-visible .sqFireFx,
+#homeStartQuestBtn.homeStartQuestBtn.sqBtnFire.sqFireLit .sqFireFx{
+  opacity:1;
+}
+.sqFireFlame{
+  position:absolute; bottom:0;
+  width:15px; height:21px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Cpath d='M12 2C12 2 5 9 5 17a7 7 0 0 0 14 0C19 11 15 9 12 2Z' fill='%23ff7a1a' stroke='%239e1208' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12 13C12 13 8.8 16 8.8 19.3a3.2 3.2 0 0 0 6.4 0C15.2 16 12 13 12 13Z' fill='%23ffd23f'/%3E%3C/svg%3E") center/contain no-repeat;
+  transform-origin:50% 100%;
+  /* spawn at base → float up a short way → fade → loop (continuous boiling fire) */
+  animation: sqFireRise .8s ease-out infinite;
+}
+@keyframes sqFireRise{
+  0%   { transform: translateY(7px)  scale(.45); opacity:0; }
+  18%  { opacity:1; }
+  60%  { opacity:.95; }
+  100% { transform: translateY(-15px) scale(1.04); opacity:0; }
+}
+/* clustered on the LEFT & RIGHT edges only (center stays clear for the label) */
+/* left side */
+.sqFireFlame:nth-child(1){ left:-3%; width:14px; animation-delay:-.04s; animation-duration:.74s; }
+.sqFireFlame:nth-child(2){ left:3%;  width:17px; animation-delay:-.42s; animation-duration:.86s; }
+.sqFireFlame:nth-child(3){ left:9%;  width:13px; animation-delay:-.20s; animation-duration:.66s; }
+.sqFireFlame:nth-child(4){ left:15%; width:16px; animation-delay:-.60s; animation-duration:.92s; }
+.sqFireFlame:nth-child(5){ left:1%;  width:15px; animation-delay:-.30s; animation-duration:.80s; }
+.sqFireFlame:nth-child(6){ left:7%;  width:13px; animation-delay:-.52s; animation-duration:.70s; }
+/* right side */
+.sqFireFlame:nth-child(7){ left:85%; width:14px; animation-delay:-.10s; animation-duration:.72s; }
+.sqFireFlame:nth-child(8){ left:91%; width:17px; animation-delay:-.48s; animation-duration:.88s; }
+.sqFireFlame:nth-child(9){ left:97%; width:13px; animation-delay:-.24s; animation-duration:.64s; }
+.sqFireFlame:nth-child(10){ left:103%; width:16px; animation-delay:-.64s; animation-duration:.90s; }
+.sqFireFlame:nth-child(11){ left:89%; width:15px; animation-delay:-.36s; animation-duration:.78s; }
+
+/* fire preview swatch inside the Store card */
+.storeSwatchFire{ background: linear-gradient(180deg,#ff8a22 0%,#ff5a1c 46%,#e8211b 100%) !important; }
+
+/* ===== STORE: DICE SKINS (detailed CSS mini-dice, face = "4") ===== */
+.storeDiceWrap{ position:relative; background:transparent !important; border:0 !important; display:flex; align-items:flex-end; justify-content:center; overflow:visible; height:84px; padding-bottom:5px; }
+.storeDice{ position:relative; width:62px; height:62px; }
+/* real PNG (when present) sits on top of the CSS fallback; onerror removes it → CSS shows */
+.storeDiceImg{ position:absolute; left:50%; bottom:4px; transform:translateX(-50%); width:80px; height:80px; object-fit:contain; z-index:3; pointer-events:none; }
+.sqDiceOverlayImg{ position:absolute; left:50%; bottom:-2px; transform:translateX(-50%); width:68px; height:68px; object-fit:contain; z-index:3; pointer-events:none; }
+/* hide the CSS-built dice while a real image is present (image onerror removes itself → CSS returns) */
+.storeDiceWrap:has(.storeDiceImg) .storeDice{ visibility:hidden; }
+.sqDiceOverlay:has(.sqDiceOverlayImg) > :not(.sqDiceOverlayImg){ visibility:hidden; }
+/* black cat's ears+whiskers pad its frame → nudge it up a touch so its body matches the others */
+.storeDiceImg[src*="catblack"]{ width:88px; height:88px; }
+.sqDiceOverlayImg[src*="catblack"]{ width:74px; height:74px; }
+.storeDice .sdFace{
+  position:absolute; inset:0; border-radius:17px; box-sizing:border-box; overflow:hidden;
+}
+/* dots = recessed/concave holes (pressed IN, like the home dice), pushed toward the corners */
+.storeDice .sdDot{ position:absolute; width:13px; height:13px; border-radius:50%; z-index:2;
+  box-shadow: inset 0 3px 4px rgba(0,0,0,.5), inset 0 -2px 3px rgba(255,255,255,.32), 0 1px 0 rgba(255,255,255,.3); }
+.storeDice .d1{ left:14%;  top:14%; }
+.storeDice .d2{ right:14%; top:14%; }
+.storeDice .d3{ left:14%;  bottom:14%; }
+.storeDice .d4{ right:14%; bottom:14%; }
+
+/* glossy top highlight (jelly shine) */
+.storeDice .sdGloss{ position:absolute; left:9%; right:18%; top:5%; height:40%; border-radius:50%/70%;
+  background:linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0)); z-index:1; display:none; pointer-events:none; }
+
+/* cat ears (rounded-tip, NOT sharp) + inner-ear via ::before */
+.storeDice .sdEar{ position:absolute; top:-13px; width:21px; height:23px; display:none; z-index:0;
+  border-radius: 64% 64% 30% 30% / 82% 82% 28% 28%; }
+.storeDice .sdEar::before{ content:""; position:absolute; left:50%; top:34%; width:52%; height:58%; display:none;
+  transform:translateX(-50%); border-radius: 62% 62% 35% 35% / 78% 78% 30% 30%; }
+.storeDice .sdEarL{ left:3px;  transform:rotate(-22deg); transform-origin:bottom center; }
+.storeDice .sdEarR{ right:3px; transform:rotate(22deg);  transform-origin:bottom center; }
+
+/* whiskers (neon cat) — fan OUT from the cheek: top angles up, middle straight, bottom angles down */
+.storeDice .sdWk{ position:absolute; height:2px; width:18px; border-radius:2px; display:none; background:#f3ddff; }
+.storeDice .sdWkL1{ left:-17px; top:45%; transform:rotate(17deg);  transform-origin:right center; }
+.storeDice .sdWkL2{ left:-18px; top:56%; transform:rotate(-4deg);  transform-origin:right center; }
+.storeDice .sdWkL3{ left:-17px; top:66%; transform:rotate(-17deg); transform-origin:right center; }
+.storeDice .sdWkR1{ right:-17px; top:45%; transform:rotate(-17deg); transform-origin:left center; }
+.storeDice .sdWkR2{ right:-18px; top:56%; transform:rotate(4deg);   transform-origin:left center; }
+.storeDice .sdWkR3{ right:-17px; top:66%; transform:rotate(17deg);  transform-origin:left center; }
+
+/* sparkles (glass) — 4-point stars */
+.storeDice .sdSpark{ position:absolute; display:none; background:#fff; z-index:4;
+  clip-path: polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.9)); }
+.storeDice .sp1{ left:16%; top:12%; width:11px; height:11px; }
+.storeDice .sp2{ right:14%; top:34%; width:7px;  height:7px; }
+.storeDice .sp3{ left:22%; bottom:14%; width:8px; height:8px; }
+.storeDice .sp4{ right:24%; bottom:22%; width:6px; height:6px; }
+
+/* center heart (neon cat) — small */
+.storeDice .sdHeart{ position:absolute; left:50%; top:50%; width:5.5px; height:4.5px; display:none; z-index:4;
+  transform:translate(-50%,-62%) rotate(-45deg); background:#f3c2ff;
+  box-shadow:0 0 4px rgba(235,160,255,.95); }
+.storeDice .sdHeart::before,.storeDice .sdHeart::after{ content:""; position:absolute; width:5.5px; height:4.5px; background:inherit; border-radius:50%; }
+.storeDice .sdHeart::before{ top:-2.7px; left:0; }
+.storeDice .sdHeart::after{ left:2.7px; top:0; }
+
+/* sakura + paw (pink cat) */
+.storeDice .sdSakura{ position:absolute; right:7%; top:8%; width:4px; height:4px; border-radius:50%; display:none; z-index:4;
+  background:#ff6fa8; box-shadow:3px -1px 0 #ffa9cd, -3px -1px 0 #ffa9cd, 2px 3px 0 #ffa9cd, -2px 3px 0 #ffa9cd, 0 -3px 0 #ffa9cd; }
+.storeDice .sdPaw{ position:absolute; right:11%; bottom:12%; width:6px; height:5px; border-radius:50%; display:none; z-index:4;
+  background:#ff7eb0; opacity:.9; box-shadow:-4px -3px 0 -1px #ff7eb0, 0 -5px 0 -1px #ff7eb0, 4px -3px 0 -1px #ff7eb0; }
+
+/* marble veining */
+.storeDice .sdVein{ position:absolute; inset:0; display:none; z-index:0; border-radius:inherit;
+  background:
+    linear-gradient(118deg, transparent 36%, rgba(120,122,135,.28) 38%, transparent 40%),
+    linear-gradient(64deg,  transparent 58%, rgba(110,112,125,.20) 60%, transparent 63%),
+    linear-gradient(152deg, transparent 18%, rgba(130,130,142,.18) 20%, transparent 22%),
+    linear-gradient(95deg,  transparent 70%, rgba(120,120,132,.16) 72%, transparent 75%); }
+
+/* ---- PURPLE GLASS ---- */
+.storeDice-glass .sdFace{
+  background:linear-gradient(160deg, rgba(224,213,255,.95), rgba(150,110,250,.82) 58%, rgba(124,58,237,.88));
+  border:1.5px solid rgba(224,214,255,.75);
+  box-shadow:inset 0 3px 9px rgba(255,255,255,.6), inset 0 -7px 13px rgba(76,29,149,.5), 0 0 15px rgba(167,139,250,.6);
+}
+.storeDice-glass .sdDot{ background:radial-gradient(circle at 50% 74%, #a98bf0, #6d34c9 52%, #421a86);
+  box-shadow: inset 0 3px 5px rgba(40,8,90,.65), inset 0 -2px 3px rgba(220,200,255,.45), 0 1px 0 rgba(255,255,255,.35); }
+.storeDice-glass .sdGloss{ display:block; }
+.storeDice-glass .sdSpark{ display:block; }
+
+/* ---- BLACK NEON CAT ---- */
+.storeDice-catBlack .sdFace{
+  background:radial-gradient(120% 120% at 50% 18%, #352b4f, #110c1b 76%);
+  border:2px solid rgba(202,140,255,.85);
+  box-shadow:0 0 13px rgba(180,100,255,.85), 0 0 3px rgba(230,190,255,.9), inset 0 0 9px rgba(140,70,220,.4);
+}
+.storeDice-catBlack .sdDot{ background:radial-gradient(circle at 50% 72%, #ffe9ff, #e9a8ff 46%, #b06fdc);
+  box-shadow: inset 0 2.5px 3px rgba(12,4,26,.55), inset 0 -2px 3px rgba(255,235,255,.5), 0 0 7px rgba(216,140,255,.8); }
+.storeDice-catBlack .sdEar{ display:block; background:linear-gradient(#d18bff,#9b3fe0);
+  filter:drop-shadow(0 0 4px rgba(180,100,255,.95)); }
+.storeDice-catBlack .sdEar::before{ display:block; background:linear-gradient(#efe2ff,#cdb0f5); }
+.storeDice-catBlack .sdWk{ display:block; box-shadow:0 0 4px rgba(212,158,255,1), 0 0 8px rgba(168,85,247,.7); }
+.storeDice-catBlack .sdHeart{ display:block; }
+
+/* ---- PINK CAT ---- */
+.storeDice-catPink .sdFace{
+  background:linear-gradient(160deg,#ffeaf2,#ffa9ca 68%,#ff90b9);
+  box-shadow:inset 0 3px 8px rgba(255,255,255,.7), inset 0 -7px 12px rgba(244,114,182,.45), 0 2px 7px rgba(244,114,182,.3);
+}
+.storeDice-catPink .sdDot{ background:radial-gradient(circle at 50% 74%, #ff9cc2, #d83f7e 55%, #a3275c);
+  box-shadow: inset 0 3px 4px rgba(130,15,65,.6), inset 0 -2px 3px rgba(255,220,235,.5), 0 1px 0 rgba(255,255,255,.35); }
+.storeDice-catPink .sdEar{ display:block; background:#ff9ec4; }
+.storeDice-catPink .sdEar::before{ display:block; background:linear-gradient(#ffe6ef,#ffc2d8); }
+.storeDice-catPink .sdGloss{ display:block; }
+.storeDice-catPink .sdSakura{ display:block; }
+.storeDice-catPink .sdPaw{ display:block; }
+
+/* ---- WHITE MARBLE + GOLD ---- */
+/* gold frame drawn INSET (inside the 62px face) so the body matches every other dice */
+.storeDice-marble .sdFace{
+  background:linear-gradient(150deg,#ffffff,#efece6 50%,#f8f6f2);
+  box-shadow:inset 0 0 0 2.5px #b8860b, inset 0 0 0 4px rgba(255,235,160,.5),
+             inset 0 3px 5px rgba(255,255,255,.85), inset 0 -3px 6px rgba(150,120,40,.2);
+}
+.storeDice-marble .sdDot{ background:radial-gradient(circle at 50% 74%, #f4cf63, #b8860b 52%, #6f4e08);
+  box-shadow: inset 0 3px 4px rgba(70,45,0,.7), inset 0 -2px 3px rgba(255,240,170,.6), 0 1px 0 rgba(255,245,200,.4); }
+
+/* ---- equipped dice skin overlaid on the REAL dice button (#diceBtn) ---- */
+.diceBtn.sqDiceSkinned{ background:transparent !important; box-shadow:none !important; }
+.diceBtn.sqDiceSkinned::after{ display:none !important; }
+.diceBtn.sqDiceSkinned .diceIcon{ display:none !important; }
+.sqDiceOverlay.storeDice{ position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+.sqDiceOverlay .sdFace{ border-radius:18px; }
+.storeDice-marble .sdGloss{ display:block; }
+.storeDice-marble .sdVein{ display:block; }
 
 /* ===== SCHEDULE PAGE ===== */
 #schedulePage { overflow-y: auto; }
@@ -5590,6 +5982,109 @@ body.quest-running #sec-timer .timer {
   color: #64748b;
 }
 
+/* ── Admin Panel (owner-only, hidden) ── */
+#adminPanel{ align-items: stretch; justify-content: center; padding: 0; background: rgba(15,23,42,.45); z-index: 10090; }
+.adminCard{
+  width: min(560px, 100%);
+  max-height: 100%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 0;
+}
+@media (min-width: 480px){
+  #adminPanel{ padding: 18px; }
+  .adminCard{ max-height: calc(100% - 36px); border-radius: 18px; }
+}
+.adminHead{
+  flex: 0 0 auto;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(148,163,184,.18);
+  display: flex; align-items: center; gap: 10px;
+}
+.adminHeadTitle{ font-size: 15px; font-weight: 900; flex: 1; }
+.adminHeadBtn{
+  appearance: none; -webkit-appearance: none;
+  border: 1px solid rgba(148,163,184,.28);
+  background: rgba(148,163,184,.10);
+  color: #e2e8f0; font-family: inherit; font-size: 12px; font-weight: 800;
+  border-radius: 10px; padding: 7px 11px; cursor: pointer;
+}
+.adminHeadBtn:active{ opacity:.7; }
+.adminUidLine{
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  font-size: 10px; color: #94a3b8; word-break: break-all;
+  border-bottom: 1px solid rgba(148,163,184,.12);
+  background: rgba(148,163,184,.05);
+}
+.adminUidLine b{ color:#cbd5e1; }
+.adminGate{ position:fixed; inset:0; z-index:10095; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(15,23,42,.55); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+.adminGate.show{ display:flex; }
+.adminGateBox{ width:min(320px,100%); background:#0f172a; border:1px solid rgba(148,163,184,.25); border-radius:16px; padding:18px; box-shadow:0 24px 60px rgba(0,0,0,.5); }
+.adminGateBox input{ width:100%; box-sizing:border-box; font-family:inherit; font-size:16px; letter-spacing:2px; text-align:center; padding:13px 14px; border-radius:11px; border:1px solid rgba(148,163,184,.3); background:rgba(148,163,184,.08); color:#fff; outline:none; }
+.adminGateBox input:focus{ border-color:#5b6af0; }
+.adminGateBtns{ display:flex; gap:8px; margin-top:12px; }
+.adminGateBtns button{ flex:1; appearance:none; -webkit-appearance:none; font-family:inherit; font-size:13px; font-weight:800; border-radius:10px; padding:11px; cursor:pointer; border:1px solid rgba(148,163,184,.28); }
+#adminGateCancel{ background:rgba(148,163,184,.1); color:#cbd5e1; }
+#adminGateOk{ background:#5b6af0; border-color:#5b6af0; color:#fff; }
+.adminGateBtns button:active{ opacity:.75; }
+.adminTabs{ flex:0 0 auto; display:flex; gap:8px; padding:10px 14px; border-bottom:1px solid rgba(148,163,184,.12); }
+.adminTab{
+  appearance:none; -webkit-appearance:none; flex:1;
+  border:1px solid rgba(148,163,184,.2); background:rgba(148,163,184,.06);
+  color:#cbd5e1; font-family:inherit; font-size:12.5px; font-weight:800;
+  border-radius:11px; padding:9px 10px; cursor:pointer; transition:.18s;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+}
+.adminTab.active{ background:#5b6af0; border-color:#5b6af0; color:#fff; }
+.adminTabCount{ font-size:10px; font-weight:800; background:rgba(255,255,255,.22); color:#fff; padding:1px 7px; border-radius:999px; min-width:18px; }
+.adminTab:not(.active) .adminTabCount{ background:rgba(148,163,184,.22); color:#e2e8f0; }
+.adminSignupCard{
+  background:rgba(148,163,184,.07); border:1px solid rgba(148,163,184,.14);
+  border-radius:12px; padding:11px 13px; margin-bottom:8px;
+  display:flex; align-items:center; gap:11px;
+}
+.adminSignupCard .si-av{ width:34px; height:34px; flex:none; border-radius:50%; background:linear-gradient(135deg,#5b6af0,#7c7de8); color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.adminSignupCard .si-main{ flex:1; min-width:0; }
+.adminSignupCard .si-email{ font-size:13.5px; font-weight:700; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adminSignupCard .si-meta{ font-size:10.5px; color:#94a3b8; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adminSignupCard .si-time{ font-size:10px; font-weight:800; color:#cbd5e1; flex:none; }
+.adminBody{ flex: 1 1 auto; overflow-y: auto; padding: 12px 14px calc(20px + env(safe-area-inset-bottom,0px)); }
+.adminMsg{ padding: 24px 8px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.7; }
+.adminUserCard{
+  background: rgba(148,163,184,.07);
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 14px; padding: 12px 13px; margin-bottom: 10px; cursor: pointer;
+}
+.adminUserCard:active{ background: rgba(148,163,184,.14); }
+.adminUserTop{ display:flex; align-items:center; gap:10px; }
+.adminUserName{ font-size: 14px; font-weight: 800; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adminUserName small{ display:block; font-size:10px; font-weight:500; color:#94a3b8; }
+.adminBadge{ font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px; }
+.adminBadge.live{ background:rgba(34,197,94,.18); color:#4ade80; }
+.adminBadge.idle{ background:rgba(148,163,184,.16); color:#cbd5e1; }
+.adminUserStats{ display:flex; gap:14px; margin-top:9px; font-size:11px; color:#cbd5e1; }
+.adminUserStats b{ color:#fff; font-size:13px; }
+.adminSpark{ display:flex; gap:3px; margin-top:10px; }
+.adminSpark span{ flex:1; height:18px; border-radius:4px; background:rgba(148,163,184,.18); }
+.adminSpark span.on{ background:#7c7de8; }
+.adminSpark span.real{ background:#5b6af0; }
+.adminDetailHead{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.adminDetailName{ font-size:17px; font-weight:900; }
+.adminDetailName small{ display:block; font-size:11px; font-weight:500; color:#94a3b8; word-break:break-all; }
+.adminStatGrid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.adminStat{ background:rgba(148,163,184,.07); border:1px solid rgba(148,163,184,.12); border-radius:12px; padding:10px 12px; }
+.adminStat .k{ font-size:10px; color:#94a3b8; }
+.adminStat .v{ font-size:16px; font-weight:800; margin-top:3px; }
+.adminSectionTitle{ font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.04em; margin:14px 0 8px; }
+.adminQuestRow{ display:flex; gap:8px; align-items:baseline; padding:7px 0; border-bottom:1px solid rgba(148,163,184,.10); font-size:12px; }
+.adminQuestRow .qd{ color:#94a3b8; font-size:10px; flex:0 0 64px; }
+.adminQuestRow .qn{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adminQuestRow .qm{ color:#cbd5e1; flex:0 0 auto; }
+
 /* ── Break Time Panel ── */
 .breakInfoToggleBtn{
   width:28px;height:28px;border-radius:999px;
@@ -6362,9 +6857,21 @@ body.in-app-browser #authGate{
   display:flex;
 }
 
+/* Top row (chip + gate badge on same level) */
+.hrTopRow{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  flex-shrink:0;
+  margin-top:calc(48px + env(safe-area-inset-top,0px));
+  padding:0 16px;
+  box-sizing:border-box;
+}
+
 /* Category chip */
 .hrChip{
-  margin-top:48px;
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -6581,6 +7088,31 @@ body.homeRunVisible .foxMascot{
   pointer-events:none;
 }
 
+/* Morning Gate badge (right side, same row as category chip) */
+.hrGateBadge{
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  padding:5px 13px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.5px;
+  white-space:nowrap;
+  z-index:2;
+  font-variant-numeric:tabular-nums;
+  transition:background .4s,color .4s,border-color .4s;
+  background:rgba(220,38,38,.12);
+  color:#dc2626;
+  border:1px solid rgba(220,38,38,.28);
+}
+.hrGateBadge.hrGateDone{
+  background:rgba(22,163,74,.12);
+  color:#16a34a;
+  border:1px solid rgba(22,163,74,.28);
+}
+
 /* Hide morning gate overlay on run/report screens */
 body.homeRunVisible .gateCover,
 body.homeRunVisible .gateTopBar,
@@ -6594,6 +7126,16 @@ body:has(#homeReportScreen.show) .gateTopBar{
 ============================ */
 .homeRunScreen{
   background: radial-gradient(ellipse 100% 60% at 50% 10%, #1c1045 0%, #0e0827 55%, #08061a 100%) !important;
+}
+.hrGateBadge{
+  background:rgba(248,113,113,.13) !important;
+  color:#f87171 !important;
+  border:1px solid rgba(248,113,113,.28) !important;
+}
+.hrGateBadge.hrGateDone{
+  background:rgba(74,222,128,.13) !important;
+  color:#4ade80 !important;
+  border:1px solid rgba(74,222,128,.28) !important;
 }
 
 /* ── HomeRun entry animation ── */
@@ -6757,6 +7299,366 @@ body:has(#homeReportScreen.show) .gateTopBar{
   color: #fff !important;
   border-color: transparent !important;
   box-shadow: 0 6px 20px rgba(34,197,94,0.32) !important;
+}
+
+/* ===================================================================
+   TIMER THEME: AURORA ราตรี  — premium store skin for #homeRunScreen
+   (CSS-only overlay + injected .rtFx layer; never touches #hrArc dashoffset)
+=================================================================== */
+.homeRunScreen.runTheme-aurora{
+  background: radial-gradient(ellipse 130% 85% at 50% -12%, #1d1450 0%, #0c0926 52%, #05030f 100%) !important;
+}
+/* keep real content above the decorative FX layer */
+.runTheme-aurora .hrTopRow,
+.runTheme-aurora .hrRingWrap,
+.runTheme-aurora .hrControls{ position:relative; z-index:1; }
+
+/* ---- injected decorative layer ---- */
+.runTheme-aurora .rtFx{
+  position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  animation: rtFxIn 1.1s ease both;
+}
+@keyframes rtFxIn{ from{opacity:0} to{opacity:1} }
+
+/* aurora ribbons */
+.runTheme-aurora .rtAur{
+  position:absolute; border-radius:50%;
+  filter: blur(46px); mix-blend-mode:screen; will-change:transform,opacity;
+}
+.runTheme-aurora .rtAur1{ top:-14%; left:-12%; width:78%; height:48%;
+  background:radial-gradient(closest-side, rgba(45,212,191,.85), transparent 70%);
+  animation: rtAur1 26s ease-in-out infinite; }
+.runTheme-aurora .rtAur2{ top:-8%; right:-16%; width:84%; height:54%;
+  background:radial-gradient(closest-side, rgba(167,139,250,.85), transparent 70%);
+  animation: rtAur2 32s ease-in-out infinite; }
+.runTheme-aurora .rtAur3{ top:4%; left:6%; width:90%; height:46%;
+  background:radial-gradient(closest-side, rgba(244,114,182,.6), transparent 72%);
+  animation: rtAur3 29s ease-in-out infinite; }
+@keyframes rtAur1{ 0%,100%{transform:translate(0,0) skewX(-8deg) scale(1);opacity:.42} 50%{transform:translate(12%,6%) skewX(6deg) scale(1.16);opacity:.62} }
+@keyframes rtAur2{ 0%,100%{transform:translate(0,0) skewX(6deg) scale(1.05);opacity:.38} 50%{transform:translate(-13%,8%) skewX(-8deg) scale(1.22);opacity:.58} }
+@keyframes rtAur3{ 0%,100%{transform:translate(0,0) scale(1);opacity:.28} 50%{transform:translate(6%,-5%) scale(1.18);opacity:.48} }
+
+/* twinkling starfield — two parallax layers (box-shadow dots) */
+.runTheme-aurora .rtStars{ position:absolute; top:0; left:0; width:2px; height:2px; border-radius:50%; background:transparent; }
+.runTheme-aurora .rtStars1{
+  box-shadow:
+    18px 40px #fff, 70px 110px rgba(255,255,255,.85), 140px 60px #fff, 205px 150px rgba(255,255,255,.7),
+    255px 50px #fff, 320px 130px rgba(255,255,255,.85), 380px 70px #fff, 40px 210px #fff,
+    110px 280px rgba(255,255,255,.7), 190px 240px #fff, 290px 320px rgba(255,255,255,.8), 360px 250px #fff,
+    30px 360px rgba(255,255,255,.75), 150px 400px #fff, 250px 440px rgba(255,255,255,.7), 350px 390px #fff,
+    80px 470px #fff, 200px 540px rgba(255,255,255,.7), 320px 560px #fff, 60px 620px rgba(255,255,255,.7),
+    180px 680px #fff, 300px 700px rgba(255,255,255,.75), 400px 500px #fff, 130px 740px rgba(255,255,255,.7);
+  animation: rtTwinkleA 4s ease-in-out infinite, rtDrift 70s linear infinite;
+}
+.runTheme-aurora .rtStars2{
+  box-shadow:
+    50px 80px rgba(200,220,255,.7), 120px 40px rgba(255,255,255,.6), 230px 100px rgba(220,210,255,.6),
+    300px 190px rgba(255,255,255,.55), 60px 260px rgba(255,255,255,.5), 170px 330px rgba(210,230,255,.6),
+    280px 300px rgba(255,255,255,.55), 350px 60px rgba(255,255,255,.5), 20px 150px rgba(255,255,255,.5),
+    150px 200px rgba(220,220,255,.5), 240px 470px rgba(255,255,255,.5), 90px 540px rgba(210,230,255,.55),
+    330px 620px rgba(255,255,255,.5), 200px 650px rgba(255,255,255,.5), 40px 700px rgba(220,210,255,.5),
+    280px 720px rgba(255,255,255,.5);
+  animation: rtTwinkleB 5.5s ease-in-out infinite, rtDrift 105s linear infinite reverse;
+}
+@keyframes rtTwinkleA{ 0%,100%{opacity:.9} 50%{opacity:.4} }
+@keyframes rtTwinkleB{ 0%,100%{opacity:.6} 50%{opacity:.22} }
+@keyframes rtDrift{ from{transform:translateY(0)} to{transform:translateY(-26px)} }
+
+/* ---- ring ---- */
+.runTheme-aurora .hrRingWrap::before{ background: rgba(150,130,255,.22) !important; }
+.runTheme-aurora .hrTrack{ stroke: rgba(184,174,255,.16) !important; }
+.runTheme-aurora #hrArc{
+  stroke: url(#rtAuroraGrad) !important;
+  filter: drop-shadow(0 0 6px rgba(45,212,191,.55)) drop-shadow(0 0 14px rgba(167,139,250,.5)) !important;
+}
+.runTheme-aurora #hrDot{
+  fill:#ffffff !important; stroke: rgba(167,139,250,.9) !important; stroke-width:2.5 !important;
+  filter: drop-shadow(0 0 6px rgba(244,114,182,.95)) drop-shadow(0 0 13px rgba(167,139,250,.85));
+}
+.runTheme-aurora #hrGlowRotate{
+  background: conic-gradient(from 0deg, transparent, rgba(45,212,191,.18), rgba(167,139,250,.22), rgba(244,114,182,.16), transparent) !important;
+}
+
+/* ---- time text: gradient + slow shimmer + aurora glow ---- */
+.runTheme-aurora .homeRunTime{
+  color: transparent !important;
+  background: linear-gradient(110deg, #ffffff 0%, #e9e2ff 28%, #ffffff 46%, #d8ccff 62%, #efe9ff 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 30px rgba(167,139,250,.45);
+  animation: rtTimeShimmer 6.5s linear infinite;
+}
+@keyframes rtTimeShimmer{ to{ background-position: -220% 0; } }
+
+/* ---- glass chip + session badge ---- */
+.runTheme-aurora .hrChip{
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(167,139,250,.35) !important;
+  box-shadow: 0 4px 18px rgba(120,90,230,.25), inset 0 1px 0 rgba(255,255,255,.12) !important;
+  color: #d8ccff !important; backdrop-filter: blur(10px);
+}
+.runTheme-aurora .hrBadge{
+  background: rgba(167,139,250,.12) !important;
+  border-color: rgba(167,139,250,.28) !important;
+  color: #cdbcff !important; backdrop-filter: blur(8px);
+}
+
+/* ---- frosted control dock ---- */
+.runTheme-aurora .hrControls{
+  width:auto !important;
+  margin: 0 auto calc(20px + env(safe-area-inset-bottom,0px)) !important;
+  padding: 11px 14px !important;
+  background: rgba(18,12,44,.5) !important;
+  border: 1px solid rgba(167,139,250,.20);
+  border-radius: 30px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 36px rgba(40,20,90,.45), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.runTheme-aurora .hrPill{
+  background: rgba(255,255,255,.05) !important;
+  border: 1px solid rgba(167,139,250,.18) !important;
+  color: rgba(232,226,255,.7) !important; box-shadow:none !important;
+  backdrop-filter: blur(8px);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .2s, box-shadow .2s !important;
+}
+.runTheme-aurora .hrPill:hover{ background: rgba(167,139,250,.14) !important; color:#fff !important; box-shadow: 0 0 18px rgba(167,139,250,.35) !important; }
+.runTheme-aurora .hrPill:active{ transform: scale(.9) !important; }
+.runTheme-aurora .hrPill b{ color:#fff !important; }
+.runTheme-aurora .hrPill span{ color: rgba(232,226,255,.55) !important; }
+.runTheme-aurora .hrPillStop{
+  color: rgba(255,140,150,.92) !important;
+  border-color: rgba(255,90,110,.28) !important;
+  background: rgba(255,70,90,.08) !important;
+}
+.runTheme-aurora .hrPillStop:hover{ background: rgba(255,70,90,.16) !important; box-shadow: 0 0 18px rgba(255,90,110,.3) !important; }
+
+/* ---- pause: glowing aurora orb ---- */
+.runTheme-aurora .hrStop{
+  background: radial-gradient(circle at 38% 30%, #8b7bf0 0%, #5b46d6 55%, #3b2aa0 100%) !important;
+  color:#fff !important;
+  box-shadow: 0 0 0 1px rgba(167,139,250,.4), 0 0 20px rgba(124,90,240,.55), 0 8px 26px rgba(40,20,90,.5), inset 0 2px 6px rgba(255,255,255,.25) !important;
+  animation: rtOrbBreath 3s ease-in-out infinite;
+}
+@keyframes rtOrbBreath{
+  0%,100%{ box-shadow: 0 0 0 1px rgba(167,139,250,.4), 0 0 18px rgba(124,90,240,.5), 0 8px 26px rgba(40,20,90,.5), inset 0 2px 6px rgba(255,255,255,.25); }
+  50%{ box-shadow: 0 0 0 1px rgba(167,139,250,.5), 0 0 34px rgba(124,90,240,.85), 0 8px 26px rgba(40,20,90,.5), inset 0 2px 6px rgba(255,255,255,.3); }
+}
+.runTheme-aurora .hrStop:active{ transform: scale(.9) !important; }
+.runTheme-aurora #homeRunPauseBtn.resumeMode{
+  background: radial-gradient(circle at 38% 30%, #4ade80 0%, #22c55e 60%, #15803d 100%) !important;
+  box-shadow: 0 0 0 1px rgba(74,222,128,.4), 0 0 26px rgba(34,197,94,.6), 0 8px 26px rgba(20,80,40,.5), inset 0 2px 6px rgba(255,255,255,.25) !important;
+  animation: none !important;
+}
+
+/* respect reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  .runTheme-aurora .rtAur,
+  .runTheme-aurora .rtStars,
+  .runTheme-aurora .homeRunTime,
+  .runTheme-aurora .hrStop{ animation: none !important; }
+}
+
+/* ===================================================================
+   TIMER THEME: MIDNIGHT VINYL ไวนิลราตรี — premium store skin (#homeRunScreen)
+   Non-circular progress: a spinning record + a tonearm that sweeps inward,
+   driven by CSS var --rt-progress (set in syncHomeRunScreen, 0→1 elapsed).
+   CSS-only overlay; the live #hrArc is hidden, its logic never touched.
+=================================================================== */
+.homeRunScreen.runTheme-vinyl{
+  background: radial-gradient(ellipse 130% 92% at 50% -10%, #2a1a12 0%, #160f0a 52%, #0a0705 100%) !important;
+}
+/* keep real content above the turntable */
+.runTheme-vinyl .hrTopRow,
+.runTheme-vinyl .hrRingWrap,
+.runTheme-vinyl .hrControls{ position:relative; z-index:1; }
+/* hide the original ring + conic glow (user is bored of the circle) */
+.runTheme-vinyl .hrRingSvg{ display:none !important; }
+.runTheme-vinyl #hrGlowRotate{ display:none !important; }
+.runTheme-vinyl .hrRingWrap::before{ background: rgba(243,205,122,.12) !important; }
+
+/* ---- turntable container (injected into .hrRingWrap) ---- */
+.runTheme-vinyl .rtVinyl{
+  position:absolute; top:50%; left:50%;
+  width:min(78vw,300px); height:min(78vw,300px);
+  transform:translate(-50%,-50%);
+  z-index:1; pointer-events:none;
+}
+
+/* ---- the record (spins) ---- */
+.runTheme-vinyl .rtDisc{
+  position:absolute; inset:0; border-radius:50%; overflow:hidden;
+  background: radial-gradient(circle at 50% 50%, #241a13 0 17%, #0a0705 17% 18.5%, #15100b 18.5% 100%);
+  box-shadow: 0 22px 54px rgba(0,0,0,.65), inset 0 0 46px rgba(0,0,0,.85), 0 0 0 2px rgba(243,205,122,.22);
+  animation: rtSpin 4s linear infinite;
+}
+.runTheme-vinyl .rtGroove{
+  position:absolute; inset:0; border-radius:50%;
+  background: repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,0) 1px 5px);
+}
+.runTheme-vinyl .rtShine{
+  position:absolute; inset:0; border-radius:50%; mix-blend-mode:screen;
+  /* two slim reflection gleams (~0deg & ~180deg) — rotate with the disc so the spin
+     is visible despite the symmetric grooves. Narrow + soft so it reads as a light
+     reflection, not a pie wedge. Clipped inside .rtDisc, so it never leaves the circle. */
+  background: conic-gradient(from 0deg at 50% 50%,
+    rgba(255,244,220,.30) 0deg, transparent 22deg,
+    transparent 168deg, rgba(255,228,180,.18) 180deg, transparent 198deg,
+    transparent 360deg);
+}
+.runTheme-vinyl .rtSpindle{
+  position:absolute; inset:0; border-radius:50%;
+  background: radial-gradient(circle at 50% 14%, rgba(255,255,255,.16), transparent 40%);
+}
+@keyframes rtSpin{ to{ transform:rotate(360deg); } }
+
+/* ---- center label (does NOT spin; time sits on top of it) ---- */
+.runTheme-vinyl .rtLabel{
+  position:absolute; top:50%; left:50%; width:55%; height:55%;
+  transform:translate(-50%,-50%); border-radius:50%; z-index:2;
+  background: radial-gradient(circle at 38% 30%, #ffe9bd 0%, #f3cd7a 26%, #c8762e 60%, #7a1f1f 100%);
+  box-shadow: 0 0 0 2px rgba(255,228,160,.6), 0 0 26px rgba(243,205,122,.45),
+              inset 0 2px 10px rgba(255,255,255,.4), inset 0 -8px 16px rgba(80,12,12,.55);
+}
+.runTheme-vinyl .rtLabel::after{ /* center hole */
+  content:""; position:absolute; top:50%; left:50%; width:9%; height:9%;
+  transform:translate(-50%,-50%); border-radius:50%; background:#160f08;
+  box-shadow: inset 0 0 4px rgba(0,0,0,.9), 0 0 0 2px rgba(255,228,160,.4);
+}
+
+/* ---- premium light sweep over the whole record (does NOT spin) ---- */
+.runTheme-vinyl .rtSheen{
+  position:absolute; inset:0; border-radius:50%; z-index:3; pointer-events:none; mix-blend-mode:screen;
+  /* sweep the highlight via background-position (NOT transform) so the round element
+     stays aligned with the disc and the light can never spill outside the record */
+  background: linear-gradient(118deg, transparent 38%, rgba(255,240,210,.16) 48%, rgba(255,240,210,.04) 54%, transparent 64%);
+  background-size: 260% 100%; background-repeat:no-repeat;
+  animation: rtSheen 6.5s ease-in-out infinite;
+}
+@keyframes rtSheen{ 0%,100%{ background-position: 125% 0; opacity:.4; } 50%{ background-position: -25% 0; opacity:.8; } }
+
+/* ---- tonearm: sweeps from outer edge toward center as time elapses ---- */
+.runTheme-vinyl .rtArm{
+  position:absolute; top:-7%; right:-11%; width:15%; height:76%;
+  transform-origin: 50% 12%;
+  transform: rotate(calc(16deg + var(--rt-progress, 0) * 31deg));
+  transition: transform .6s linear; z-index:4;
+}
+.runTheme-vinyl .rtArmBase{
+  position:absolute; top:2%; left:50%; width:26px; height:26px; transform:translateX(-50%);
+  border-radius:50%; background: radial-gradient(circle at 38% 32%, #574a3c, #221a12);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.22), 0 0 0 2px rgba(243,205,122,.32);
+}
+.runTheme-vinyl .rtArmRod{
+  position:absolute; top:11%; left:50%; width:5px; height:80%; transform:translateX(-50%);
+  border-radius:3px; background: linear-gradient(180deg, #efd29a, #9c7b46);
+  box-shadow: 0 1px 4px rgba(0,0,0,.55);
+}
+.runTheme-vinyl .rtArmHead{
+  position:absolute; bottom:0; left:50%; width:15px; height:24px; transform:translateX(-50%);
+  border-radius:4px 4px 3px 3px; background: linear-gradient(180deg, #43362a, #15100a);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.18);
+}
+.runTheme-vinyl .rtArmHead::after{ /* glowing needle tip */
+  content:""; position:absolute; bottom:-3px; left:50%; width:3px; height:6px; transform:translateX(-50%);
+  background:#ffe2a0; border-radius:2px; box-shadow: 0 0 7px rgba(243,205,122,.95);
+}
+
+/* stop the spin + sweep when paused (syncHomeRunScreen toggles .paused on #hrGlowRotate) */
+.runTheme-vinyl #hrGlowRotate.paused ~ .rtVinyl .rtDisc,
+.runTheme-vinyl #hrGlowRotate.paused ~ .rtVinyl .rtSheen{ animation-play-state: paused; }
+
+/* entry animation: arm starts vertical (like pause) then sweeps right to playing position */
+.runTheme-vinyl .rtArm.rtArmParked{
+  transform: rotate(0deg) !important;
+  transition: transform 0.9s cubic-bezier(.4,0,.2,1) !important;
+}
+/* pause: arm lifts fully vertical (cue lever up) */
+.runTheme-vinyl #hrGlowRotate.paused ~ .rtVinyl .rtArm{
+  transform: rotate(0deg) !important;
+  transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+
+/* ---- time + labels (overlaid on gold label, centered) ---- */
+.runTheme-vinyl .hrInner{ z-index:5; }
+.runTheme-vinyl .homeRunTime{
+  font-size: clamp(32px,8.8vw,44px) !important;
+  letter-spacing: -.02em !important;
+  color: transparent !important;
+  background: linear-gradient(180deg, #5a2c14 0%, #3a1808 62%, #28110a 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 1px 0 rgba(255,238,205,.55) !important;
+}
+.runTheme-vinyl .hrChip{
+  background: rgba(40,28,18,.55) !important;
+  border: 1px solid rgba(243,205,122,.35) !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  color: #f0d49a !important; backdrop-filter: blur(10px);
+}
+.runTheme-vinyl .hrBadge{
+  background: rgba(42,18,8,.6) !important;
+  border-color: rgba(255,228,160,.32) !important;
+  color: #ffe9bd !important; backdrop-filter: blur(6px);
+  max-width: 50% !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+.runTheme-vinyl .rtLabel::after{ display:none !important; } /* remove center spindle dot */
+
+/* ---- frosted control dock (warm gold) ---- */
+.runTheme-vinyl .hrControls{
+  width:auto !important;
+  margin: 0 auto calc(20px + env(safe-area-inset-bottom,0px)) !important;
+  padding: 11px 14px !important;
+  background: rgba(30,20,12,.55) !important;
+  border: 1px solid rgba(243,205,122,.22);
+  border-radius: 30px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.runTheme-vinyl .hrPill{
+  background: rgba(255,240,210,.05) !important;
+  border: 1px solid rgba(243,205,122,.2) !important;
+  color: rgba(240,220,180,.75) !important; box-shadow:none !important;
+  backdrop-filter: blur(8px);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .2s, box-shadow .2s !important;
+}
+.runTheme-vinyl .hrPill:hover{ background: rgba(243,205,122,.14) !important; color:#fff !important; box-shadow: 0 0 18px rgba(243,205,122,.3) !important; }
+.runTheme-vinyl .hrPill:active{ transform: scale(.9) !important; }
+.runTheme-vinyl .hrPill b{ color:#ffe9bf !important; }
+.runTheme-vinyl .hrPill span{ color: rgba(240,220,180,.6) !important; }
+.runTheme-vinyl .hrPillStop{
+  color: rgba(255,150,140,.95) !important;
+  border-color: rgba(200,60,50,.35) !important;
+  background: rgba(150,40,30,.18) !important;
+}
+.runTheme-vinyl .hrPillStop:hover{ background: rgba(150,40,30,.3) !important; box-shadow: 0 0 18px rgba(200,70,60,.35) !important; }
+
+/* ---- pause: glowing gold orb ---- */
+.runTheme-vinyl .hrStop{
+  background: radial-gradient(circle at 38% 30%, #ffd98a 0%, #d99a3c 52%, #9c5a1e 100%) !important;
+  color: #3a2410 !important;
+  box-shadow: 0 0 0 1px rgba(243,205,122,.5), 0 0 20px rgba(217,154,60,.55), 0 8px 26px rgba(60,30,10,.5), inset 0 2px 6px rgba(255,255,255,.4) !important;
+  animation: rtOrbBreathV 3s ease-in-out infinite;
+}
+@keyframes rtOrbBreathV{
+  0%,100%{ box-shadow: 0 0 0 1px rgba(243,205,122,.5), 0 0 18px rgba(217,154,60,.5), 0 8px 26px rgba(60,30,10,.5), inset 0 2px 6px rgba(255,255,255,.4); }
+  50%{ box-shadow: 0 0 0 1px rgba(243,205,122,.6), 0 0 34px rgba(217,154,60,.85), 0 8px 26px rgba(60,30,10,.5), inset 0 2px 6px rgba(255,255,255,.45); }
+}
+.runTheme-vinyl .hrStop:active{ transform: scale(.9) !important; }
+.runTheme-vinyl #homeRunPauseBtn.resumeMode{
+  background: radial-gradient(circle at 38% 30%, #6ee7a7 0%, #22c55e 60%, #15803d 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 1px rgba(74,222,128,.4), 0 0 26px rgba(34,197,94,.6), 0 8px 26px rgba(20,80,40,.5), inset 0 2px 6px rgba(255,255,255,.25) !important;
+  animation: none !important;
+}
+
+/* reduced-motion: the spinning record IS this theme's identity, so it keeps turning
+   (a gentle, steady rotation). Only the pulsing pause-orb glow is disabled. */
+@media (prefers-reduced-motion: reduce){
+  .runTheme-vinyl .hrStop{ animation: none !important; }
 }
 
 .hqQuickTime{
@@ -10361,6 +11263,8 @@ input, textarea {
 
 
 </style>
+<!-- Rive runtime (vendored locally for offline / Capacitor APK) — exposes window.rive -->
+<script src="./rive.min.js"></script>
 <script>
   function setVH(){
     document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');
@@ -10453,15 +11357,19 @@ input, textarea {
     <span class="homeStartArrow">›</span>
   </button>
 </div>
-        <video
-  class="foxMascot"
-  autoplay
-  muted
-  loop
-  playsinline
->
-  <source src="./fox-idle.webm" type="video/webm">
-</video>
+        <div class="foxMascot" id="mascotWrap">
+  <video
+    class="mascotMedia mascotVideo"
+    id="mascotVideo"
+    autoplay
+    muted
+    loop
+    playsinline
+  >
+    <source src="./fox-idle.webm" type="video/webm">
+  </video>
+  <canvas class="mascotMedia mascotRive" id="mascotRive" hidden aria-hidden="true"></canvas>
+</div>
 
 
 
@@ -10541,16 +11449,15 @@ input, textarea {
 
   <!-- MORNING GATE TOP BAR (การ์ดแนวนอน: hexagon+กุญแจ | Morning Gate + pill | ปุ่ม) -->
   <div class="gateTopBar" id="gateTopBar">
-    <div class="gateTopInner">
-      <span class="gateTopBadge" aria-hidden="true">
+    <button class="gateFabBtn" id="gateFabBtn" type="button" aria-label="Morning Gate">
+      <span class="gateFabFire" aria-hidden="true"><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i><i class="sqFireFlame"></i></span>
+      <span class="gateFabBadge" aria-hidden="true">
         <span class="sqLock"><i class="sqLockShackle"></i><i class="sqLockBody"></i></span>
       </span>
-      <div class="gateTopLeft">
-        <div class="gateTopTitle" id="gateTopTitle">Morning Gate</div>
-        <div class="gateTopSub" id="gateTopSub">เริ่มเควสแรกให้ทัน</div>
-      </div>
-      <span class="gateTopPill" id="gateTopTime" role="button" tabindex="0">LOCKED</span>
-    </div>
+    </button>
+    <span class="gateFabCd" id="gateTopTime" role="button" tabindex="0">LOCKED</span>
+    <span class="gateFabHidden" id="gateTopTitle"></span>
+    <span class="gateFabHidden" id="gateTopSub"></span>
   </div>
 
   <!-- APP PAGE -->
@@ -10868,6 +11775,7 @@ input, textarea {
         </div>
       </div>
 
+
       <!-- range tabs — above chart -->
       <div class="hpHeroMeta">
     <div class="historyRangeTabs hpRangeTabs">
@@ -11151,6 +12059,24 @@ input, textarea {
   </div>
 </section>
 
+<!-- STORE PAGE -->
+<section id="storePage" class="app page">
+  <div class="appScroll storePageScroll">
+    <div class="storeHeader">
+      <div class="storeHeaderTop">
+        <div class="storeHeaderTitle" data-i18n="store.title">ร้านค้า</div>
+        <div class="storeWallet">
+          <span class="storeWalletLabel" data-i18n="store.balance">คะแนนใช้ได้</span>
+          <span class="storeWalletValue" id="storeBalanceValue">0</span>
+        </div>
+      </div>
+      <div class="storeHeaderSub" data-i18n="store.subtitle">ใช้คะแนนแลกของแต่งแอป</div>
+    </div>
+    <div class="storeGrid" id="storeGrid"></div>
+    <div class="storeFootNote" data-i18n="store.footNote">คะแนนที่ใช้จะหักจากคะแนนรวม แต่ไม่กระทบคะแนนรายหมวดและเลเวล</div>
+  </div>
+</section>
+
 <!-- SCHEDULE PAGE -->
 <section id="schedulePage" class="app page">
   <div class="appScroll schedPageScroll">
@@ -11396,7 +12322,7 @@ input, textarea {
       • ตัวอย่าง: เควส 30 นาที → พัก 25 นาที<br>
       • Grace 1 นาทีหลังหมดเวลา<br>
       • เกิน Grace → โดนหักคะแนน (-2/-4/-6)<br>
-      • เปิด/ปิดได้ทุก <b>2 ชั่วโมง</b> เท่านั้น
+      • เมื่อเปิดแล้ว ต้องรอ <b>2 ชั่วโมง</b> ก่อนปิดได้
     </div>
 
     <div id="breakEnableWarn" class="breakEnableWarn" style="display:none">
@@ -11404,7 +12330,7 @@ input, textarea {
       <div class="breakWarnText" data-i18n-html="break.enableWarn">
         ระวัง! เมื่อเปิดแล้ว ถ้าพักนานเกิน<br>
         จะถูก<b>หักคะแนนทันที</b> ไม่มีข้อยกเว้น<br>
-        และปิด/เปิดได้ทุก 2 ชั่วโมงเท่านั้น
+        และต้องรอ 2 ชั่วโมงก่อนปิดได้
       </div>
     </div>
 
@@ -11430,6 +12356,37 @@ input, textarea {
     <div class="dataPanelWarn" style="margin-top:10px; font-size:11px; color:#64748b;" data-i18n-html="dbg.panel.warn">
       ถ้า Test เด้ง = plugin ทำงาน ✓<br>
       ถ้า Gate ไม่เด้ง → เช็ค: Battery → Unrestricted + Alarms &amp; Reminders permission
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL (owner-only · hidden · ไม่ใส่ i18n โดยเจตนา เห็นแค่เจ้าของ) -->
+<div id="adminPanel" class="dataPanel" aria-hidden="true">
+  <div class="adminCard">
+    <div class="adminHead">
+      <button id="adminBackBtn" class="adminHeadBtn" type="button" style="display:none;">‹ กลับ</button>
+      <span class="adminHeadTitle" id="adminTitle">ภาพรวมผู้ใช้</span>
+      <button id="adminRefreshBtn" class="adminHeadBtn" type="button">รีเฟรช</button>
+      <button id="adminCloseBtn" class="adminHeadBtn" type="button">✕</button>
+    </div>
+    <div class="adminUidLine">UID ของคุณ (ใส่ใน Security Rule): <b id="adminMyUid">—</b></div>
+    <div class="adminTabs">
+      <button id="adminTabUsers" class="adminTab active" type="button">ผู้ใช้</button>
+      <button id="adminTabSignups" class="adminTab" type="button">สมัครทดลอง <span id="adminSignupCount" class="adminTabCount"></span></button>
+    </div>
+    <div class="adminBody" id="adminBody">
+      <div class="adminMsg">กำลังโหลด…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin access modal (แทน window.prompt ที่ PWA/APK บล็อก) -->
+<div id="adminGate" class="adminGate" aria-hidden="true">
+  <div class="adminGateBox">
+    <input id="adminGateInput" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text">
+    <div class="adminGateBtns">
+      <button id="adminGateCancel" type="button">ยกเลิก</button>
+      <button id="adminGateOk" type="button">ตกลง</button>
     </div>
   </div>
 </div>
@@ -11542,16 +12499,26 @@ input, textarea {
   <!-- Home Running Screen -->
 <div id="homeRunScreen" class="homeRunScreen" aria-hidden="true">
 
-  <!-- Category chip -->
-  <div class="hrChip" id="homeRunChip">
-    <i class="sqIcon" id="homeRunCatIcon" aria-hidden="true"></i>
-    <span id="homeRunCategory">Quest</span>
+  <!-- Top row: category chip (center) + gate badge (right, same level) -->
+  <div class="hrTopRow">
+    <div class="hrChip" id="homeRunChip">
+      <i class="sqIcon" id="homeRunCatIcon" aria-hidden="true"></i>
+      <span id="homeRunCategory">Quest</span>
+    </div>
+    <div id="hrGateBadge" class="hrGateBadge" style="display:none" aria-live="polite"></div>
   </div>
 
   <!-- Progress ring + time inside -->
   <div class="hrRingWrap">
     <div class="hrGlowRotate" id="hrGlowRotate"></div>
     <svg class="hrRingSvg" viewBox="0 0 300 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="rtAuroraGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="#2dd4bf"/>
+          <stop offset="45%"  stop-color="#a78bfa"/>
+          <stop offset="100%" stop-color="#f472b6"/>
+        </linearGradient>
+      </defs>
       <circle class="hrTrack" cx="150" cy="150" r="126"/>
       <circle class="hrArc"   id="hrArc"  cx="150" cy="150" r="126"/>
       <circle class="hrDot"   id="hrDot"  cx="150" cy="24"  r="8"/>
@@ -11766,6 +12733,10 @@ input, textarea {
   <button class="bottomNavBtn" type="button" data-page="schedulePage">
     <span class="navIcon navIconSchedule"></span>
     <span>Plan</span>
+  </button>
+  <button class="bottomNavBtn" type="button" data-page="storePage">
+    <span class="navIcon navIconStore"></span>
+    <span data-i18n="store.tab">Store</span>
   </button>
   <button class="bottomNavBtn" type="button" data-page="appPage" data-target="menu">
     <span class="navIcon navIconMenu"></span>
@@ -12210,7 +13181,7 @@ input, textarea {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_GnE6EKZdxem2XUHpgMuub2gPj3_PFgM",
@@ -12233,7 +13204,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window.sqDB = db;
-window.sqCloud = { doc, setDoc, getDoc };
+window.sqCloud = { doc, setDoc, getDoc, collection, getDocs };
 </script>
 
   <script>
@@ -12649,6 +13620,7 @@ addI18N({
     "gate.sub.needUnlock": "ต้อง Unlock ก่อนถึงจะ Start เควสได้ (โบนัสจะโดนตัด)",
     "gate.sub.canStart": "เริ่มเควสได้แล้ว (เหตุผลจะติดใน Notes)",
     "gate.sub.startInTime": "เริ่มเควสแรกให้ทันก่อนหมดเวลา",
+    "gate.fab.lock": "ล็อก",
     "gate.cover.pass": "PASS แล้ว • โบนัสจะให้ตามเงื่อนไขอัตโนมัติ",
     "gate.cover.wait": "Gate จะเริ่มบังคับเมื่อถึง <b>{time}</b>",
     "gate.cover.kicker": "ถึง Trigger แล้ว: <b>{time}</b><br>กดเริ่ม Gate เพื่อเริ่มนับถอยหลัง และเริ่มเควสแรกให้ทัน",
@@ -12690,6 +13662,7 @@ addI18N({
     "gate.sub.needUnlock": "Unlock first before you can Start (bonus will be cut)",
     "gate.sub.canStart": "You can start now (the reason will be noted in Notes)",
     "gate.sub.startInTime": "Start your first quest before time runs out",
+    "gate.fab.lock": "LOCK",
     "gate.cover.pass": "PASSED • bonus is granted automatically per the rules",
     "gate.cover.wait": "Gate kicks in at <b>{time}</b>",
     "gate.cover.kicker": "Trigger reached: <b>{time}</b><br>Tap start Gate to begin the countdown and start your first quest in time",
@@ -13479,11 +14452,11 @@ addI18N({
     "break.breakLabel":   "เวลาพักคงเหลือ",
     "break.graceLabel":   "Grace หมดใน",
     "break.overLabel":    "เกินโควต้าไป",
-    "break.cooldownHint": "เปลี่ยนได้อีกใน {time}",
+    "break.cooldownHint": "ปิดได้อีกใน {time}",
     "break.sub":          "ระบบพักระหว่างเควส",
     "break.infoAria":     "ข้อมูล",
-    "break.infoBox":      "<b>Break Time</b> บังคับพักหลังทำเควส<br>• พัก 10 นาที + ครึ่งนึงของเวลาเควสล่าสุด<br>• ตัวอย่าง: เควส 30 นาที → พัก 25 นาที<br>• Grace 1 นาทีหลังหมดเวลา<br>• เกิน Grace → โดนหักคะแนน (-2/-4/-6)<br>• เปิด/ปิดได้ทุก <b>2 ชั่วโมง</b> เท่านั้น",
-    "break.enableWarn":   "ระวัง! เมื่อเปิดแล้ว ถ้าพักนานเกิน<br>จะถูก<b>หักคะแนนทันที</b> ไม่มีข้อยกเว้น<br>และปิด/เปิดได้ทุก 2 ชั่วโมงเท่านั้น",
+    "break.infoBox":      "<b>Break Time</b> บังคับพักหลังทำเควส<br>• พัก 10 นาที + ครึ่งนึงของเวลาเควสล่าสุด<br>• ตัวอย่าง: เควส 30 นาที → พัก 25 นาที<br>• Grace 1 นาทีหลังหมดเวลา<br>• เกิน Grace → โดนหักคะแนน (-2/-4/-6)<br>• เมื่อเปิดแล้ว ต้องรอ <b>2 ชั่วโมง</b> ก่อนปิดได้",
+    "break.enableWarn":   "ระวัง! เมื่อเปิดแล้ว ถ้าพักนานเกิน<br>จะถูก<b>หักคะแนนทันที</b> ไม่มีข้อยกเว้น<br>และต้องรอ 2 ชั่วโมงก่อนปิดได้",
     "break.confirmTitle": "เปิด Break Time?",
     "break.confirmBody":  "หากพักนานเกินกำหนดหลังเควสเสร็จ<br>จะโดน<b style=\"color:#ef4444;\">หักคะแนนทันที</b><br>ไม่มีข้อยกเว้น!",
     "break.confirmYes":   "เปิดเลย",
@@ -13506,11 +14479,11 @@ addI18N({
     "break.breakLabel":   "Break time left",
     "break.graceLabel":   "Grace ends in",
     "break.overLabel":    "Overrun by",
-    "break.cooldownHint": "Can change again in {time}",
+    "break.cooldownHint": "Can turn off in {time}",
     "break.sub":          "Rest system between quests",
     "break.infoAria":     "Info",
-    "break.infoBox":      "<b>Break Time</b> forces a rest after each quest<br>• Rest = 10 min + half of your last quest's time<br>• e.g. a 30-min quest → 25-min break<br>• 1-min grace after time's up<br>• Past grace → points deducted (-2/-4/-6)<br>• Can only toggle every <b>2 hours</b>",
-    "break.enableWarn":   "Careful! Once on, resting too long<br>will <b>deduct points instantly</b> — no exceptions<br>and you can only toggle every 2 hours",
+    "break.infoBox":      "<b>Break Time</b> forces a rest after each quest<br>• Rest = 10 min + half of your last quest's time<br>• e.g. a 30-min quest → 25-min break<br>• 1-min grace after time's up<br>• Past grace → points deducted (-2/-4/-6)<br>• Once on, must wait <b>2 hours</b> before turning off",
+    "break.enableWarn":   "Careful! Once on, resting too long<br>will <b>deduct points instantly</b> — no exceptions<br>and you must wait 2 hours before turning it off",
     "break.confirmTitle": "Enable Break Time?",
     "break.confirmBody":  "If you rest too long after a quest<br>you'll get <b style=\"color:#ef4444;\">points deducted instantly</b><br>no exceptions!",
     "break.confirmYes":   "Enable",
@@ -13521,6 +14494,74 @@ addI18N({
     "today.edit":         "Edit",
     "noti.break.title":   "Break time ended!",
     "noti.break.body":    "1 min grace — start your next quest!",
+  }
+});
+
+/* ===== STORE ===== */
+addI18N({
+  th: {
+    "store.tab":              "ร้านค้า",
+    "store.title":            "ร้านค้า",
+    "store.subtitle":         "ใช้คะแนนแลกของแต่งแอป",
+    "store.balance":          "คะแนนใช้ได้",
+    "store.spentLabel":       "ใช้ในร้านค้า",
+    "store.footNote":         "คะแนนที่ใช้จะหักจากคะแนนรวม แต่ไม่กระทบคะแนนรายหมวดและเลเวล",
+    "store.slot.buttonColor": "สีปุ่ม",
+    "store.slot.dice":        "ลูกเต๋า",
+    "store.item.diceGlass":     "แก้วคริสตัล",
+    "store.item.diceCatBlack":  "แมวดำนีออน",
+    "store.item.diceCatPink":   "แมวชมพู",
+    "store.item.diceMarble":    "หินอ่อนทอง",
+    "store.slot.homeTheme":   "ธีมหน้าโฮม",
+    "store.slot.timerTheme":  "ธีมหน้าจับเวลา",
+    "store.item.timerAurora": "ออโรร่าราตรี",
+    "store.item.timerVinyl":  "ไวนิลราตรี",
+    "store.slot.effect":      "เอฟเฟกต์",
+    "store.item.btnIndigo":   "ม่วงคราม",
+    "store.item.btnViolet":   "ไวโอเล็ต",
+    "store.item.btnRose":     "ชมพูโรส",
+    "store.item.btnFire":     "เปลวไฟ",
+    "store.item.homeDawn":    "อรุณรุ่ง",
+    "store.item.homeNight":   "ราตรี",
+    "store.item.soon":        "เร็วๆ นี้",
+    "store.buy":              "ซื้อ",
+    "store.equip":            "ใส่",
+    "store.equipped":         "ใส่อยู่",
+    "store.comingSoon":       "เร็วๆ นี้",
+    "store.notEnough":        "คะแนนไม่พอ",
+    "store.boughtToast":      "ซื้อ {name} แล้ว",
+  },
+  en: {
+    "store.tab":              "Store",
+    "store.title":            "Store",
+    "store.subtitle":         "Spend points on app cosmetics",
+    "store.balance":          "Spendable",
+    "store.spentLabel":       "Spent in store",
+    "store.footNote":         "Spending deducts from your total score but never affects category scores or your level.",
+    "store.slot.buttonColor": "Button color",
+    "store.slot.dice":        "Dice",
+    "store.item.diceGlass":     "Crystal Glass",
+    "store.item.diceCatBlack":  "Neon Cat",
+    "store.item.diceCatPink":   "Pink Cat",
+    "store.item.diceMarble":    "Gold Marble",
+    "store.slot.homeTheme":   "Home theme",
+    "store.slot.timerTheme":  "Timer theme",
+    "store.item.timerAurora": "Aurora Night",
+    "store.item.timerVinyl":  "Midnight Vinyl",
+    "store.slot.effect":      "Effects",
+    "store.item.btnIndigo":   "Indigo",
+    "store.item.btnViolet":   "Violet",
+    "store.item.btnRose":     "Rose",
+    "store.item.btnFire":     "Inferno",
+    "store.item.homeDawn":    "Dawn",
+    "store.item.homeNight":   "Night",
+    "store.item.soon":        "Coming soon",
+    "store.buy":              "Buy",
+    "store.equip":            "Equip",
+    "store.equipped":         "Equipped",
+    "store.comingSoon":       "Coming soon",
+    "store.notEnough":        "Not enough points",
+    "store.boughtToast":      "Purchased {name}",
   }
 });
 /* === END I18N SECTIONS === */
@@ -14765,6 +15806,7 @@ claimWrap: $("claimWrap"),
     gateTopSub: $("gateTopSub"),
     gateTopTime: $("gateTopTime"),
     gateTopOpenBtn: $("gateTopOpenBtn"),
+    gateFabBtn: $("gateFabBtn"),
 
     // Gate Page (NEW — optional but recommended)
     gatePage: $("gatePage"),
@@ -15056,6 +16098,19 @@ window.addEventListener("sq-user-changed", async () => {
 };
 
 const KEY_DICE_POS = "qps_dice_pos_v1";
+
+  let gateDrag = {
+  active: false,
+  moved: false,
+  startX: 0,
+  startY: 0,
+  originLeft: 0,
+  originTop: 0,
+  left: null,
+  top: null,
+};
+
+const KEY_GATE_POS = "qps_gate_pos_v1";
 
   /* =========================
     MORNING GATE CONFIG (lock 7 days)
@@ -15482,12 +16537,15 @@ function gateIsWorldActiveNow(){
     document.body.classList.remove("gateBarOn");
     el.gateTopBar.classList.remove("done");
     el.gateTopBar.classList.remove("locked");
+    el.gateTopBar.classList.remove("firing");
   }
   // คุมโทนสีแถบจุดเดียว: 'active' (ม่วง) | 'locked' (กุหลาบ) | 'done' (เขียว)
+  // firing (ไฟ) จะถูกเปิดทีหลังเฉพาะ branch นับถอยหลัง 10 นาที จึง reset ที่นี่เสมอ
   function setGateBarTone(tone){
     if(!el.gateTopBar) return;
     el.gateTopBar.classList.toggle("done",   tone === "done");
     el.gateTopBar.classList.toggle("locked", tone === "locked");
+    el.gateTopBar.classList.remove("firing");
   }
 
  function gateMaybeLock(){
@@ -15911,10 +16969,24 @@ async function maybeSendMorningGateNotification(){
     hideGateCover();
   }
 
+  // SAFETY NET — ถ้า gate "ล็อกจริง" (เงื่อนไขเดียวกับที่ล็อกปุ่ม Start)
+  // ต้องโชว์แถบบน LOCKED + ปุ่มปลดล็อกเสมอ ไม่ว่า branch อื่นด้านล่างจะตัดสินยังไง
+  // กัน edge case ที่ renderGateUX เคยหลุดไปโชว์ cover/ไม่โชว์อะไรทั้งที่ปุ่มล็อกอยู่
+  if(isGateActiveToday() && gate.locked && !gate.unlocked && !gate.passed && !hasQuestAfterTodayTrigger()){
+    hideGateCover();
+    showGateTopBar();
+    setGateBarTone("locked");
+    if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate";
+    if(el.gateTopSub) el.gateTopSub.textContent = t("gate.sub.missed");
+    if(el.gateTopTime) el.gateTopTime.textContent = t("gate.fab.lock");
+    if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+    return;
+  }
+
   if(!gateCfg.enabled || !gateCfg.triggerHHMM || !isGateActiveToday()){
 
-    // ✅ BUG 1 FIX — quest ยังวิ่งอยู่หลัง deadline
-    if(gate.awaitingGateResult || (gate.startedInTime && !gate.passed)){
+    // quest ยังวิ่งอยู่หลัง deadline — ต้องวิ่งจริงๆ ไม่ใช่แค่ stale state
+    if(gate.awaitingGateResult && state.status === "running"){
       showGateTopBar();
       setGateBarTone("active");
       if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate";
@@ -15975,7 +17047,7 @@ if(!gate.locked && gate.unlocked && !gate.passed){
 
     if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate";
     if(el.gateTopSub) el.gateTopSub.textContent = t("gate.sub.missed");
-    if(el.gateTopTime) el.gateTopTime.textContent = "LOCKED";
+    if(el.gateTopTime) el.gateTopTime.textContent = t("gate.fab.lock");
     if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
     return;
   }
@@ -16035,7 +17107,7 @@ if(!gate.locked && gate.unlocked && !gate.passed){
     setGateBarTone("locked");
     if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate";
     if(el.gateTopSub) el.gateTopSub.textContent = t("gate.sub.needUnlock");
-    if(el.gateTopTime) el.gateTopTime.textContent = "LOCKED";
+    if(el.gateTopTime) el.gateTopTime.textContent = t("gate.fab.lock");
     if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Unlock";
     return;
   }
@@ -16053,6 +17125,8 @@ if(!gate.locked && gate.unlocked && !gate.passed){
   if(el.gateTopTitle) el.gateTopTitle.textContent = "Morning Gate";
   if(el.gateTopSub) el.gateTopSub.textContent = t("gate.sub.startInTime");
   if(el.gateTopOpenBtn) el.gateTopOpenBtn.textContent = "Gate";
+  // ช่วงนับถอยหลัง 10 นาที = จุดไฟ
+  if(el.gateTopBar) el.gateTopBar.classList.add("firing");
 }
 function openTopMenu(){
   if(!el.topMenu || !el.topMenuBackdrop) return;
@@ -16536,7 +17610,9 @@ function extendCurrentQuestBy(extraMinutes){
 
   const currentCut = Number(state.cutMinutes || 0);
   const maxCut = RULES.baseCapPerQuestNamePerDay;
-  const actualAdd = Math.max(0, Math.min(addMin, maxCut - currentCut));
+  // จำกัดแค่ "กดครั้งเดียวห้ามเกิน cap (60)" — ไม่ clamp ยอดรวม
+  // เพื่อให้กดต่อเวลาเรื่อยๆ เกิน 60 ได้ แล้วระบบ auto-split (splitCurrentQuestSegmentAtCap) จัดการเอง
+  const actualAdd = Math.max(0, Math.min(addMin, maxCut));
 
   if(actualAdd <= 0){
     showTimerWarn(t("warn.atMaxTime", { cap: maxCut }));
@@ -18444,8 +19520,10 @@ if(!keepBreak){ clearBreakState(); renderBreakUI(); }
 
 if(isGateActiveToday() && gate.awaitingGateResult){
   // ถ้าเริ่มทันแล้ว discard = ยังไม่ตัดสินแพ้
-  // แค่เลิกอยู่ในโหมดรอผล
+  // reset ทั้งหมดที่ผูกกับ session นี้ เพื่อป้องกันนับเวลาสะสมและ top bar ค้าง
   gate.awaitingGateResult = false;
+  gate.startedInTime = false;
+  gate.firstQuestStartAt = 0;
   saveGate();
 
   syncGateRuntimeFromCfg();
@@ -19077,7 +20155,8 @@ function renderBreakPanelUI(){
 
   const now       = Date.now();
   const remaining = (breakCfg.lastToggledAt + BREAK_TOGGLE_COOLDOWN_MS) - now;
-  const inCooldown = remaining > 0 && breakCfg.lastToggledAt > 0;
+  // Cooldown only applies when ON (can't turn off too soon); turning OFF resets lock
+  const inCooldown = breakCfg.enabled && remaining > 0 && breakCfg.lastToggledAt > 0;
   if(cooldownHint){
     if(inCooldown){
       cooldownHint.style.display = "block";
@@ -19124,16 +20203,11 @@ function showBreakEnableConfirm(onConfirm){
 }
 
 function toggleBreakEnabled(){
-  const now       = Date.now();
-  const remaining = (breakCfg.lastToggledAt + BREAK_TOGGLE_COOLDOWN_MS) - now;
-  if(remaining > 0 && breakCfg.lastToggledAt > 0){
-    showTimerWarn(t("break.cooldownHint", { time: msToHuman(remaining) }));
-    renderBreakPanelUI();
-    return;
-  }
+  const now = Date.now();
   if(!breakCfg.enabled){
+    // Turn ON — no cooldown, can enable anytime after disabling
     showBreakEnableConfirm(()=>{
-      breakCfg.enabled      = true;
+      breakCfg.enabled       = true;
       breakCfg.lastToggledAt = Date.now();
       saveBreakCfg();
       renderBreakPanelUI();
@@ -19141,8 +20215,15 @@ function toggleBreakEnabled(){
       showTimerWarn(t("break.enabled"));
     });
   } else {
+    // Turn OFF — must have been ON for 2 hours first
+    const remaining = (breakCfg.lastToggledAt + BREAK_TOGGLE_COOLDOWN_MS) - now;
+    if(remaining > 0 && breakCfg.lastToggledAt > 0){
+      showTimerWarn(t("break.cooldownHint", { time: msToHuman(remaining) }));
+      renderBreakPanelUI();
+      return;
+    }
     breakCfg.enabled       = false;
-    breakCfg.lastToggledAt = Date.now();
+    breakCfg.lastToggledAt = 0;
     saveBreakCfg();
     clearBreakState();
     renderBreakPanelUI();
@@ -19882,7 +20963,9 @@ on(el.claimProof, "input", ()=>{
   }
 
   // pill ล็อกบนแถบ (ปุ่มเดียว) → กดตอน LOCKED เพื่อปลดล็อก / ตอน active บอก deadline
-  on(el.gateTopTime, "click", ()=>{
+  on(el.gateTopBar, "click", ()=>{
+    // กันไม่ให้การลากจบลงด้วยการ "คลิก"
+    if(gateDrag.moved){ gateDrag.moved = false; return; }
     if(!isGateActiveToday()) return;
     if(gate.locked && !gate.unlocked){
       showGateUnlockModal((reason)=> gateManualUnlock(reason));
@@ -19931,6 +21014,11 @@ saveGateCfg();
 syncGateRuntimeFromCfg();
 
 if(!gateCfg.enabled){
+  // clear เฉพาะ "quest กำลังวิ่ง" state — ไม่แตะ startedInTime/locked
+  // เพราะ gateMaybeLock() ต้องการ startedInTime เพื่อตัดสิน lock state ตอน toggle กลับ on
+  gate.awaitingGateResult = false;
+  gate.firstQuestStartAt = 0;
+  saveGate("toggle-off");
   hideGateCover();
   hideGateTopBar();
   renderGatePageUI();
@@ -19943,6 +21031,7 @@ if(!gateCfg.enabled){
 
 renderGatePageUI();
 renderGateTogglePill();
+gateMaybeLock();
 renderGateUX();
 gateEnforceStartButton();
 rqShowIfEligible();
@@ -20095,6 +21184,308 @@ updateUI();
 });
 
 
+/* =========================
+   STORE / WALLET — spend earned points on cosmetics
+   - wallet (spendable) = lifetime earned − total spent
+   - LEVEL & STREAK stay gross (calcLifetimeQps) → buying never lowers them
+   - per-category stats are derived from quests → never touched here
+========================= */
+function getStoreData(all){
+  if(!all.prefs || typeof all.prefs !== "object" || Array.isArray(all.prefs)) all.prefs = {};
+  let s = all.prefs.store;
+  if(!s || typeof s !== "object" || Array.isArray(s)) s = {};
+  if(!Array.isArray(s.purchases)) s.purchases = [];
+  if(!s.owned    || typeof s.owned    !== "object" || Array.isArray(s.owned))    s.owned = {};
+  if(!s.equipped || typeof s.equipped !== "object" || Array.isArray(s.equipped)) s.equipped = {};
+  all.prefs.store = s;
+  return s;
+}
+
+function calcTotalSpent(){
+  try{
+    const s = getStoreData(loadAll());
+    return round1(s.purchases.reduce((sum,p)=> sum + (Number(p && p.cost) || 0), 0));
+  }catch(e){ return 0; }
+}
+
+function calcSpendablePoints(){
+  return round1(Math.max(0, calcLifetimeQps() - calcTotalSpent()));
+}
+
+/* Item catalog — placeholder slots, fully buyable/equippable now.
+   No art yet → visuals are applied later through applyEquippedCosmetics() (no-op today). */
+const STORE_ITEMS = [
+  { slot:"buttonColor", titleKey:"store.slot.buttonColor", items:[
+    { id:"btn-indigo", nameKey:"store.item.btnIndigo", price:40,  swatch:"#5b6af0" },
+    { id:"btn-violet", nameKey:"store.item.btnViolet", price:40,  swatch:"#7c3aed" },
+    { id:"btn-rose",   nameKey:"store.item.btnRose",   price:60,  swatch:"#f472b6" },
+    { id:"btn-fire",   nameKey:"store.item.btnFire",   price:500, fx:"fire", swatch:"linear-gradient(180deg,#ffd54a 0%,#ff7a18 45%,#e02d1b 100%)" },
+  ]},
+  { slot:"dice", titleKey:"store.slot.dice", items:[
+    { id:"dice-glass",    nameKey:"store.item.diceGlass",    price:200, dice:"glass",    img:"dice-glass.png" },
+    { id:"dice-catblack", nameKey:"store.item.diceCatBlack", price:500, dice:"catBlack", img:"dice-catblack.png" },
+    { id:"dice-catpink",  nameKey:"store.item.diceCatPink",  price:500, dice:"catPink",  img:"dice-catpink.png" },
+    { id:"dice-marble",   nameKey:"store.item.diceMarble",   price:200, dice:"marble",   img:"dice-marble.png" },
+  ]},
+  { slot:"homeTheme", titleKey:"store.slot.homeTheme", items:[
+    { id:"home-dawn",  nameKey:"store.item.homeDawn",  price:120, swatch:"linear-gradient(135deg,#a78bfa,#f0abfc)" },
+    { id:"home-night", nameKey:"store.item.homeNight", price:120, swatch:"linear-gradient(135deg,#312e81,#5b6af0)" },
+    { id:"home-soon",  nameKey:"store.item.soon",      price:0,   locked:true },
+  ]},
+  { slot:"timerTheme", titleKey:"store.slot.timerTheme", items:[
+    { id:"timer-aurora", nameKey:"store.item.timerAurora", price:1000, theme:"aurora",
+      swatch:"radial-gradient(circle at 28% 22%, rgba(45,212,191,.55), transparent 42%), radial-gradient(circle at 72% 38%, rgba(167,139,250,.6), transparent 48%), radial-gradient(circle at 52% 82%, rgba(244,114,182,.45), transparent 52%), linear-gradient(160deg, #1d1450, #0c0926 60%, #05030f)" },
+    { id:"timer-vinyl", nameKey:"store.item.timerVinyl", price:1000, theme:"vinyl",
+      swatch:"radial-gradient(circle at 50% 50%, #f3cd7a 0 12%, #7a1f1f 12% 18%, #0f0b08 18% 20.5%, #1c1410 20.5% 100%), repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.06) 0 1px, transparent 1px 4px)" },
+  ]},
+  { slot:"effect", titleKey:"store.slot.effect", items:[
+    { id:"fx-soon",    nameKey:"store.item.soon",      price:0,   locked:true },
+  ]},
+];
+
+function findStoreItem(itemId){
+  for(const grp of STORE_ITEMS){
+    const it = (grp.items||[]).find(i=> i.id === itemId);
+    if(it) return Object.assign({}, it, { slot: grp.slot });
+  }
+  return null;
+}
+
+function buyStoreItem(itemId){
+  const item = findStoreItem(itemId);
+  if(!item || item.locked) return;
+  const all = loadAll();
+  const s = getStoreData(all);
+  if(s.owned[itemId]) return;                     // already owned
+  const price = Number(item.price) || 0;
+  if(calcSpendablePoints() < price){
+    if(typeof showActionLockBar === "function") showActionLockBar(t("store.notEnough"));
+    return;
+  }
+  s.purchases.push({ ts: Date.now(), itemId, cost: price });
+  s.owned[itemId] = true;
+  saveAll(all);                                   // persists locally + cloud-syncs (2s debounce)
+  if(typeof showActionLockBar === "function") showActionLockBar(t("store.boughtToast", { name: t(item.nameKey) }));
+  renderStorePage();
+  if(typeof renderHomeHud === "function") renderHomeHud();
+  if(typeof renderHistoryPageStub === "function" && document.getElementById("historyPage")?.classList.contains("page-active")){
+    renderHistoryPageStub();
+  }
+}
+
+function equipStoreItem(itemId){
+  const item = findStoreItem(itemId);
+  if(!item || item.locked) return;
+  const all = loadAll();
+  const s = getStoreData(all);
+  if(!s.owned[itemId]) return;                    // must own first
+  if(s.equipped[item.slot] === itemId){
+    delete s.equipped[item.slot];                 // toggle off
+  }else{
+    s.equipped[item.slot] = itemId;
+  }
+  saveAll(all);
+  applyEquippedCosmetics();
+  renderStorePage();
+}
+
+/* Ready hook — applies equipped cosmetics. Intentional NO-OP today (no art yet).
+   Future: switch CSS variables / body data-attrs per equipped slot. Called on boot + after equip. */
+function _sqHexToRgb(hex){
+  if(typeof hex !== "string") return null;
+  let h = hex.trim().replace("#","");
+  if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) return null;
+  return { r: parseInt(h.slice(0,2),16), g: parseInt(h.slice(2,4),16), b: parseInt(h.slice(4,6),16) };
+}
+
+// Drive the fire flames on pointer enter/press so it works on BOTH mouse (hover)
+// and touch (tap) — :hover never fires on mobile and :active is too brief. Wired once.
+function _sqWireFireFx(){
+  const btn = document.getElementById("homeStartQuestBtn");
+  if(!btn || btn._sqFireWired) return;
+  btn._sqFireWired = true;
+  let offT = null;
+  const lit = ()=>{ if(btn.classList.contains("sqBtnFire")){ if(offT){ clearTimeout(offT); offT=null; } btn.classList.add("sqFireLit"); } };
+  const dim = (delay)=>{ if(offT) clearTimeout(offT); offT = setTimeout(()=>btn.classList.remove("sqFireLit"), delay||0); };
+  btn.addEventListener("pointerenter", lit);
+  btn.addEventListener("pointerdown",  lit);
+  btn.addEventListener("pointerleave", ()=>dim(0));
+  btn.addEventListener("pointerup",    ()=>dim(700));   // tap: let flames flare a beat after release
+  btn.addEventListener("pointercancel",()=>dim(300));
+}
+
+// Shared dice decoration markup (used by the Store preview AND the real dice overlay)
+function sqDiceInnerHTML(){
+  return '<span class="sdEar sdEarL"></span><span class="sdEar sdEarR"></span>'
+    + '<span class="sdWk sdWkL1"></span><span class="sdWk sdWkL2"></span><span class="sdWk sdWkL3"></span>'
+    + '<span class="sdWk sdWkR1"></span><span class="sdWk sdWkR2"></span><span class="sdWk sdWkR3"></span>'
+    + '<span class="sdFace">'
+    +   '<span class="sdVein"></span><span class="sdGloss"></span>'
+    +   '<span class="sdSpark sp1"></span><span class="sdSpark sp2"></span><span class="sdSpark sp3"></span><span class="sdSpark sp4"></span>'
+    +   '<span class="sdHeart"></span><span class="sdSakura"></span><span class="sdPaw"></span>'
+    +   '<span class="sdDot d1"></span><span class="sdDot d2"></span><span class="sdDot d3"></span><span class="sdDot d4"></span>'
+    + '</span>';
+}
+
+function applyEquippedCosmetics(){
+  try{
+    _sqWireFireFx();
+    const s = getStoreData(loadAll());
+    const eq = s.equipped || {};
+
+    // Button color → applied ONLY to the Home "ไปต่อกันมั้ย?" start button for now.
+    // Override background + glow + pulse so the WHOLE button (incl. effect) matches the color.
+    const startBtn = document.getElementById("homeStartQuestBtn");
+    if(startBtn){
+      // reset any previous skin first
+      startBtn.classList.remove("sqBtnFire", "sqFireLit");
+      startBtn.querySelectorAll(".sqFireIcon, .sqFireFx").forEach(n=>n.remove());
+      startBtn.style.removeProperty("background");
+      startBtn.style.removeProperty("box-shadow");
+      startBtn.style.removeProperty("animation");
+
+      const item = eq.buttonColor ? findStoreItem(eq.buttonColor) : null;
+      if(item && item.fx === "fire"){
+        // premium fire skin: clean orange→red gradient (CSS) + flame icon
+        // + cartoon line-art flames that rise on hover/press (CSS-only, SVG shapes)
+        startBtn.classList.add("sqBtnFire");
+        const icon = document.createElement("span");
+        icon.className = "sqFireIcon";
+        icon.setAttribute("aria-hidden", "true");
+        startBtn.insertBefore(icon, startBtn.firstChild);
+        const fx = document.createElement("span");
+        fx.className = "sqFireFx";
+        fx.setAttribute("aria-hidden", "true");
+        fx.innerHTML = '<i class="sqFireFlame"></i>'.repeat(11);
+        startBtn.appendChild(fx);
+      }else if(item && item.swatch){
+        const rgb = _sqHexToRgb(item.swatch);
+        if(rgb){
+          const glow = `rgba(${rgb.r},${rgb.g},${rgb.b},`;
+          // layered: white top-sheen + subtle top-light/bottom-shade for depth + solid color
+          startBtn.style.setProperty("background",
+            `radial-gradient(circle at 30% 18%, rgba(255,255,255,.34), transparent 34%), `+
+            `linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.16)), `+
+            `linear-gradient(180deg, ${item.swatch}, ${item.swatch})`,
+            "important");
+          // glow + ambient shadow in the SAME color (kills the old green box-shadow)
+          startBtn.style.setProperty("box-shadow",
+            `0 14px 30px ${glow}.32), 0 0 22px ${glow}.34), inset 0 1px 0 rgba(255,255,255,.45)`,
+            "important");
+          // stop the hardcoded-color pulse keyframes (was reintroducing the wrong color + flashing)
+          startBtn.style.setProperty("animation", "none", "important");
+        }
+      }
+    }
+
+    // Dice skin → overlay the chosen skin onto the real dice button (#diceBtn)
+    const diceBtn = document.getElementById("diceBtn");
+    if(diceBtn){
+      const oldOv = diceBtn.querySelector(".sqDiceOverlay");
+      if(oldOv) oldOv.remove();
+      diceBtn.classList.remove("sqDiceSkinned");
+      const dItem = eq.dice ? findStoreItem(eq.dice) : null;
+      if(dItem && dItem.dice){
+        diceBtn.classList.add("sqDiceSkinned");
+        const ov = document.createElement("span");
+        ov.className = "sqDiceOverlay storeDice storeDice-" + dItem.dice;
+        ov.setAttribute("aria-hidden", "true");
+        const ovImg = dItem.img ? `<img class="sqDiceOverlayImg" src="${dItem.img}?v=2" alt="" onerror="this.remove()">` : "";
+        ov.innerHTML = ovImg + sqDiceInnerHTML();
+        diceBtn.appendChild(ov);
+      }
+    }
+
+    // Timer theme → skin the running-quest screen (#homeRunScreen). CSS-only overlay; never
+    // touches the live #hrArc strokeDashoffset (the timer keeps working).
+    const runScreen = document.getElementById("homeRunScreen");
+    if(runScreen){
+      runScreen.classList.remove("runTheme-aurora", "runTheme-vinyl");
+      runScreen.querySelectorAll(".rtFx, .rtVinyl").forEach(n=> n.remove());
+      const tItem = eq.timerTheme ? findStoreItem(eq.timerTheme) : null;
+      if(tItem && tItem.theme === "aurora"){
+        runScreen.classList.add("runTheme-aurora");
+        const fx = document.createElement("div");
+        fx.className = "rtFx";
+        fx.setAttribute("aria-hidden", "true");
+        fx.innerHTML = '<div class="rtStars rtStars1"></div><div class="rtStars rtStars2"></div>'
+                     + '<div class="rtAur rtAur1"></div><div class="rtAur rtAur2"></div><div class="rtAur rtAur3"></div>';
+        runScreen.insertBefore(fx, runScreen.firstChild);
+      }else if(tItem && tItem.theme === "vinyl"){
+        runScreen.classList.add("runTheme-vinyl");
+        // inject the turntable into .hrRingWrap, AFTER #hrGlowRotate so the
+        // "#hrGlowRotate.paused ~ .rtVinyl" sibling selector can stop the spin on pause.
+        const ringWrap = runScreen.querySelector(".hrRingWrap");
+        if(ringWrap){
+          const vw = document.createElement("div");
+          vw.className = "rtVinyl";
+          vw.setAttribute("aria-hidden", "true");
+          vw.innerHTML = '<div class="rtDisc"><span class="rtGroove"></span><span class="rtShine"></span><span class="rtSpindle"></span></div>'
+                       + '<div class="rtLabel"></div>'
+                       + '<div class="rtSheen"></div>'
+                       + '<div class="rtArm"><span class="rtArmBase"></span><span class="rtArmRod"></span><span class="rtArmHead"></span></div>';
+          ringWrap.appendChild(vw);
+        }
+      }
+    }
+
+    // TODO(homeTheme): apply home background theme when art exists
+    // TODO(effect):    apply effect when art exists
+  }catch(e){ /* ignore */ }
+}
+
+function renderStorePage(){
+  const page = document.getElementById("storePage");
+  if(!page) return;
+  const s = getStoreData(loadAll());
+
+  const balEl = document.getElementById("storeBalanceValue");
+  if(balEl) balEl.textContent = calcSpendablePoints().toFixed(1);
+
+  const grid = document.getElementById("storeGrid");
+  if(!grid) return;
+
+  grid.innerHTML = STORE_ITEMS.map(grp=>{
+    const cards = (grp.items||[]).map(it=>{
+      const owned    = !!s.owned[it.id];
+      const equipped = s.equipped[grp.slot] === it.id;
+      const locked   = !!it.locked;
+      let sw;
+      if(it.dice){
+        const diceImg = it.img ? `<img class="storeDiceImg" src="${it.img}?v=2" alt="" onerror="this.remove()">` : "";
+        sw = `<span class="storeSwatch storeDiceWrap">${diceImg}<span class="storeDice storeDice-${it.dice}">${sqDiceInnerHTML()}</span></span>`;
+      }else if(it.swatch){
+        sw = `<span class="storeSwatch${it.fx==="fire"?" storeSwatchFire":""}" style="background:${it.swatch}"></span>`;
+      }else{
+        sw = `<span class="storeSwatch storeSwatchEmpty"></span>`;
+      }
+      let btn;
+      if(locked){
+        btn = `<span class="storeBtn storeBtnLocked">${t("store.comingSoon")}</span>`;
+      }else if(equipped){
+        btn = `<button class="storeBtn storeBtnEquipped" type="button" data-equip="${it.id}">${t("store.equipped")}</button>`;
+      }else if(owned){
+        btn = `<button class="storeBtn storeBtnEquip" type="button" data-equip="${it.id}">${t("store.equip")}</button>`;
+      }else{
+        btn = `<button class="storeBtn storeBtnBuy" type="button" data-buy="${it.id}">${t("store.buy")} · ${it.price}</button>`;
+      }
+      return `<div class="storeCard${locked?" storeCardLocked":""}">
+        ${sw}
+        <div class="storeCardName">${t(it.nameKey)}</div>
+        ${btn}
+      </div>`;
+    }).join("");
+    return `<section class="storeSlot">
+      <h3 class="storeSlotTitle">${t(grp.titleKey)}</h3>
+      <div class="storeSlotGrid">${cards}</div>
+    </section>`;
+  }).join("");
+
+  grid.querySelectorAll("[data-buy]").forEach(b=> b.onclick = ()=> buyStoreItem(b.dataset.buy));
+  grid.querySelectorAll("[data-equip]").forEach(b=> b.onclick = ()=> equipStoreItem(b.dataset.equip));
+}
+
 /* ========= RENDER ========= */
 function renderHomeHud(){
   const todayKey = localDateKey();
@@ -20120,6 +21511,7 @@ function renderHomeHud(){
   if(el.homeLevelFill){
     el.homeLevelFill.style.width = `${percent}%`;
   }
+
   const streak = loadStreak();
 
 if(el.homeStreakMini){
@@ -20212,6 +21604,9 @@ function switchPage(pageId){
     }
     if(pageId === "schedulePage"){
       renderSchedulePage();
+    }
+    if(pageId === "storePage"){
+      renderStorePage();
     }
   }
 }
@@ -20541,6 +21936,89 @@ const start = (clientX, clientY) => {
   });
 }
 
+/* ===== Morning Gate FAB — ลากได้ + จำตำแหน่ง (mirror ของลูกเต๋า) ===== */
+function loadGatePos(){
+  try{
+    const raw = localStorage.getItem(KEY_GATE_POS);
+    if(!raw) return null;
+    const p = JSON.parse(raw);
+    if(typeof p?.left !== "number" || typeof p?.top !== "number") return null;
+    return p;
+  }catch{ return null; }
+}
+function saveGatePos(left, top){
+  localStorage.setItem(KEY_GATE_POS, JSON.stringify({ left, top }));
+}
+function clampGatePos(left, top){
+  if(!el.gateTopBar) return { left, top };
+  const fabW = el.gateTopBar.offsetWidth || 56;
+  const fabH = el.gateTopBar.offsetHeight || 80;
+  const pad = 8;
+  const maxLeft = Math.max(pad, window.innerWidth - fabW - pad);
+  const maxTop  = Math.max(pad, window.innerHeight - fabH - pad);
+  return {
+    left: Math.min(Math.max(left, pad), maxLeft),
+    top: Math.min(Math.max(top, pad), maxTop),
+  };
+}
+function applyGatePos(left, top){
+  if(!el.gateTopBar) return;
+  const p = clampGatePos(left, top);
+  el.gateTopBar.style.left = `${p.left}px`;
+  el.gateTopBar.style.top = `${p.top}px`;
+  el.gateTopBar.style.right = "auto";
+  el.gateTopBar.style.bottom = "auto";
+  gateDrag.left = p.left;
+  gateDrag.top = p.top;
+}
+function initGateDrag(){
+  if(!el.gateTopBar) return;
+
+  const saved = loadGatePos();
+  if(saved) applyGatePos(saved.left, saved.top);
+
+  const start = (clientX, clientY) => {
+    gateDrag.active = true;
+    gateDrag.moved = false;
+    gateDrag.startX = clientX;
+    gateDrag.startY = clientY;
+    const rect = el.gateTopBar.getBoundingClientRect();
+    gateDrag.originLeft = rect.left;
+    gateDrag.originTop = rect.top;
+    el.gateTopBar.classList.add("dragging");
+  };
+  const move = (clientX, clientY) => {
+    if(!gateDrag.active) return;
+    const dx = clientX - gateDrag.startX;
+    const dy = clientY - gateDrag.startY;
+    if(Math.abs(dx) > 10 || Math.abs(dy) > 10) gateDrag.moved = true;
+    applyGatePos(gateDrag.originLeft + dx, gateDrag.originTop + dy);
+  };
+  const end = () => {
+    if(!gateDrag.active) return;
+    gateDrag.active = false;
+    el.gateTopBar.classList.remove("dragging");
+    if(gateDrag.moved && typeof gateDrag.left === "number" && typeof gateDrag.top === "number"){
+      saveGatePos(gateDrag.left, gateDrag.top);
+    }
+  };
+
+  on(el.gateTopBar, "pointerdown", (e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    start(e.clientX, e.clientY);
+  });
+  on(window, "pointermove", (e) => move(e.clientX, e.clientY));
+  on(window, "pointerup", end);
+  on(window, "pointercancel", end);
+  on(window, "resize", () => {
+    if(typeof gateDrag.left === "number" && typeof gateDrag.top === "number"){
+      applyGatePos(gateDrag.left, gateDrag.top);
+      saveGatePos(gateDrag.left, gateDrag.top);
+    }
+  });
+}
+
 function setQuestCategory(category){
   if(el.category){
     el.category.value = category;
@@ -20831,6 +22309,11 @@ function showHomeRunScreen(){
   screen.classList.add("show");
   screen.setAttribute("aria-hidden", "false");
   document.body.classList.add("homeRunVisible");
+  window._sqMascot?.sync?.();   // หยุด Rive mascot ตอนซ่อน (ประหยัด CPU)
+
+  // vinyl arm entry animation: park then sweep in
+  var arm = screen.querySelector(".rtVinyl .rtArm");
+  if(arm){ arm.classList.add("rtArmParked"); requestAnimationFrame(function(){ requestAnimationFrame(function(){ arm.classList.remove("rtArmParked"); }); }); }
 
   syncHomeRunScreen();
   clearInterval(homeRunSyncTimer);
@@ -20862,6 +22345,7 @@ function hideHomeRunScreen(){
   screen.classList.remove("show");
   screen.setAttribute("aria-hidden", "true");
   document.body.classList.remove("homeRunVisible");
+  window._sqMascot?.sync?.();   // เล่น Rive mascot ต่อเมื่อกลับมาหน้า home
 
   clearInterval(homeRunSyncTimer);
   homeRunSyncTimer = null;
@@ -21210,6 +22694,10 @@ function syncHomeRunScreen(){
       dot.setAttribute("cx", (150 + 126 * Math.cos(angle)).toFixed(2));
       dot.setAttribute("cy", (150 + 126 * Math.sin(angle)).toFixed(2));
     }
+    // elapsed fraction → CSS var for non-circular timer themes (e.g. vinyl tonearm).
+    // 0 at start → 1 at end. Harmless to default/aurora (they don't read it).
+    const rs = document.getElementById("homeRunScreen");
+    if(rs) rs.style.setProperty("--rt-progress", (1 - fraction).toFixed(4));
   }
 
   // Category chip
@@ -21232,6 +22720,31 @@ function syncHomeRunScreen(){
   const sessionEl = document.getElementById("homeRunSession");
   if(sessionEl){
     sessionEl.textContent = state.questName || el.questName?.value || "Quest";
+  }
+
+  // Morning Gate countdown badge (top-right)
+  // ใช้ awaitingGateResult เพราะถูก clear ตอน submit/discard — ไม่ค้างข้ามเควส
+  const gBadge = document.getElementById("hrGateBadge");
+  if(gBadge){
+    const gateOn = isGateActiveToday() && gate.firstQuestStartAt > 0 && gate.awaitingGateResult;
+    if(!gateOn){
+      gBadge.style.display = "none";
+      gBadge.classList.remove("hrGateDone");
+    } else {
+      const rem = GATE_RULES.qualifyMin * 60000 - (Date.now() - Number(gate.firstQuestStartAt));
+      if(rem <= 0){
+        gBadge.style.display = "";
+        gBadge.classList.add("hrGateDone");
+        gBadge.textContent = "✓ DONE";
+      } else {
+        const s = Math.ceil(rem / 1000);
+        const mm = String(Math.floor(s / 60)).padStart(2,"0");
+        const ss = String(s % 60).padStart(2,"0");
+        gBadge.classList.remove("hrGateDone");
+        gBadge.style.display = "";
+        gBadge.textContent = mm + ":" + ss;
+      }
+    }
   }
 }
 
@@ -23412,7 +24925,9 @@ async function cloudSaveAll(snapshot = null){
 
     await setDoc(doc(db, "users", uid), {
       data,
-      updatedAt: data.updatedAt
+      updatedAt: data.updatedAt,
+      email: window.sqAuth?.email || null,
+      name:  window.sqAuth?.name  || null
     }, { merge: true });
 
     console.log("☁️ saved to cloud", data.updatedAt);
@@ -23528,6 +25043,414 @@ function requireAuth(){
   }
   return true;
 }
+
+/* ============================================================
+   ADMIN PANEL (owner-only, hidden)
+   เข้าได้โดยแตะบรรทัด debug 7 ครั้ง → ใส่รหัส ADMIN_PASSWORD
+   boundary จริง = Firestore Security Rules (อ่าน doc คนอื่นได้เฉพาะ UID เจ้าของ)
+   รหัสนี้กันแค่หน้าจอ ถ้า rule ไม่อนุญาต getDocs จะ permission-denied
+   ============================================================ */
+const ADMIN_PASSWORD = "fann3367";
+
+// self-contained helpers (admin code อยู่นอก main IIFE → ไม่พึ่ง localDateKey/addDays/round1 ข้างใน)
+function adminDateKey(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
+function adminAddDays(dateKey, delta){
+  const [y,m,d] = dateKey.split("-").map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + delta);
+  return adminDateKey(dt);
+}
+function adminRound1(n){ return Math.round((Number(n)||0)*10)/10; }
+
+// short relative-time "…ที่แล้ว"
+function adminTimeAgo(ts){
+  if(!ts) return "ไม่เคย";
+  const diff = Date.now() - Number(ts);
+  if(diff < 0) return "เมื่อกี้";
+  const min = Math.floor(diff / 60000);
+  if(min < 1) return "เมื่อกี้";
+  if(min < 60) return min + " นาทีที่แล้ว";
+  const hr = Math.floor(min / 60);
+  if(hr < 24) return hr + " ชั่วโมงที่แล้ว";
+  const day = Math.floor(hr / 24);
+  if(day < 30) return day + " วันที่แล้ว";
+  const mo = Math.floor(day / 30);
+  if(mo < 12) return mo + " เดือนที่แล้ว";
+  return Math.floor(mo / 12) + " ปีที่แล้ว";
+}
+
+// คำนวณเมตริกจาก appData object ของ user อื่นโดยตรง (ไม่ผ่าน localStorage)
+function adminCalcStats(data){
+  const days = (data && data.days && typeof data.days === "object") ? data.days : {};
+  const keys = Object.keys(days).sort();
+  let totalQuests = 0, totalMinutes = 0, totalScore = 0, realQuests = 0;
+  const recent = [];
+
+  keys.forEach(k=>{
+    const day = days[k] || {};
+    const quests = Array.isArray(day.quests) ? day.quests : [];
+    quests.forEach(q=>{
+      const mins = Number(q.minutesSpent) || 0;
+      totalQuests++;
+      totalMinutes += mins;
+      totalScore += Number(q.questScore) || 0;
+      if(mins >= 5) realQuests++;
+      recent.push({
+        date: k,
+        ts: Number(q.ts) || 0,
+        name: q.questName || "(ไม่มีชื่อ)",
+        category: q.category || "",
+        minutes: mins,
+        score: Number(q.questScore) || 0
+      });
+    });
+  });
+
+  recent.sort((a,b)=> (b.ts||0) - (a.ts||0) || (b.date < a.date ? -1 : 1));
+
+  // sparkline: N วันล่าสุดถึงวันนี้ → 0=ไม่ทำ, 1=ทำแต่สั้น, 2=ทำจริง(>=5น.)
+  function buildSpark(n){
+    const today = adminDateKey(new Date());
+    const out = [];
+    for(let i = n - 1; i >= 0; i--){
+      const dk = adminAddDays(today, -i);
+      const day = days[dk] || {};
+      const quests = Array.isArray(day.quests) ? day.quests : [];
+      if(!quests.length){ out.push(0); continue; }
+      out.push(quests.some(q => (Number(q.minutesSpent)||0) >= 5) ? 2 : 1);
+    }
+    return out;
+  }
+
+  return {
+    activeDays: keys.length,
+    firstDay: keys[0] || null,
+    lastDay: keys[keys.length - 1] || null,
+    totalQuests, totalMinutes: Math.round(totalMinutes),
+    totalScore: adminRound1(totalScore),
+    realQuests,
+    recent,
+    last7: buildSpark(7),
+    last14: buildSpark(14)
+  };
+}
+
+function adminDisplayName(u){
+  return u.name || u.email || (u.data && u.data.profile && u.data.profile.name) || ("uid:" + (u.uid||"").slice(0,8));
+}
+
+function adminEsc(s){
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+}
+
+function adminSparkHTML(arr){
+  return '<div class="adminSpark">' + arr.map(v=>{
+    const cls = v === 2 ? " real" : v === 1 ? " on" : "";
+    return '<span class="' + cls.trim() + '"></span>';
+  }).join("") + '</div>';
+}
+
+let _adminUsers = [];   // cache ของ user ที่โหลดมา
+
+function openAdminPanel(){
+  const panel = document.getElementById("adminPanel");
+  if(!panel) return;
+  const myUid = document.getElementById("adminMyUid");
+  if(myUid) myUid.textContent = window.sqAuth?.uid || "(ยังไม่ได้ login)";
+  panel.classList.add("show");
+  panel.setAttribute("aria-hidden", "false");
+  adminSetTab("users");
+}
+function closeAdminPanel(){
+  const panel = document.getElementById("adminPanel");
+  if(!panel) return;
+  panel.classList.remove("show");
+  panel.setAttribute("aria-hidden", "true");
+}
+function adminShowList(){
+  const back = document.getElementById("adminBackBtn");
+  const title = document.getElementById("adminTitle");
+  if(back) back.style.display = "none";
+  if(title) title.textContent = "ภาพรวมผู้ใช้";
+}
+
+async function adminLoadUsers(){
+  const body = document.getElementById("adminBody");
+  if(body) body.innerHTML = '<div class="adminMsg">กำลังโหลด…</div>';
+
+  if(!window.sqCloud || !window.sqDB || !window.sqCloud.getDocs){
+    if(body) body.innerHTML = '<div class="adminMsg">Firestore ยังไม่พร้อม</div>';
+    return;
+  }
+
+  try{
+    const { collection, getDocs } = window.sqCloud;
+    const snap = await getDocs(collection(window.sqDB, "users"));
+    const list = [];
+    snap.forEach(d=>{
+      const raw = d.data() || {};
+      list.push({
+        uid: d.id,
+        email: raw.email || null,
+        name: raw.name || null,
+        data: raw.data || {},
+        updatedAt: raw.updatedAt || (raw.data && raw.data.updatedAt) || 0
+      });
+    });
+    list.sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
+    _adminUsers = list;
+    adminRenderList();
+  }catch(e){
+    console.error("admin load failed", e);
+    const denied = /permission|insufficient/i.test(e?.message || e?.code || "");
+    if(body){
+      body.innerHTML = '<div class="adminMsg">' +
+        (denied
+          ? "อ่านข้อมูลไม่ได้ — ยังไม่ได้ตั้ง Firestore Security Rule ให้ UID นี้อ่านของทุกคน<br><br>ก๊อป UID ด้านบนไปใส่ใน rule (ดูแผนข้อ A) แล้ว Publish"
+          : "โหลดล้มเหลว: " + adminEsc(e?.message || e)) +
+        '</div>';
+    }
+  }
+}
+
+function adminRenderList(){
+  const body = document.getElementById("adminBody");
+  if(!body) return;
+  if(!_adminUsers.length){
+    body.innerHTML = '<div class="adminMsg">ยังไม่มีผู้ใช้</div>';
+    return;
+  }
+  const now = Date.now();
+  body.innerHTML = _adminUsers.map((u, idx)=>{
+    const st = adminCalcStats(u.data);
+    const live = u.updatedAt && (now - u.updatedAt) < 24*3600*1000;
+    return '<div class="adminUserCard" data-idx="' + idx + '">' +
+      '<div class="adminUserTop">' +
+        '<div class="adminUserName">' + adminEsc(adminDisplayName(u)) +
+          (u.email ? '<small>' + adminEsc(u.email) + '</small>' : '') +
+        '</div>' +
+        '<span class="adminBadge ' + (live ? 'live' : 'idle') + '">' + adminTimeAgo(u.updatedAt) + '</span>' +
+      '</div>' +
+      '<div class="adminUserStats">' +
+        '<div><b>' + (u.data?.streak?.current || 0) + '</b> สตรีค</div>' +
+        '<div><b>' + st.totalQuests + '</b> เควส</div>' +
+        '<div><b>' + st.activeDays + '</b> วัน</div>' +
+        '<div><b>' + st.totalScore + '</b> คะแนน</div>' +
+      '</div>' +
+      adminSparkHTML(st.last7) +
+    '</div>';
+  }).join("");
+
+  body.querySelectorAll(".adminUserCard").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const idx = Number(card.getAttribute("data-idx"));
+      adminRenderDetail(idx);
+    });
+  });
+}
+
+function adminRenderDetail(idx){
+  const u = _adminUsers[idx];
+  if(!u) return;
+  const body = document.getElementById("adminBody");
+  const back = document.getElementById("adminBackBtn");
+  const title = document.getElementById("adminTitle");
+  if(back) back.style.display = "";
+  if(title) title.textContent = "รายละเอียด";
+  if(!body) return;
+
+  const st = adminCalcStats(u.data);
+  const streak = u.data?.streak || {};
+  const recentRows = st.recent.slice(0, 20).map(q=>
+    '<div class="adminQuestRow">' +
+      '<span class="qd">' + adminEsc(q.date) + '</span>' +
+      '<span class="qn">' + adminEsc(q.name) + (q.category ? ' · ' + adminEsc(q.category) : '') + '</span>' +
+      '<span class="qm">' + q.minutes + 'น · ' + q.score + 'pt</span>' +
+    '</div>'
+  ).join("") || '<div class="adminMsg">ยังไม่มีเควส</div>';
+
+  body.innerHTML =
+    '<div class="adminDetailHead"><div class="adminDetailName">' + adminEsc(adminDisplayName(u)) +
+      '<small>' + adminEsc(u.email || "") + (u.email ? '<br>' : '') + 'uid: ' + adminEsc(u.uid) + '</small></div></div>' +
+    '<div class="adminStatGrid">' +
+      '<div class="adminStat"><div class="k">ใช้งานล่าสุด</div><div class="v">' + adminTimeAgo(u.updatedAt) + '</div></div>' +
+      '<div class="adminStat"><div class="k">สตรีค (ปัจจุบัน/สูงสุด)</div><div class="v">' + (streak.current||0) + ' / ' + (streak.best||0) + '</div></div>' +
+      '<div class="adminStat"><div class="k">วัน active</div><div class="v">' + st.activeDays + '</div></div>' +
+      '<div class="adminStat"><div class="k">เควสทั้งหมด</div><div class="v">' + st.totalQuests + '</div></div>' +
+      '<div class="adminStat"><div class="k">เควสจริง (≥5น)</div><div class="v">' + st.realQuests + '</div></div>' +
+      '<div class="adminStat"><div class="k">นาทีรวม</div><div class="v">' + st.totalMinutes + '</div></div>' +
+      '<div class="adminStat"><div class="k">คะแนนรวม</div><div class="v">' + st.totalScore + '</div></div>' +
+      '<div class="adminStat"><div class="k">ช่วงที่ใช้</div><div class="v" style="font-size:12px;">' + (st.firstDay || "—") + '<br>→ ' + (st.lastDay || "—") + '</div></div>' +
+    '</div>' +
+    '<div class="adminSectionTitle">14 วันล่าสุด</div>' + adminSparkHTML(st.last14) +
+    '<div class="adminSectionTitle">เควสล่าสุด</div>' + recentRows;
+}
+
+/* ===== Tab switching (ผู้ใช้ / สมัครทดลอง) ===== */
+let _adminTab = "users";
+let _adminSignups = [];
+
+function adminSetTab(tab){
+  _adminTab = tab;
+  const tu = document.getElementById("adminTabUsers");
+  const ts = document.getElementById("adminTabSignups");
+  if(tu) tu.classList.toggle("active", tab === "users");
+  if(ts) ts.classList.toggle("active", tab === "signups");
+  const back = document.getElementById("adminBackBtn");
+  if(back) back.style.display = "none";
+  const title = document.getElementById("adminTitle");
+  if(tab === "signups"){
+    if(title) title.textContent = "คนสมัครทดลองใช้";
+    adminLoadSignups();
+  }else{
+    if(title) title.textContent = "ภาพรวมผู้ใช้";
+    adminLoadUsers();
+  }
+}
+
+async function adminLoadSignups(){
+  const body = document.getElementById("adminBody");
+  if(body) body.innerHTML = '<div class="adminMsg">กำลังโหลด…</div>';
+  if(!window.sqCloud || !window.sqDB || !window.sqCloud.getDocs){
+    if(body) body.innerHTML = '<div class="adminMsg">Firestore ยังไม่พร้อม</div>';
+    return;
+  }
+  try{
+    const { collection, getDocs } = window.sqCloud;
+    const snap = await getDocs(collection(window.sqDB, "trialSignups"));
+    const list = [];
+    snap.forEach(d=>{
+      const r = d.data() || {};
+      list.push({ id:d.id, email:r.email || "(ไม่มีอีเมล)", ts:r.ts || 0, ref:r.ref || "" });
+    });
+    list.sort((a,b)=> (b.ts||0) - (a.ts||0));
+    _adminSignups = list;
+    const cnt = document.getElementById("adminSignupCount");
+    if(cnt) cnt.textContent = String(list.length);
+    adminRenderSignups();
+  }catch(e){
+    console.error("admin signups load failed", e);
+    const denied = /permission|insufficient/i.test(e?.message || e?.code || "");
+    if(body){
+      body.innerHTML = '<div class="adminMsg">' +
+        (denied
+          ? "อ่านไม่ได้ — ยังไม่ได้ตั้ง Firestore Rule ให้อ่าน collection <b>trialSignups</b><br><br>เพิ่ม rule allow read ให้อีเมลเจ้าของ แล้ว Publish"
+          : "โหลดล้มเหลว: " + adminEsc(e?.message || e)) +
+        '</div>';
+    }
+  }
+}
+
+function adminRenderSignups(){
+  const body = document.getElementById("adminBody");
+  if(!body) return;
+  if(!_adminSignups.length){
+    body.innerHTML = '<div class="adminMsg">ยังไม่มีคนสมัครทดลองใช้</div>';
+    return;
+  }
+  body.innerHTML = _adminSignups.map(s=>{
+    const initial = (s.email || "?").trim().charAt(0).toUpperCase() || "?";
+    let host = "";
+    try{ host = s.ref ? new URL(s.ref).hostname : ""; }catch(_){}
+    return '<div class="adminSignupCard">' +
+      '<div class="si-av">' + adminEsc(initial) + '</div>' +
+      '<div class="si-main">' +
+        '<div class="si-email">' + adminEsc(s.email) + '</div>' +
+        '<div class="si-meta">' + (s.ts ? adminEsc(new Date(s.ts).toLocaleString()) : "—") + (host ? ' · ' + adminEsc(host) : "") + '</div>' +
+      '</div>' +
+      '<div class="si-time">' + adminTimeAgo(s.ts) + '</div>' +
+    '</div>';
+  }).join("");
+}
+
+// secret entry: แตะบรรทัด debug 7 ครั้งภายใน 2 วิ
+let _adminTapCount = 0;
+let _adminTapTimer = null;
+function adminRegisterTap(){
+  _adminTapCount++;
+  clearTimeout(_adminTapTimer);
+  _adminTapTimer = setTimeout(()=>{ _adminTapCount = 0; }, 2000);
+  if(_adminTapCount >= 7){
+    _adminTapCount = 0;
+    clearTimeout(_adminTapTimer);
+    promptAdminAccess();
+  }
+}
+function promptAdminAccess(){
+  // ใช้ modal ในแอปแทน window.prompt — เพราะ PWA ที่ติดตั้ง / APK (Capacitor WebView)
+  // มักบล็อก window.prompt ทำให้ช่องใส่รหัสไม่เด้ง (เหมือนเปิดไม่ได้)
+  const gate = document.getElementById("adminGate");
+  const input = document.getElementById("adminGateInput");
+  if(!gate || !input){
+    // fallback เผื่อ markup หาย
+    const code = window.prompt("");
+    if(code === ADMIN_PASSWORD) openAdminPanel();
+    return;
+  }
+  input.value = "";
+  gate.classList.add("show");
+  gate.setAttribute("aria-hidden", "false");
+  setTimeout(()=>{ try{ input.focus(); }catch(_){} }, 50);
+}
+function closeAdminGate(){
+  const gate = document.getElementById("adminGate");
+  if(!gate) return;
+  gate.classList.remove("show");
+  gate.setAttribute("aria-hidden", "true");
+  const input = document.getElementById("adminGateInput");
+  if(input) input.value = "";
+}
+function submitAdminGate(){
+  const input = document.getElementById("adminGateInput");
+  const code = input ? input.value : "";
+  closeAdminGate();
+  if(code === ADMIN_PASSWORD) openAdminPanel();
+  // รหัสผิด = เงียบ (ไม่บอก error เพื่อความลับ)
+}
+
+(function wireAdminPanel(){
+  function bind(){
+    const dbgLine = document.getElementById("pwaDebugLine");
+    if(dbgLine && !dbgLine._adminBound){
+      dbgLine._adminBound = true;
+      dbgLine.style.cursor = "default";
+      dbgLine.addEventListener("click", adminRegisterTap);
+    }
+    const panel = document.getElementById("adminPanel");
+    if(panel && !panel._adminBound){
+      panel._adminBound = true;
+      panel.addEventListener("click", (e)=>{ if(e.target === panel) closeAdminPanel(); });
+    }
+    const closeBtn = document.getElementById("adminCloseBtn");
+    if(closeBtn && !closeBtn._adminBound){ closeBtn._adminBound = true; closeBtn.addEventListener("click", closeAdminPanel); }
+    const refreshBtn = document.getElementById("adminRefreshBtn");
+    if(refreshBtn && !refreshBtn._adminBound){ refreshBtn._adminBound = true; refreshBtn.addEventListener("click", ()=>{ adminSetTab(_adminTab); }); }
+    const backBtn = document.getElementById("adminBackBtn");
+    if(backBtn && !backBtn._adminBound){ backBtn._adminBound = true; backBtn.addEventListener("click", ()=>{ adminShowList(); adminRenderList(); }); }
+    const tabUsers = document.getElementById("adminTabUsers");
+    if(tabUsers && !tabUsers._adminBound){ tabUsers._adminBound = true; tabUsers.addEventListener("click", ()=> adminSetTab("users")); }
+    const tabSignups = document.getElementById("adminTabSignups");
+    if(tabSignups && !tabSignups._adminBound){ tabSignups._adminBound = true; tabSignups.addEventListener("click", ()=> adminSetTab("signups")); }
+    const gate = document.getElementById("adminGate");
+    if(gate && !gate._adminBound){ gate._adminBound = true; gate.addEventListener("click", (e)=>{ if(e.target === gate) closeAdminGate(); }); }
+    const gateOk = document.getElementById("adminGateOk");
+    if(gateOk && !gateOk._adminBound){ gateOk._adminBound = true; gateOk.addEventListener("click", submitAdminGate); }
+    const gateCancel = document.getElementById("adminGateCancel");
+    if(gateCancel && !gateCancel._adminBound){ gateCancel._adminBound = true; gateCancel.addEventListener("click", closeAdminGate); }
+    const gateInput = document.getElementById("adminGateInput");
+    if(gateInput && !gateInput._adminBound){ gateInput._adminBound = true; gateInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ e.preventDefault(); submitAdminGate(); } }); }
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bind);
+  }else{
+    bind();
+  }
+})();
 
 
 window.addEventListener("beforeinstallprompt", (e) => {
@@ -24910,6 +26833,113 @@ function showLock() {
   });
 }
 
+  /* =========================
+     HOME MASCOT — Rive interactive (มองตามเมาส์ + hover/poke + idle)
+     ถ้าไม่มี Rive runtime หรือยังไม่มี ./dog.riv → คงวิดีโอ fox-idle.webm ไว้เป็น fallback
+     สัญญา input ใน dog.riv (State Machine ชื่อ "Dog"):
+       lookX  Number 0..100 (50=กลาง) → ตา/หัว หันซ้าย-ขวา
+       lookY  Number 0..100 (50=กลาง) → ตา/หัว ก้ม-เงย
+       isHover Boolean → เมาส์อยู่บนตัวหมา
+       poke   Trigger → คลิก
+  ========================= */
+  let _mascotRive = null;
+  const _mascotInputs = { lookX:null, lookY:null, isHover:null, poke:null };
+  const _mascotTarget = { x:50, y:50 };   // เป้าหมาย (0..100)
+  const _mascotCur    = { x:50, y:50 };   // ค่าปัจจุบัน (damped)
+  let _mascotAnimHandle = null;
+
+  function startMascotLoop(){
+    if(_mascotAnimHandle) return;
+    const step = ()=>{
+      _mascotCur.x += (_mascotTarget.x - _mascotCur.x) * 0.18;   // lerp ให้ลื่น
+      _mascotCur.y += (_mascotTarget.y - _mascotCur.y) * 0.18;
+      if(_mascotInputs.lookX) _mascotInputs.lookX.value = _mascotCur.x;
+      if(_mascotInputs.lookY) _mascotInputs.lookY.value = _mascotCur.y;
+      _mascotAnimHandle = requestAnimationFrame(step);
+    };
+    _mascotAnimHandle = requestAnimationFrame(step);
+  }
+  function stopMascotLoop(){
+    if(_mascotAnimHandle){ cancelAnimationFrame(_mascotAnimHandle); _mascotAnimHandle = null; }
+  }
+  // pause/play Rive ตามการมองเห็น เพื่อประหยัด CPU/แบต
+  function mascotSyncPlayState(){
+    if(!_mascotRive) return;
+    const hidden = document.hidden || document.body.classList.contains("homeRunVisible");
+    try{
+      if(hidden){ _mascotRive.pause(); stopMascotLoop(); }
+      else { _mascotRive.play(); startMascotLoop(); }
+    }catch(e){}
+  }
+  window._sqMascot = { sync: mascotSyncPlayState };
+
+  function initMascotRive(){
+    const wrap   = document.getElementById("mascotWrap");
+    const canvas = document.getElementById("mascotRive");
+    const video  = document.getElementById("mascotVideo");
+    if(!wrap || !canvas) return;
+    if(typeof window.rive === "undefined" || !window.rive.Rive) return;  // คงวิดีโอไว้
+
+    try{ window.rive.RuntimeLoader.setWasmUrl("./rive.wasm"); }catch(e){}
+
+    let r;
+    try{
+      r = new window.rive.Rive({
+        src: "./dog.riv",
+        canvas,
+        stateMachines: "Dog",
+        autoplay: true,
+        layout: new window.rive.Layout({ fit: "contain", alignment: "bottomCenter" }),
+        onLoad: ()=>{
+          try{ r.resizeDrawingSurfaceToCanvas(); }catch(e){}
+          let inputs = [];
+          try{ inputs = r.stateMachineInputs("Dog") || []; }catch(e){}
+          for(const inp of inputs){
+            if(inp.name === "lookX")  _mascotInputs.lookX  = inp;
+            else if(inp.name === "lookY")  _mascotInputs.lookY  = inp;
+            else if(inp.name === "isHover") _mascotInputs.isHover = inp;
+            else if(inp.name === "poke")   _mascotInputs.poke   = inp;
+          }
+          _mascotRive = r;
+          canvas.hidden = false;
+          wrap.classList.add("riveOn");
+          try{ video && video.pause(); }catch(e){}
+          startMascotLoop();
+          mascotSyncPlayState();
+        },
+        onLoadError: ()=>{ /* คงวิดีโอ */ }
+      });
+    }catch(e){ return; }  // คงวิดีโอ
+
+    // resize ตาม dpr/ขนาดจอ → ไม่เบลอ
+    const doResize = ()=>{ if(_mascotRive){ try{ _mascotRive.resizeDrawingSurfaceToCanvas(); }catch(e){} } };
+    if("ResizeObserver" in window){ try{ new ResizeObserver(doResize).observe(canvas); }catch(e){} }
+    window.addEventListener("resize", doResize);
+
+    // ===== interactions =====
+    const reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const home   = document.getElementById("homeScene") || document;
+
+    if(!reduce){
+      on(home, "pointermove", (e)=>{
+        const rect = wrap.getBoundingClientRect();
+        if(!rect.width || !rect.height) return;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height * 0.32;   // อ้างอิงที่ "หัว" ราวๆ บนของ box
+        const span = Math.max(rect.width, 320);
+        _mascotTarget.x = Math.max(0, Math.min(100, 50 + ((e.clientX - cx) / span) * 60));
+        _mascotTarget.y = Math.max(0, Math.min(100, 50 + ((e.clientY - cy) / span) * 60));
+      });
+      on(home, "pointerleave", ()=>{ _mascotTarget.x = 50; _mascotTarget.y = 50; });
+    }
+
+    on(wrap, "pointerenter", ()=>{ if(_mascotInputs.isHover) _mascotInputs.isHover.value = true;  });
+    on(wrap, "pointerleave", ()=>{ if(_mascotInputs.isHover) _mascotInputs.isHover.value = false; });
+    on(wrap, "pointerdown",  ()=>{ if(_mascotInputs.poke){ try{ _mascotInputs.poke.fire(); }catch(e){} } });
+
+    document.addEventListener("visibilitychange", mascotSyncPlayState);
+  }
+
   async function boot(){
   bootStartAt = performance.now();
 
@@ -24942,6 +26972,7 @@ function showLock() {
   loadBreakCfg();
   loadBreakState();
   renderBreakUI();
+  applyEquippedCosmetics(); // ready hook — no-op today, applies store cosmetics when art lands
 
   setBootStage(t("boot.session"), 58);
   checkAutoStop();
@@ -24991,6 +27022,7 @@ function showLock() {
   switchPage("homeScene");
   setQuestCategory(state.selectedCategory || "Learning");
   initDiceDrag();
+  initGateDrag();
 
   acquireMasterTab();
   startTabHeartbeat();
@@ -25021,6 +27053,9 @@ renderHomeName();
   startTick();
 
   await finishBootOverlay();
+
+  // เริ่ม Rive mascot (ถ้าไม่มี dog.riv / runtime → คงวิดีโอเดิมไว้เงียบๆ)
+  initMascotRive();
 
   // แสดง plan card ถ้ามี item วันนี้ที่ถึงเวลาแล้วและยังไม่ done
   setTimeout(() => checkAndShowPlanCard(), 400);
