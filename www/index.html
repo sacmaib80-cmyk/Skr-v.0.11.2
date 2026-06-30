@@ -1144,6 +1144,96 @@ button.danger:active:not(:disabled){
       .onBtns{ display:flex; justify-content:flex-end; gap:10px; margin-top: 12px; }
       .onBtns button{ padding: 10px 12px; font-size: 13px; border-radius: 14px; }
 
+      /* ===== first-run guided tour ===== */
+      #tourLayer{ display:none; }
+      #tourLayer.show{ display:block; }
+      .tourMask{
+        position: fixed; inset: 0; z-index: 10090;
+        pointer-events: none;
+      }
+      /* spotlight cutout: box-shadow spills to cover whole screen, hole stays clear */
+      .tourCut{
+        position: fixed; left: 0; top: 0; width: 0; height: 0;
+        border-radius: 16px;
+        box-shadow: 0 0 0 9999px rgba(8,6,30,.72);
+        outline: 2px solid #5b6af0;
+        outline-offset: 2px;
+        transition: left .25s ease, top .25s ease, width .25s ease, height .25s ease;
+        opacity: 0;
+      }
+      .tourCut.on{ opacity: 1; }
+      .tourCut.on{ animation: tourRingPulse 1.6s ease-in-out infinite; }
+      /* mascot phase: lighter dim, calm (no harsh pulse) — "light only the dog" */
+      .tourCut.soft{ box-shadow: 0 0 0 9999px rgba(8,6,30,.45); animation: none; outline-color: rgba(91,106,240,.55); }
+      @keyframes tourRingPulse{
+        0%,100%{ box-shadow: 0 0 0 9999px rgba(8,6,30,.72), 0 0 0 2px rgba(91,106,240,.55); }
+        50%{ box-shadow: 0 0 0 9999px rgba(8,6,30,.72), 0 0 0 7px rgba(91,106,240,.18); }
+      }
+      .tourArrow{
+        position: fixed; width: 0; height: 0; opacity: 0;
+        border-left: 11px solid transparent;
+        border-right: 11px solid transparent;
+        border-top: 15px solid #5b6af0;
+        filter: drop-shadow(0 3px 5px rgba(8,6,30,.45));
+        transition: opacity .2s ease;
+        animation: tourArrowBob 1.1s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .tourArrow.on{ opacity: 1; }
+      .tourArrow.up{ border-top: none; border-bottom: 15px solid #5b6af0; }
+      @keyframes tourArrowBob{
+        0%,100%{ transform: translateY(0); }
+        50%{ transform: translateY(-7px); }
+      }
+      .tourBubble{
+        position: fixed; left: 0; top: 0;
+        width: min(300px, calc(100vw - 28px));
+        background: rgba(255,255,255,.99);
+        border: 1px solid rgba(15,23,42,.12);
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgba(2,6,23,.34);
+        padding: 13px 14px;
+        opacity: 0;
+        transition: left .22s ease, top .22s ease, opacity .2s ease;
+        pointer-events: none;
+      }
+      .tourBubble.on{ opacity: 1; }
+      .tourBubbleText{ margin: 0; font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.5; }
+      .tourBubbleHint{ margin: 7px 0 0; font-size: 11.5px; font-weight: 600; color: var(--muted); line-height: 1.45; display: none; }
+      .tourBubble.hasHint .tourBubbleHint{ display: block; }
+      .tourNextBtn{
+        margin-top: 11px; display: none;
+        padding: 9px 18px; font-size: 13px; font-weight: 900;
+        border: none; border-radius: 12px; cursor: pointer;
+        color: #fff; background: #5b6af0;
+        pointer-events: auto;
+      }
+      .tourBubble.hasNext .tourNextBtn{ display: inline-block; }
+      /* mascot speech-bubble: tail pointing down at the dog */
+      .tourBubble.fromMascot::after{
+        content:""; position:absolute; left:50%; bottom:-9px; transform:translateX(-50%);
+        width:0; height:0;
+        border-left:10px solid transparent; border-right:10px solid transparent;
+        border-top:10px solid rgba(255,255,255,.99);
+        filter: drop-shadow(0 3px 2px rgba(2,6,23,.10));
+      }
+      .tourSkipBtn{
+        position: fixed; top: calc(10px + env(safe-area-inset-top,0px)); right: 14px;
+        z-index: 10094;
+        display: none;
+        padding: 7px 13px; font-size: 12px; font-weight: 800;
+        color: #fff; background: rgba(255,255,255,.16);
+        border: 1px solid rgba(255,255,255,.3); border-radius: 999px;
+        cursor: pointer; pointer-events: auto;
+        -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      }
+      #tourLayer.show .tourSkipBtn{ display: inline-block; }
+      @media (prefers-reduced-motion: reduce){
+        .tourCut.on{ animation: none; }
+        .tourArrow{ animation: none; }
+        .tourCut, .tourBubble{ transition: none; }
+      }
+
       /* report buttons */
       #reportCard .btns{ display:flex; align-items:center; gap:12px; }
       #submitReportBtn{ flex:1; padding: 12px 16px; font-size: 16px; font-weight: 900; border-radius: 16px; }
@@ -11950,6 +12040,20 @@ input, textarea {
       </div>
     </div>
 
+    <!-- FIRST-RUN GUIDED TOUR (mascot-driven) -->
+    <div id="tourLayer" aria-hidden="true">
+      <div id="tourMask" class="tourMask">
+        <div id="tourCut" class="tourCut"></div>
+        <div id="tourArrow" class="tourArrow"></div>
+        <div id="tourBubble" class="tourBubble">
+          <p id="tourBubbleText" class="tourBubbleText"></p>
+          <p id="tourBubbleHint" class="tourBubbleHint"></p>
+          <button type="button" id="tourNextBtn" class="tourNextBtn"></button>
+        </div>
+      </div>
+      <button type="button" id="tourSkipBtn" class="tourSkipBtn" data-i18n="tour.skip">ข้ามไปก่อน</button>
+    </div>
+
     <!-- GATE PAGE -->
     <div id="gatePage" class="overlay gatePage" aria-hidden="true">
       <div class="gateModal" role="dialog" aria-modal="true" aria-labelledby="gatePageTitle">
@@ -14564,6 +14668,50 @@ addI18N({
     "store.boughtToast":      "Purchased {name}",
   }
 });
+
+/* ===== FIRST-RUN TOUR ===== */
+addI18N({
+  th: {
+    "tour.skip":          "ข้ามไปก่อน",
+    "tour.next":          "ถัดไป",
+    "tour.go":            "ไปกันเลย",
+    "tour.hi":            "เฮ่! ตั้งใจเรียนหรือโฟกัสงานไม่ค่อยอยู่ใช่มะ? ฉันช่วยนายได้นะ",
+    "tour.hi2":           "ลองทำเควสแรกไปด้วยกัน เดี๋ยวฉันพาทีละสเต็ปเอง",
+    "tour.s1":            "กดปุ่มนี้ เปิดเควสแรกกัน",
+    "tour.s2":            "อยากโฟกัสเรื่องไหน เลือกสักอัน",
+    "tour.s3":            "ตั้งชื่อสั้นๆ ว่าจะทำอะไร",
+    "tour.s4":            "ตั้งเวลาเลย ของจริงเอายาวๆ ได้ แต่รอบนี้ซ้อม เอาสั้นๆ พอ",
+    "tour.s5":            "กด Start เริ่มจับเวลาเลย!",
+    "tour.s6":            "เห็นมะ เวลาเดินแล้ว! ของจริงโฟกัสยาวๆ แต่รอบนี้แค่ซ้อม กด Stop ได้เลย",
+    "tour.s7":            "จบเควสก็มาเขียนรีพอตสั้นๆ ว่าทำอะไร ได้อะไร — ฉันใส่ตัวอย่างให้ละ แก้เป็นของนายได้เลย",
+    "tour.s7hint":        "ปล. ปกติต้องโฟกัสถึง 25 นาที ถึงมีลุ้นโบนัสจากรีพอต รอบนี้แค่ซ้อมเลยยังไม่ได้นะ",
+    "tour.s7btn":         "เสร็จละ",
+    "tour.reportSample":  "อ่านบทแรกจบ เข้าใจ flow หลักๆ แล้ว ติดเรื่อง async นิดหน่อย เดี๋ยวไปต่อรอบหน้า",
+    "tour.bye":           "นั่นแหละ! แค่ซ้อมเองนะ ของจริงเริ่มเองได้เลย — พร้อมลุยรึยัง?",
+    "tour.byeBtn":        "พร้อมแล้ว ลุย!",
+    "tour.needName":      "พิมพ์ชื่อก่อนนะ",
+  },
+  en: {
+    "tour.skip":          "Skip",
+    "tour.next":          "Next",
+    "tour.go":            "Let's go",
+    "tour.hi":            "Hey! Trouble focusing or sticking with stuff? I can help with that.",
+    "tour.hi2":           "Let's run your first quest together — I'll walk you through it.",
+    "tour.s1":            "Tap this button to open a quest",
+    "tour.s2":            "What do you want to focus on? Pick one",
+    "tour.s3":            "Give it a short name",
+    "tour.s4":            "Set the time — long for real sessions, but keep this practice one short",
+    "tour.s5":            "Hit Start to begin the timer!",
+    "tour.s6":            "See? The clock's running. For real you'd focus longer — but this is practice, so hit Stop",
+    "tour.s7":            "After a quest, jot a short report — what you did, what you got. I filled an example; tweak it to yours",
+    "tour.s7hint":        "btw: real report bonuses need a 25-min session — this practice one won't count",
+    "tour.s7btn":         "Done",
+    "tour.reportSample":  "Finished the first chapter, got the main flow; still fuzzy on async — will continue next time",
+    "tour.bye":           "That's it — just practice! You can start for real now — ready?",
+    "tour.byeBtn":        "Ready — let's go!",
+    "tour.needName":      "Add a name first",
+  }
+});
 /* === END I18N SECTIONS === */
 
 
@@ -15780,6 +15928,16 @@ claimWrap: $("claimWrap"),
     onOverlay: $("onOverlay"),
     openOnboardBtn: $("openOnboardBtn"),
     okOnBtn: $("okOnBtn"),
+
+    tourLayer: $("tourLayer"),
+    tourMask: $("tourMask"),
+    tourCut: $("tourCut"),
+    tourArrow: $("tourArrow"),
+    tourBubble: $("tourBubble"),
+    tourBubbleText: $("tourBubbleText"),
+    tourBubbleHint: $("tourBubbleHint"),
+    tourNextBtn: $("tourNextBtn"),
+    tourSkipBtn: $("tourSkipBtn"),
 
     cutWrap: $("cutWrap"),
     cutToggleBtn: $("cutToggleBtn"),
@@ -20414,6 +20572,270 @@ function hideTooltip(){
     const seen = localStorage.getItem(KEY_ONBOARD) === "1";
     if(!seen) openOnboarding();
   }
+
+  /* =========================
+    FIRST-RUN GUIDED TOUR
+  ========================= */
+  const KEY_TOUR = "qps_tour_done_v1";
+  let tourActive = false;
+  let tourIdx = -1;
+
+  const tourById = (id)=> document.getElementById(id);
+  const tourMascotEl = ()=> document.getElementById("mascotWrap");
+
+  // ready-signals for async transitions between phases
+  function tourQuestRunning(){
+    if(state.status === "running" || state.status === "paused") return true;
+    return !!document.getElementById("homeRunScreen")?.classList.contains("show");
+  }
+  function tourReportVisible(){
+    if(document.getElementById("homeReportScreen")?.classList.contains("show")) return true;
+    const note = document.getElementById("homeReportNoteInput");
+    return !!(note && note.offsetParent !== null);
+  }
+
+  // mascot-driven multi-phase walkthrough (greet → run a quest → stop → write report → release)
+  const tourSteps = [
+    { mode:"mascot", soft:true, anchor:tourMascotEl, textKey:"tour.hi",  btnKey:"tour.go" },
+    { mode:"mascot", soft:true, anchor:tourMascotEl, textKey:"tour.hi2", btnKey:"tour.go" },
+    { mode:"click",  textKey:"tour.s1", target:()=> tourById("homeStartQuestBtn") },
+    { mode:"click",  textKey:"tour.s2", target:()=> tourById("hqStepCategory") },
+    { mode:"next",   textKey:"tour.s3", requireName:true, target:()=> tourById("hqQuestName") },
+    { mode:"next",   textKey:"tour.s4", target:()=> tourById("hqQuestTime") },
+    { mode:"click",  textKey:"tour.s5", advanceWhen:tourQuestRunning,  target:()=> tourById("hqStartBtn") },
+    { mode:"click",  textKey:"tour.s6", advanceWhen:tourReportVisible, target:()=> tourById("homeRunStopBtn") },
+    { mode:"report", textKey:"tour.s7", hintKey:"tour.s7hint", btnKey:"tour.s7btn", prefillKey:"tour.reportSample", target:()=> tourById("homeReportNoteInput") },
+    { mode:"mascot", soft:true, anchor:tourMascotEl, textKey:"tour.bye", btnKey:"tour.byeBtn" },
+  ];
+
+  const tourStepHasButton = (step)=> step && (step.mode === "mascot" || step.mode === "next" || step.mode === "report");
+  function tourCurrentTarget(){
+    const step = tourSteps[tourIdx];
+    return (step && step.target) ? step.target() : null;   // clickable target only (not mascot anchor)
+  }
+  function tourSpotlightEl(step){
+    if(!step) return null;
+    return (step.target ? step.target() : null) || (step.anchor ? step.anchor() : null);
+  }
+
+  function tourPositionSpotlight(){
+    if(!tourActive) return;
+    const step = tourSteps[tourIdx];
+    const target = tourSpotlightEl(step);
+    if(!target) return;
+    const r = target.getBoundingClientRect();
+    if(r.width === 0 && r.height === 0) return;
+
+    const isMascot = step.mode === "mascot";
+    const pad = isMascot ? 6 : 8;
+    const vw = window.innerWidth, vh = window.innerHeight;
+
+    if(el.tourCut){
+      el.tourCut.style.left   = (r.left - pad) + "px";
+      el.tourCut.style.top    = (r.top - pad) + "px";
+      el.tourCut.style.width  = (r.width + pad*2) + "px";
+      el.tourCut.style.height = (r.height + pad*2) + "px";
+      el.tourCut.classList.add("on");
+      el.tourCut.classList.toggle("soft", !!step.soft);
+    }
+
+    const bub = el.tourBubble;
+    if(bub){
+      bub.classList.add("on");
+      bub.classList.toggle("fromMascot", isMascot);
+      const bw = bub.offsetWidth || 280;
+      const bh = bub.offsetHeight || 90;
+      const cx = r.left + r.width/2;
+      // mascot: always float above the dog so the tail points down at it
+      const placeBelow = isMascot ? false : ((r.bottom + pad + 14 + bh) <= (vh - 12));
+      let bTop  = placeBelow ? (r.bottom + pad + 16) : (r.top - pad - 16 - bh);
+      bTop = Math.max(12, Math.min(bTop, vh - bh - 12));
+      let bLeft = Math.max(12, Math.min(cx - bw/2, vw - bw - 12));
+      bub.style.left = bLeft + "px";
+      bub.style.top  = bTop + "px";
+
+      const ar = el.tourArrow;
+      if(ar){
+        if(isMascot){ ar.classList.remove("on"); }   // mascot uses the bubble tail, not the arrow
+        else{
+          ar.classList.add("on");
+          ar.classList.toggle("up", placeBelow);
+          const aTop  = placeBelow ? (r.bottom + pad + 1) : (r.top - pad - 16);
+          const aLeft = Math.max(14, Math.min(cx - 11, vw - 26));
+          ar.style.left = aLeft + "px";
+          ar.style.top  = aTop + "px";
+        }
+      }
+    }
+  }
+
+  function tourReposition(){ if(tourActive) requestAnimationFrame(tourPositionSpotlight); }
+
+  function tourGoStep(i){
+    tourIdx = i;
+    const step = tourSteps[i];
+    if(!step){ tourFinish(true); return; }
+
+    if(el.tourBubbleText) el.tourBubbleText.textContent = t(step.textKey);
+    const hint = step.hintKey ? t(step.hintKey) : "";
+    if(el.tourBubbleHint) el.tourBubbleHint.textContent = hint;
+    el.tourBubble?.classList.toggle("hasHint", !!hint);
+
+    const hasBtn = tourStepHasButton(step);
+    el.tourBubble?.classList.toggle("hasNext", hasBtn);
+    if(hasBtn && el.tourNextBtn) el.tourNextBtn.textContent = t(step.btnKey || "tour.next");
+
+    // report step: drop an editable example into the note field
+    if(step.mode === "report" && step.prefillKey){
+      const ta = tourSpotlightEl(step);
+      if(ta && !ta.value){
+        ta.value = t(step.prefillKey);
+        ta.dispatchEvent(new Event("input", { bubbles:true }));
+      }
+    }
+
+    // wait for the freshly-shown screen to lay out before measuring; retry to catch
+    // targets that slide/fade in (run screen, report screen) after their CSS transition
+    requestAnimationFrame(()=> requestAnimationFrame(tourPositionSpotlight));
+    setTimeout(tourPositionSpotlight, 180);
+    setTimeout(tourPositionSpotlight, 480);
+  }
+
+  function tourAdvance(){
+    if(!tourActive) return;
+    if(tourIdx + 1 >= tourSteps.length){ tourFinish(true); return; }
+    tourGoStep(tourIdx + 1);
+  }
+
+  // poll a ready-signal, then advance (used after Start → run screen, Stop → report screen)
+  function tourPollAdvance(pred){
+    let tries = 0;
+    (function poll(){
+      if(!tourActive) return;
+      if(pred()){ tourAdvance(); return; }
+      if(++tries < 40) setTimeout(poll, 130); // up to ~5s
+    })();
+  }
+
+  function tourClickGuard(e){
+    if(!tourActive) return;
+    // tour's own controls (bubble button / skip) always allowed
+    if(e.target.closest && e.target.closest("#tourLayer")) return;
+    // never block the sign-in gate (web forces Google login before the app is usable)
+    if(e.target.closest && e.target.closest("#authGate")) return;
+    const step = tourSteps[tourIdx];
+    if(!step) return;
+    const tgt = tourCurrentTarget();
+    if(tgt && (e.target === tgt || tgt.contains(e.target))){
+      if(step.mode === "click"){
+        if(step.advanceWhen) setTimeout(()=>{ if(tourActive) tourPollAdvance(step.advanceWhen); }, 60);
+        else setTimeout(()=>{ if(tourActive) tourAdvance(); }, 150);
+      }
+      return; // let the real click proceed
+    }
+    // swallow every other click — forced linear flow (also blocks top bar + bottom nav)
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function startFirstRunTour(){
+    if(tourActive) return;
+    tourActive = true;
+    el.tourLayer?.classList.add("show");
+    el.tourLayer?.setAttribute("aria-hidden", "false");
+    document.addEventListener("click", tourClickGuard, true);
+    window.addEventListener("resize", tourReposition);
+    window.addEventListener("scroll", tourReposition, true);
+    tourGoStep(0);
+  }
+
+  function tourFinish(done){
+    tourActive = false;
+    tourIdx = -1;
+    document.removeEventListener("click", tourClickGuard, true);
+    window.removeEventListener("resize", tourReposition);
+    window.removeEventListener("scroll", tourReposition, true);
+    el.tourLayer?.classList.remove("show");
+    el.tourLayer?.setAttribute("aria-hidden", "true");
+    el.tourCut?.classList.remove("on", "soft");
+    el.tourArrow?.classList.remove("on");
+    el.tourBubble?.classList.remove("on", "fromMascot", "hasNext", "hasHint");
+    if(done){
+      // scope by uid so a different Google account on the same device gets its own tour state
+      localStorage.setItem(makeScopedKey(KEY_TOUR), "1");
+      localStorage.setItem(KEY_ONBOARD, "1"); // device-wide: keep the legacy static onboarding card from auto-popping
+    }
+  }
+
+  // throw away the practice quest so it never reaches the day log (submit is locked < 1 min anyway)
+  function tourDiscardDemo(){
+    try{ hideHomeReportScreen(); }catch(e){}
+    try{ discardReport(); }catch(e){}
+    try{ switchPage("homeScene"); }catch(e){}
+  }
+
+  function tourSkip(){
+    try{ closeHomeQuestFlow(); }catch(e){}
+    try{ if(tourReportVisible()) tourDiscardDemo(); }catch(e){}
+    tourFinish(true);
+  }
+
+  // is the "Sign in to continue" gate currently covering the app?
+  function tourGateVisible(){
+    const g = document.getElementById("authGate");
+    if(!g) return false;
+    if(g.style.display === "none") return false;
+    return getComputedStyle(g).display !== "none";
+  }
+
+  // per-account: localStorage is shared across all Google accounts on one origin, so the
+  // "done" flag must be scoped by uid — otherwise a NEW account on the same device never gets onboarded
+  function tourIsDone(){ return localStorage.getItem(makeScopedKey(KEY_TOUR)) === "1"; }
+
+  // decide once we know who's signed in (uid drives the scoped key)
+  function tourDecide(){
+    if(tourGateVisible()) return;                 // still gated → bail; auth listener will retry
+    if(tourIsDone()) maybeShowOnboardingFirstTime();
+    else startFirstRunTour();
+  }
+
+  function maybeStartFirstRunTour(){
+    // signed in already → decide now (scoped to this uid)
+    if(window.sqAuth && window.sqAuth.uid){ tourDecide(); return; }
+
+    // not signed in yet: web forces Google login first, and the tour's click-guard must NOT
+    // block that. Wait for sign-in, then decide with the scoped key (new email → fresh tour).
+    let started = false;
+    const begin = ()=>{
+      if(started) return;
+      started = true;
+      window.removeEventListener("sq-auth-changed", onAuth);
+      window.removeEventListener("sq-user-changed", onAuth);
+      setTimeout(tourDecide, 600); // let home render after the gate hides
+    };
+    const onAuth = ()=>{ if(window.sqAuth && window.sqAuth.uid) begin(); };
+    window.addEventListener("sq-auth-changed", onAuth);
+    window.addEventListener("sq-user-changed", onAuth);
+    // fallback: no gate ever shows (e.g. APK guest, login not required) → decide anyway
+    setTimeout(()=>{ if(!started && !tourGateVisible()) begin(); }, 1600);
+  }
+
+  el.tourSkipBtn?.addEventListener("click", tourSkip);
+  el.tourNextBtn?.addEventListener("click", ()=>{
+    const step = tourSteps[tourIdx];
+    if(!step || !tourStepHasButton(step)) return;
+    if(step.requireName){
+      const v = document.getElementById("hqQuestName")?.value.trim();
+      if(!v){
+        document.getElementById("hqQuestName")?.focus();
+        try{ showActionLockBar(t("tour.needName")); }catch(e){}
+        return;
+      }
+    }
+    if(step.mode === "report") tourDiscardDemo(); // leaving report → discard practice quest, back to home
+    tourAdvance();
+  });
+
 /* =========================
    REPORT DRAFT SYSTEM
 ========================= */
@@ -27016,7 +27438,7 @@ function showLock() {
 
   renderCutUI();
   updateStreakAfterChange();
-  maybeShowOnboardingFirstTime();
+  // first-run intro is started after the boot overlay clears (see finishBootOverlay below)
 
   setBootStage(t("boot.world"), 84);
   switchPage("homeScene");
@@ -27053,6 +27475,9 @@ renderHomeName();
   startTick();
 
   await finishBootOverlay();
+
+  // first run → forced guided tour; returning user → static onboarding card (only if unseen)
+  requestAnimationFrame(()=> maybeStartFirstRunTour());
 
   // เริ่ม Rive mascot (ถ้าไม่มี dog.riv / runtime → คงวิดีโอเดิมไว้เงียบๆ)
   initMascotRive();

@@ -1,7 +1,7 @@
 # SakuraQ — Build APK for Firebase App Distribution
 # Run from D:\git  (PowerShell)
 
-$version    = "v0.18.3"
+$version    = "v0.18.4"
 $apkName    = "sakuraq-$version.apk"
 $apkDebug   = "android\app\build\outputs\apk\debug\app-debug.apk"
 
@@ -9,10 +9,19 @@ Write-Host ""
 Write-Host "=== SakuraQ Firebase Build ===" -ForegroundColor Magenta
 Write-Host "Version : $version" -ForegroundColor Cyan
 
-# 1. Sync web assets → Android
+# 1. Sync web assets → Android (move www/sakuraq.apk out first to avoid bundling it inside the APK)
 Write-Host "`n[1/3] Syncing Capacitor..." -ForegroundColor Yellow
+$wwwApk = "www\sakuraq.apk"
+$tmpApk  = "sakuraq-tmp-build.apk"
+$movedApk = $false
+if (Test-Path $wwwApk) {
+    Move-Item $wwwApk $tmpApk -Force
+    $movedApk = $true
+}
 npx cap sync android
-if (-not $?) { Write-Host "cap sync failed" -ForegroundColor Red; exit 1 }
+$syncOk = $?
+if ($movedApk) { Move-Item $tmpApk $wwwApk -Force }
+if (-not $syncOk) { Write-Host "cap sync failed" -ForegroundColor Red; exit 1 }
 
 # 2. Build debug APK
 Write-Host "`n[2/3] Building APK..." -ForegroundColor Yellow
