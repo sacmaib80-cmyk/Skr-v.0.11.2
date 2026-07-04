@@ -126,6 +126,45 @@ PHASE 5 — execute mode (generate actual assets: copy, scripts, names, outreach
 
 ### งานล่าสุด
 
+- **[2026-07-02] ⭐ ทิศทางอนาคต + วิธีทำ APK/Firebase ของ React edition (เตือนความจำ — ทำซ้ำได้)**
+  - **🎯 ทิศทางที่ User ตัดสินใจ (สำคัญที่สุด อ่านก่อน):** User วางแผนจะ **rewrite แอปใหม่เป็น Kotlin (native Android)** ในอนาคต เพราะเหมาะกับการเป็น "แอปจริง" มากกว่า React/PWA. **แปลว่า React edition = prototype/ทดลองดีไซน์+ระบบ ไม่ใช่ตัว production สุดท้าย** → **อย่าทุ่มเวลา port ของหนักๆ (auth/cloud sync/notification) ลง React เยอะ** ถ้า User กำลังจะไป Kotlin — ถามก่อนเสมอว่าจะเดินทางไหน (React ต่อ / เริ่ม Kotlin / คง www vanilla). ตอนนี้ตัว **ship จริงยังเป็น `www/` (vanilla PWA + Capacitor APK)**
+  - **✅ ทำ APK จาก React ได้แล้ว (side-by-side ไม่ทับแอปจริง) — recipe:**
+    1. `mv android/app/google-services.json android/app/google-services.json.bak` (React ไม่ใช้ Firebase; **ถ้าไม่ย้าย + เปลี่ยน applicationId → gradle `com.google.gms.google-services` plugin fail** "no matching client for package")
+    2. แก้ 3 ที่: `android/app/build.gradle` `applicationId` → `com.sacmaib80.sakuraq.react` · `android/app/src/main/res/values/strings.xml` `app_name`+`title_activity_main` → `SakuraQ React` · `capacitor.config.json` `webDir` → `sakuraq-react/dist`
+    3. `cd sakuraq-react; npm run build` → `npx cap sync android` (จาก repo root) → `$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"; cd android; .\gradlew.bat assembleDebug` (~52s, JBR=Java17)
+    4. APK ที่ `android/app/build/outputs/apk/debug/app-debug.apk` (~8MB) → copy → `~/Downloads/SakuraQ-React.apk`
+    5. **revert ทุกอย่างกลับ:** applicationId/app_name/webDir คืนค่าเดิม + `mv google-services.json.bak → google-services.json` + `npx cap sync android` (move `www/sakuraq.apk` ออกก่อน sync กันยัด apk ซ้อน) เพื่อ restore แอปจริง. **ยืนยัน restore:** `android/app/src/main/assets/public/index.html` ต้องกลับเป็น ~913KB (vanilla) ไม่ใช่ ~1KB (react shell)
+    - ผล: `applicationId` ต่างกัน → ลงข้างๆ แอปจริงบนมือถือได้ ไม่แตะ package/ข้อมูลเดิม (แอปจริงเป็น debug-signed จาก keystore เครื่องนี้ — ถ้าใช้ applicationId เดียวกันจะทับกัน)
+  - **✅ Deploy React ขึ้น Firebase ได้แล้ว (preview channel, ไม่ทับ production) — recipe:**
+    - **แพลน Spark ฟรี = มี hosting site เดียว, multi-site ต้อง Blaze** → ใช้ **preview channel** แทน (Spark ใช้ได้, expire สูงสุด 30 วัน). firebase-tools **login cached เป็น `sacmaib80@gmail.com` แล้ว** (deploy ได้เลยไม่ต้อง login ใหม่ — เช็คด้วย `npx -y firebase-tools login:list`)
+    - `cp firebase.json firebase.json.bak` → แก้ `hosting.public` → `sakuraq-react/dist` (ใช้ `node -e` เขียน JSON กัน syntax พัง) → `npx -y firebase-tools hosting:channel:deploy react-edition --expires 30d` → `mv firebase.json.bak firebase.json` (คืน `public: "www"`)
+    - **⚠️ อย่า `firebase deploy` (ลง live) ด้วย public=dist เด็ดขาด** — จะทับ production `sakuraq-b7f96.web.app` (แอปจริง + `welcome.html` หน้าดาวน์โหลด GitHub) หายทันที. channel แยกจาก live → production ปลอดภัย (ยืนยันแล้ว: live ยังเป็น vanilla ไม่มี `id="root"`)
+    - URL ล่าสุด (ทดลอง): `https://sakuraq-b7f96--react-edition-78sec3fu.web.app` **หมดอายุ 2026-08-01**. ถาวรต้อง Blaze หรือย้าย React เป็นเว็บหลักแทน vanilla (แต่หน้าดาวน์โหลด+แอปจริงจะหาย → ต้องตั้งใจย้ายจริงก่อน)
+  - **📋 เหลือทำให้ React "สมบูรณ์" (ถ้ายังไป React ต่อ — แต่ดู note Kotlin ข้างบนก่อน):** Auth Google + cloud sync Firestore + migration จาก key เดิม `qpsData_v4` · Notification/OS alarm (Capacitor local-notifications) · permanent hosting (Blaze) · first-run tour · admin panel · per-category level · AI quest suggestion · streak freeze · commit (ยังไม่ commit ทั้ง sakuraq-react/ และ handoff นี้)
+
+- **[2026-07-01] 🆕 SakuraQ React edition — พอร์ตทุกระบบหลัก + พิสูจน์ไม่บั๊ก** — โปรเจกต์ใหม่แยกที่ `d:\git\sakuraq-react\` (ไม่แตะ `www/` เดิม, ยังไม่ commit)
+  - **บริบท/ที่มา:** User สั่งลองสร้าง SakuraQ ใหม่ด้วย **React** "คงมาตรฐานเดิมหรือเหนือกว่า" — คงลุคพาสเทลลาเวนเดอร์เดิม แต่ **อนิเมชั่นดุดันกว่า**. รอบแรกเอาเฉพาะระบบหลัก (ไม่เอา gmail/notification/APK). รอบนี้ User สั่ง **"เอาทุกระบบลงเลย"** + ใส่รูปแบรนด์จริง + พิสูจน์ว่าไม่บั๊ก
+  - **Stack:** Vite + React 18 · **Framer Motion** (motion/transition/celebration) · **Zustand + persist** (localStorage key `sakuraq-react-v1`). ไม่มี build step เดิมของ www — อันนี้ต้อง `npm run build`. รัน dev: `cd sakuraq-react; npm run dev` → :5173
+  - **โครงไฟล์:** `src/lib/` (constants=หมวด/RULES/GATE_RULES/BREAK_RULES/STORE_ITEMS/QUEST_POOLS, scoring, date, i18n=dict TH/EN + translate(), useT hook) · `src/store/useStore.js` (state+action ทั้งหมด) · `src/components/` (Mascot=วิดีโอ fox จริง, SakuraPetals canvas, ProgressRing, Celebration, BottomNav, Toast, CountUp, Icons) · `src/screens/` (Home, QuestFlow, Run, Report, Today, History, Store, Menu, Schedule) · `App.jsx` คุม overlay/routing
+  - **ระบบที่พอร์ตครบ + verify headless ผ่าน 25/25 (`scratchpad/verify.js`):**
+    - **Core loop + scoring เป๊ะ:** base=นาที×0.4 (cap 60/ชื่อ/วัน), bonus +2/+4/+6 เฉพาะ ≥25 นาที, goal 100, level=⌊lifetime/100⌋+1 (ยืนยัน 25 นาที+note = 12.0)
+    - **Morning Gate:** config เวลา, `gateStatus()` (off/waiting/armed/passed/locked), armed→ผ่านเควส≥3นาที = +6 (เก็บใน `day.gateBonus`), พลาด window→`gateEvaluate()` ล็อก 7 วัน (Home โชว์การ์ดล็อก+ปุ่มปลดล็อก, `startQuest` return locked), unlock ได้
+    - **Break Time:** เปิดใน menu (cooldown 2ชม.), หลัง submit→`triggerBreak` (พัก 10+นาที/2), Home banner (พัก/เลยเวลา/หักแต้ม), เริ่มเควสถัดไปตอนพักเกิน→`applyBreakPenaltyIfAny` หัก -2/-4/-6 (tier by นาทีเกิน) เก็บใน `day.penalties`, `dayEffective`=gross−penalties
+    - **Schedule:** addPlan/removePlan, start plan→`startQuest({fromPlanId})` ลบ plan+เริ่มเลย, Home plan banner
+    - **Random Quest dice:** ปุ่ม 🎲 ใน QuestFlow (โชว์รูปลูกเต๋าที่ equip), สุ่ม cat+name(จาก QUEST_POOLS ตามภาษา)+duration → เด้งไป step 2
+    - **Store เต็ม:** slot startBtn (5 สี+ปุ่มไฟมีเอฟเฟกต์เปลว), **dice (4 สกินใช้ PNG จริง** copy จาก www), accent (2 ธีม). ซื้อ=หัก spendable (=lifetime−spent, level/streak ไม่ลด), equip toggle, apply จริง (fire→FireFX, dice→รูปในปุ่มสุ่ม, accent→CSS var)
+    - **i18n TH/EN:** dict flat + `{var}` interpolation, toggle ใน Menu, ครอบทุกสกรีน+nav (เหลือแค่ชื่อ user=ข้อมูลจริง)
+    - **Menu overlay:** ภาษา, Gate config+เวลา, Break toggle, Schedule, ล้างข้อมูลวันนี้, about
+  - **รูปแบรนด์จริง (copy → `sakuraq-react/public/`):** `fox-idle.webm` (มาสคอต Home, พื้นโปร่ง เล่นวิดีโอ + fallback `mascot.png`), `mascot.png` (celebration + empty state), `logo-192.png` (header), `dice-*.png` (4 สกินร้านค้า)
+  - **บั๊กที่เจอ+แก้ตอนทำ:** celebration แว้บหาย เพราะ `submitReport` รีเซ็ต session→`<Report>` (ที่หุ้ม celebration) unmount → **ย้าย Celebration ขึ้น App level** ให้อยู่รอด. Gate lock ตอนเทสต์ = ทำงานถูก (เปิด gate เวลา 07:00 ที่เลย window แล้ว→ล็อกจริง) ไม่ใช่บั๊ก
+  - **verify:** `scratchpad/verify.js` (25 logic tests ผ่านหมด, 0 console error), `shot*.js` (screenshot ทุกสกรีน). expose `window.sqStore` ใน main.jsx เพื่อเทสต์. build ผ่าน (414 modules)
+  - **⏳ ยังไม่ได้ทำ (เหลือทำต่อ session หน้า):**
+    1. **Auth (Google) + cloud sync (Firestore)** — ตั้งใจเว้นตามที่ User สั่ง (ยังเป็น localStorage-only, ข้อมูลไม่ sync ข้ามเครื่อง)
+    2. **Notification / OS alarm** — เว้นตามสั่ง (ไม่มีเตือนเควสจบ/gate/break)
+    3. **Capacitor → APK** — ยังไม่ต่อ (ถ้าจะทำ: `npm run build` → ชี้ `capacitor.config.json` webDir ไป `sakuraq-react/dist` → cap sync). ยังไม่มี migration ข้อมูลจาก key เดิม `qpsData_v4`
+    4. admin panel, first-run tour, streak freeze, per-category level, AI quest suggestion — ยังไม่พอร์ต
+    5. commit — ยังไม่ commit (repo convention: commit เมื่อ User สั่ง)
+
 - **[2026-06-29] Antigravity × Claude — Nexus Sync bridge + autonomous AI-to-AI chat** — ทำนอกโปรเจกต์ ที่ `C:\Users\Administrator\.gemini\antigravity\scratch\` (ไม่เกี่ยว SakuraQ / ไม่ commit)
   - **บริบท:** เครื่องนี้มี AI อีกตัว **Antigravity** (Gemini, Google DeepMind) รันอยู่ที่ `.gemini\antigravity`. User อยากให้ Claude (เรา) กับ Antigravity คุย/ทำงานร่วมกันได้ — **ไม่เกี่ยวกับการต่อ Claude API / ไม่ต้องใช้ API key** (เคยเข้าใจผิดทำ "claude-bridge" forward ไป Claude API → ลบทิ้งแล้ว)
   - **ช่องทางคุยกัน:** (1) **ไฟล์** — `to_claude.md`/`from_claude.md` (handshake) + `collaboration_chat.md` (เทิร์น `## [TURN N]`). (2) **HTTP API** — Antigravity ทำ frontend `test-automation.html` (glassmorphism dashboard, poll ทุก 5 วิ) แล้วฝากเราทำ backend

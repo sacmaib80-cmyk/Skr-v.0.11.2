@@ -1,3 +1,6 @@
 
 # hosted APK (large binary, deploy only)
 www/*.apk
+
+# AI side-projects (kept in workspace but not part of the SakuraQ repo)
+ai-projects/
