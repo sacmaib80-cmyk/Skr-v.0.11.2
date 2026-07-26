@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-i18n-root>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -285,7 +285,9 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
 @media(max-width:560px){
   .wrap{padding:0 18px}
   .feat-grid{grid-template-columns:1fr}
-  .nav-cta .btn-ghost{display:none}
+  /* hide the secondary nav link on small screens, but NEVER the language toggle —
+     most visitors arrive on a phone and must still be able to switch TH/EN */
+  .nav-cta .btn-ghost:not(.langBtn){display:none}
   .sec-pad{padding:54px 0}
   .trust-band{padding:38px 24px}
   .signup-card{padding:34px 22px}
@@ -299,6 +301,9 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
   *{animation:none!important}
   .reveal{opacity:1;transform:none;transition:none}
 }
+
+/* language toggle (nav) */
+.langBtn{ font-weight:800; letter-spacing:.04em; min-width:52px; cursor:pointer; font-family:inherit; }
 </style>
 </head>
 <body>
@@ -311,8 +316,9 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
   <div class="wrap bar">
     <a class="brand" href="#top"><img src="logo-192.png" alt="SakuraQ"><span>Sakura<b>Q</b></span></a>
     <div class="nav-cta">
-      <a class="btn btn-ghost" href="#features">ฟีเจอร์</a>
-      <a class="btn btn-primary" href="#download">ดาวน์โหลด</a>
+      <button class="btn btn-ghost langBtn" id="langBtn" type="button" aria-label="Switch language"><span id="langBtnText">EN</span></button>
+      <a class="btn btn-ghost" href="#features" data-i18n="nav.features">ฟีเจอร์</a>
+      <a class="btn btn-primary" href="#download" data-i18n="nav.download">ดาวน์โหลด</a>
     </div>
   </div>
 </header>
@@ -321,40 +327,40 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow"><span class="dot"></span> ฟรี 100% · สำหรับ Android</span>
-      <h1>เปลี่ยนความตั้งใจ<br>ให้กลายเป็น<span class="grad">นิสัยจริง ๆ</span></h1>
-      <p class="lead">SakuraQ เปลี่ยนงานที่ต้องทำให้เป็น “เควส” สนุก ๆ — จับเวลาโฟกัส สะสมแต้ม สร้างสตรีค และมีระบบปลุกวินัยตอนเช้า ให้คุณลงมือทำได้จริงทุกวัน</p>
+      <span class="eyebrow" data-i18n-html="hero.eyebrow"><span class="dot"></span> ฟรี 100% · สำหรับ Android</span>
+      <h1 data-i18n-html="hero.h1">เปลี่ยนความตั้งใจ<br>ให้กลายเป็น<span class="grad">นิสัยจริง ๆ</span></h1>
+      <p class="lead" data-i18n="hero.lead">SakuraQ เปลี่ยนงานที่ต้องทำให้เป็น “เควส” สนุก ๆ — จับเวลาโฟกัส สะสมแต้ม สร้างสตรีค และมีระบบปลุกวินัยตอนเช้า ให้คุณลงมือทำได้จริงทุกวัน</p>
       <div class="hero-actions">
         <a class="btn btn-primary btn-lg" href="#download">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>
-          ดาวน์โหลดฟรี
+          <span data-i18n="hero.ctaDownload">ดาวน์โหลดฟรี</span>
         </a>
-        <a class="btn btn-ghost btn-lg" href="#how">ดูวิธีใช้งาน</a>
+        <a class="btn btn-ghost btn-lg" href="#how" data-i18n="hero.ctaHow">ดูวิธีใช้งาน</a>
       </div>
       <div class="trust-row">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ฟรี 100%</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ไม่มีโฆษณา</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ข้อมูลเป็นส่วนตัว</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> <span data-i18n="trust.free">ฟรี 100%</span></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> <span data-i18n="trust.noads">ไม่มีโฆษณา</span></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> <span data-i18n="trust.private">ข้อมูลเป็นส่วนตัว</span></span>
       </div>
     </div>
 
     <div class="hero-visual">
       <div class="phone" id="heroPhone">
         <div class="screen">
-          <div class="s-top"><span>9:41</span><span>วันนี้ · 4 เควส</span></div>
-          <div class="s-greet">สวัสดีตอนเช้า</div>
-          <div class="s-name">พร้อมลุยรึยัง?</div>
+          <div class="s-top"><span>9:41</span><span data-i18n="mock.top">วันนี้ · 4 เควส</span></div>
+          <div class="s-greet" data-i18n="mock.greet">สวัสดีตอนเช้า</div>
+          <div class="s-name" data-i18n="mock.name">พร้อมลุยรึยัง?</div>
           <div class="ring-wrap">
             <div class="ring">
               <svg width="148" height="148" viewBox="0 0 148 148">
                 <circle cx="74" cy="74" r="62" stroke="rgba(255,255,255,.2)" stroke-width="12" fill="none"/>
                 <circle id="heroRing" cx="74" cy="74" r="62" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="120"/>
               </svg>
-              <div class="rtxt"><b>24:00</b><small>โฟกัส</small></div>
+              <div class="rtxt"><b>24:00</b><small data-i18n="mock.focus">โฟกัส</small></div>
             </div>
           </div>
-          <div class="s-card"><div class="ic">📚</div><div class="meta"><b>อ่านหนังสือ</b><small>การเรียนรู้</small></div><div class="pts">+12</div></div>
-          <div class="s-card"><div class="ic">🏃</div><div class="meta"><b>ออกกำลังกาย</b><small>ร่างกาย</small></div><div class="pts">+10</div></div>
+          <div class="s-card"><div class="ic">📚</div><div class="meta"><b data-i18n="mock.q1">อ่านหนังสือ</b><small data-i18n="mock.learning">การเรียนรู้</small></div><div class="pts">+12</div></div>
+          <div class="s-card"><div class="ic">🏃</div><div class="meta"><b data-i18n="mock.q2">ออกกำลังกาย</b><small data-i18n="mock.body">ร่างกาย</small></div><div class="pts">+10</div></div>
         </div>
       </div>
       <img class="hero-mascot" src="mascot.png" alt="มาสคอต SakuraQ">
@@ -365,40 +371,40 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
 <section class="sec-pad" id="features">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="kicker">ทำไมต้อง SakuraQ</div>
-      <h2>เครื่องมือสร้างวินัย ที่ออกแบบให้คุณอยากกลับมาทำ</h2>
-      <p>ไม่ใช่แค่ to-do list ธรรมดา แต่เป็นระบบที่ทำให้การลงมือทำรู้สึกคุ้มค่าทุกครั้ง</p>
+      <div class="kicker" data-i18n="feat.kicker">ทำไมต้อง SakuraQ</div>
+      <h2 data-i18n="feat.h2">เครื่องมือสร้างวินัย ที่ออกแบบให้คุณอยากกลับมาทำ</h2>
+      <p data-i18n="feat.sub">ไม่ใช่แค่ to-do list ธรรมดา แต่เป็นระบบที่ทำให้การลงมือทำรู้สึกคุ้มค่าทุกครั้ง</p>
     </div>
     <div class="feat-grid">
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3>จับเวลาโฟกัส</h3>
-        <p>ตั้งเวลาทำงานเป็นรอบ เห็นวงแหวนนับถอยหลังชัดเจน ช่วยให้คุณจดจ่อกับสิ่งตรงหน้าได้นานขึ้น</p>
+        <h3 data-i18n="feat.timer.h">จับเวลาโฟกัส</h3>
+        <p data-i18n="feat.timer.p">ตั้งเวลาทำงานเป็นรอบ เห็นวงแหวนนับถอยหลังชัดเจน ช่วยให้คุณจดจ่อกับสิ่งตรงหน้าได้นานขึ้น</p>
       </div>
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.9H22l-6 4.6 2.3 7L12 17.5 5.7 20.5 8 13.5l-6-4.6h7.6z"/></svg></div>
-        <h3>สะสมแต้ม &amp; เลเวล</h3>
-        <p>ทุกเควสที่ทำสำเร็จได้แต้มจริง สะสมขึ้นเลเวล ปลดล็อกธีมและไอเทมในร้านค้า — แรงจูงใจที่จับต้องได้</p>
+        <h3 data-i18n="feat.points.h">สะสมแต้ม &amp; เลเวล</h3>
+        <p data-i18n="feat.points.p">ทุกเควสที่ทำสำเร็จได้แต้มจริง สะสมขึ้นเลเวล ปลดล็อกธีมและไอเทมในร้านค้า — แรงจูงใจที่จับต้องได้</p>
       </div>
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18M5 12c4-3 8 3 12 0V3C13 6 9 0 5 3z"/></svg></div>
-        <h3>ระบบปลุกวินัยตอนเช้า</h3>
-        <p>Morning Gate ท้าให้คุณเริ่มเควสแรกภายในเวลาที่ตั้งไว้ สร้างนิสัยลงมือทำตั้งแต่ตื่น ไม่ผัดวันประกันพรุ่ง</p>
+        <h3 data-i18n="feat.gate.h">ระบบปลุกวินัยตอนเช้า</h3>
+        <p data-i18n="feat.gate.p">Morning Gate ท้าให้คุณเริ่มเควสแรกภายในเวลาที่ตั้งไว้ สร้างนิสัยลงมือทำตั้งแต่ตื่น ไม่ผัดวันประกันพรุ่ง</p>
       </div>
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg></div>
-        <h3>สถิติย้อนหลัง</h3>
-        <p>กราฟแสดงพัฒนาการรายวัน รายสัปดาห์ เห็นสตรีคและจุดที่ทำได้ดี ให้คุณรู้ว่ากำลังก้าวหน้าจริง</p>
+        <h3 data-i18n="feat.stats.h">สถิติย้อนหลัง</h3>
+        <p data-i18n="feat.stats.p">กราฟแสดงพัฒนาการรายวัน รายสัปดาห์ เห็นสตรีคและจุดที่ทำได้ดี ให้คุณรู้ว่ากำลังก้าวหน้าจริง</p>
       </div>
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10a6 6 0 10-12 0c0 4-2 5-2 5h16s-2-1-2-5z"/><path d="M10 19a2 2 0 004 0"/></svg></div>
-        <h3>เตือนเมื่อหมดเวลา</h3>
-        <p>แจ้งเตือนตรงเวลาแม้ปิดแอป ไม่พลาดจังหวะพัก จังหวะทำงาน ช่วยให้คุณวางมือถือลงได้อย่างสบายใจ</p>
+        <h3 data-i18n="feat.noti.h">เตือนเมื่อหมดเวลา</h3>
+        <p data-i18n="feat.noti.p">แจ้งเตือนตรงเวลาแม้ปิดแอป ไม่พลาดจังหวะพัก จังหวะทำงาน ช่วยให้คุณวางมือถือลงได้อย่างสบายใจ</p>
       </div>
       <div class="feat reveal">
         <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.6A5 5 0 0018 8h-1.3A7 7 0 103 16"/><path d="M12 12v9M8 17l4 4 4-4"/></svg></div>
-        <h3>เซฟขึ้นคลาวด์</h3>
-        <p>ล็อกอินด้วย Google แล้วข้อมูลซิงค์อัตโนมัติ เปลี่ยนเครื่องก็ไม่หาย เล่นต่อได้ทุกที่</p>
+        <h3 data-i18n="feat.cloud.h">เซฟขึ้นคลาวด์</h3>
+        <p data-i18n="feat.cloud.p">ล็อกอินด้วย Google แล้วข้อมูลซิงค์อัตโนมัติ เปลี่ยนเครื่องก็ไม่หาย เล่นต่อได้ทุกที่</p>
       </div>
     </div>
   </div>
@@ -407,14 +413,14 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
 <section class="sec-pad" id="how">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="kicker">ใช้ง่ายใน 3 ขั้นตอน</div>
-      <h2>เริ่มได้ภายในหนึ่งนาที</h2>
-      <p>ไม่ต้องตั้งค่าซับซ้อน เปิดแอปแล้วลงมือได้เลย</p>
+      <div class="kicker" data-i18n="how.kicker">ใช้ง่ายใน 3 ขั้นตอน</div>
+      <h2 data-i18n="how.h2">เริ่มได้ภายในหนึ่งนาที</h2>
+      <p data-i18n="how.sub">ไม่ต้องตั้งค่าซับซ้อน เปิดแอปแล้วลงมือได้เลย</p>
     </div>
     <div class="steps">
-      <div class="step reveal"><div class="num"></div><h3>ตั้งเควส</h3><p>พิมพ์สิ่งที่อยากทำ เลือกหมวดและเวลา หรือให้แอปสุ่มเควสให้ก็ได้</p></div>
-      <div class="step reveal"><div class="num"></div><h3>กดเริ่มแล้วโฟกัส</h3><p>วงแหวนจับเวลาเริ่มเดิน คุณแค่จดจ่อกับงาน ที่เหลือแอปจัดการให้</p></div>
-      <div class="step reveal"><div class="num"></div><h3>รับแต้ม &amp; สะสมสตรีค</h3><p>ทำสำเร็จได้แต้มทันที กลับมาทำต่อทุกวันเพื่อรักษาสตรีคให้ยาวขึ้น</p></div>
+      <div class="step reveal"><div class="num"></div><h3 data-i18n="how.s1.h">ตั้งเควส</h3><p data-i18n="how.s1.p">พิมพ์สิ่งที่อยากทำ เลือกหมวดและเวลา หรือให้แอปสุ่มเควสให้ก็ได้</p></div>
+      <div class="step reveal"><div class="num"></div><h3 data-i18n="how.s2.h">กดเริ่มแล้วโฟกัส</h3><p data-i18n="how.s2.p">วงแหวนจับเวลาเริ่มเดิน คุณแค่จดจ่อกับงาน ที่เหลือแอปจัดการให้</p></div>
+      <div class="step reveal"><div class="num"></div><h3 data-i18n="how.s3.h">รับแต้ม &amp; สะสมสตรีค</h3><p data-i18n="how.s3.p">ทำสำเร็จได้แต้มทันที กลับมาทำต่อทุกวันเพื่อรักษาสตรีคให้ยาวขึ้น</p></div>
     </div>
   </div>
 </section>
@@ -424,13 +430,13 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
     <div class="trust-band reveal">
       <div class="tb-grid">
         <div>
-          <h2>ทำไมถึงไว้ใจ SakuraQ ได้?</h2>
-          <p class="sub">เราเข้าใจว่าทุกวันนี้มีแอปหลอกลวงเยอะ เราเลยทำทุกอย่างให้โปร่งใส — นี่คือแอปสร้างนิสัย ไม่ใช่การลงทุน ไม่ใช่พนัน ไม่มีการเก็บเงินแอบ ๆ</p>
+          <h2 data-i18n="tr.h2">ทำไมถึงไว้ใจ SakuraQ ได้?</h2>
+          <p class="sub" data-i18n="tr.p">เราเข้าใจว่าทุกวันนี้มีแอปหลอกลวงเยอะ เราเลยทำทุกอย่างให้โปร่งใส — นี่คือแอปสร้างนิสัย ไม่ใช่การลงทุน ไม่ใช่พนัน ไม่มีการเก็บเงินแอบ ๆ</p>
         </div>
         <div class="tb-list">
-          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b>ไม่ขอข้อมูลการเงิน</b><span>ไม่มีบัตรเครดิต ไม่มีกระเป๋าเงิน ไม่มีการโอน “แต้ม” เป็นเงินจริง — แต้มมีไว้ปลดล็อกของในแอปเท่านั้น</span></div></div>
-          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b>ข้อมูลเป็นของคุณ</b><span>เก็บในเครื่องคุณและคลาวด์ส่วนตัวผ่าน Google เท่านั้น เราไม่ขายข้อมูล ไม่มีโฆษณาติดตาม</span></div></div>
-          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b>ลบได้ทุกเมื่อ</b><span>เลิกใช้เมื่อไหร่ก็ลบบัญชีและข้อมูลได้เอง ไม่มีเงื่อนไขผูกมัด ไม่มีค่าใช้จ่ายแฝง</span></div></div>
+          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b data-i18n="tr.b1">ไม่ขอข้อมูลการเงิน</b><span data-i18n="tr.i1">ไม่มีบัตรเครดิต ไม่มีกระเป๋าเงิน ไม่มีการโอน “แต้ม” เป็นเงินจริง — แต้มมีไว้ปลดล็อกของในแอปเท่านั้น</span></div></div>
+          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b data-i18n="tr.b2">ข้อมูลเป็นของคุณ</b><span data-i18n="tr.i2">เก็บในเครื่องคุณและคลาวด์ส่วนตัวผ่าน Google เท่านั้น เราไม่ขายข้อมูล ไม่มีโฆษณาติดตาม</span></div></div>
+          <div class="tb-item"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b data-i18n="tr.b3">ลบได้ทุกเมื่อ</b><span data-i18n="tr.i3">เลิกใช้เมื่อไหร่ก็ลบบัญชีและข้อมูลได้เอง ไม่มีเงื่อนไขผูกมัด ไม่มีค่าใช้จ่ายแฝง</span></div></div>
         </div>
       </div>
     </div>
@@ -440,30 +446,30 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
 <section class="sec-pad" id="faq">
   <div class="wrap" style="max-width:760px">
     <div class="sec-head reveal">
-      <div class="kicker">คำถามที่พบบ่อย</div>
-      <h2>สงสัยอะไร ถามได้ตรง ๆ</h2>
-      <p>เราตอบแบบไม่อ้อมค้อม เพราะอยากให้คุณมั่นใจก่อนเริ่ม</p>
+      <div class="kicker" data-i18n="faq.kicker">คำถามที่พบบ่อย</div>
+      <h2 data-i18n="faq.h2">สงสัยอะไร ถามได้ตรง ๆ</h2>
+      <p data-i18n="faq.sub">เราตอบแบบไม่อ้อมค้อม เพราะอยากให้คุณมั่นใจก่อนเริ่ม</p>
     </div>
     <div class="faq-list reveal">
       <div class="faq-item">
-        <button class="faq-q" aria-expanded="false">SakuraQ ฟรีจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า?<span class="faq-ic"></span></button>
-        <div class="faq-a"><p>ฟรีจริง ฟีเจอร์หลักทั้งหมดใช้ได้โดยไม่เสียเงิน ไม่ต้องผูกบัตรเครดิต ไม่มีสมาชิกรายเดือน และไม่มีการเรียกเก็บเงินภายหลัง</p></div>
+        <button class="faq-q" aria-expanded="false" data-i18n="faq.q1">SakuraQ ฟรีจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า?<span class="faq-ic"></span></button>
+        <div class="faq-a"><p data-i18n="faq.a1">ฟรีจริง ฟีเจอร์หลักทั้งหมดใช้ได้โดยไม่เสียเงิน ไม่ต้องผูกบัตรเครดิต ไม่มีสมาชิกรายเดือน และไม่มีการเรียกเก็บเงินภายหลัง</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" aria-expanded="false">แอปขอข้อมูลอะไรของฉันบ้าง?<span class="faq-ic"></span></button>
-        <div class="faq-a"><p>แค่ชื่อกับอีเมลจากบัญชี Google เพื่อใช้เซฟข้อมูลข้ามเครื่องเท่านั้น เราไม่ขอเบอร์โทร ตำแหน่งที่อยู่ หรือรายชื่อผู้ติดต่อของคุณ</p></div>
+        <button class="faq-q" aria-expanded="false" data-i18n="faq.q2">แอปขอข้อมูลอะไรของฉันบ้าง?<span class="faq-ic"></span></button>
+        <div class="faq-a"><p data-i18n="faq.a2">แค่ชื่อกับอีเมลจากบัญชี Google เพื่อใช้เซฟข้อมูลข้ามเครื่องเท่านั้น เราไม่ขอเบอร์โทร ตำแหน่งที่อยู่ หรือรายชื่อผู้ติดต่อของคุณ</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" aria-expanded="false">“แต้ม” ในแอปแลกเป็นเงินได้ไหม?<span class="faq-ic"></span></button>
-        <div class="faq-a"><p>ไม่ได้ และไม่เกี่ยวกับเงินจริงเลย แต้มมีไว้ปลดล็อกธีมและไอเทมตกแต่งในแอปเท่านั้น — SakuraQ ไม่ใช่แอปลงทุน ไม่ใช่พนัน และไม่มีการเติมเงิน</p></div>
+        <button class="faq-q" aria-expanded="false" data-i18n="faq.q3">“แต้ม” ในแอปแลกเป็นเงินได้ไหม?<span class="faq-ic"></span></button>
+        <div class="faq-a"><p data-i18n="faq.a3">ไม่ได้ และไม่เกี่ยวกับเงินจริงเลย แต้มมีไว้ปลดล็อกธีมและไอเทมตกแต่งในแอปเท่านั้น — SakuraQ ไม่ใช่แอปลงทุน ไม่ใช่พนัน และไม่มีการเติมเงิน</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" aria-expanded="false">ข้อมูลของฉันปลอดภัยแค่ไหน?<span class="faq-ic"></span></button>
-        <div class="faq-a"><p>ข้อมูลเก็บอยู่ในเครื่องคุณและคลาวด์ส่วนตัวที่ผูกกับบัญชี Google ของคุณเอง เราไม่ขายข้อมูลให้ใคร และไม่มีโฆษณาที่คอยติดตามพฤติกรรม</p></div>
+        <button class="faq-q" aria-expanded="false" data-i18n="faq.q4">ข้อมูลของฉันปลอดภัยแค่ไหน?<span class="faq-ic"></span></button>
+        <div class="faq-a"><p data-i18n="faq.a4">ข้อมูลเก็บอยู่ในเครื่องคุณและคลาวด์ส่วนตัวที่ผูกกับบัญชี Google ของคุณเอง เราไม่ขายข้อมูลให้ใคร และไม่มีโฆษณาที่คอยติดตามพฤติกรรม</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" aria-expanded="false">เลิกใช้แล้วลบข้อมูลได้ไหม?<span class="faq-ic"></span></button>
-        <div class="faq-a"><p>ได้ทุกเมื่อ คุณลบข้อมูลและออกจากระบบได้เองจากในแอป ไม่มีเงื่อนไขผูกมัด ไม่ต้องติดต่อใครให้ยุ่งยาก</p></div>
+        <button class="faq-q" aria-expanded="false" data-i18n="faq.q5">เลิกใช้แล้วลบข้อมูลได้ไหม?<span class="faq-ic"></span></button>
+        <div class="faq-a"><p data-i18n="faq.a5">ได้ทุกเมื่อ คุณลบข้อมูลและออกจากระบบได้เองจากในแอป ไม่มีเงื่อนไขผูกมัด ไม่ต้องติดต่อใครให้ยุ่งยาก</p></div>
       </div>
     </div>
   </div>
@@ -474,41 +480,41 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
     <div class="signup-card reveal">
       <div id="suForm">
         <img class="su-mascot" src="mascot-open.png" alt="">
-        <h2>ดาวน์โหลด SakuraQ</h2>
-        <p class="su-sub">ติดตั้งลงมือถือ Android แล้วใช้ได้เต็มที่ — ฟรี ไม่มีโฆษณา ไม่ต้องสมัครก่อนก็เริ่มได้</p>
+        <h2 data-i18n="dl.h2">ดาวน์โหลด SakuraQ</h2>
+        <p class="su-sub" data-i18n="dl.p">ติดตั้งลงมือถือ Android แล้วใช้ได้เต็มที่ — ฟรี ไม่มีโฆษณา ไม่ต้องสมัครก่อนก็เริ่มได้</p>
         <a class="btn btn-primary btn-lg su-google" href="https://github.com/sacmaib80-cmyk/Skr-v.0.11.2/releases/latest/download/sakuraq.apk" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>
-          ดาวน์โหลดสำหรับ Android
+          <span data-i18n="dl.btnAndroid">ดาวน์โหลดสำหรับ Android</span>
         </a>
-        <div class="file-meta">ไฟล์ .apk · ~22 MB · รองรับ Android 6 ขึ้นไป</div>
+        <div class="file-meta" data-i18n="dl.meta">ไฟล์ .apk · ~22 MB · รองรับ Android 6 ขึ้นไป</div>
 
         <div class="install-steps">
-          <div class="ist-title">วิธีติดตั้ง (1 นาที)</div>
-          <div class="ist"><span class="ist-n">1</span><span>กดปุ่มดาวน์โหลดด้านบน รอไฟล์ <b>.apk</b> โหลดเสร็จ</span></div>
-          <div class="ist"><span class="ist-n">2</span><span>แตะที่ไฟล์เพื่อเปิด ถ้าขึ้นเตือน “แหล่งที่ไม่รู้จัก” ให้กด <b>อนุญาต/ตั้งค่า</b> แล้วเปิดสวิตช์ให้เบราว์เซอร์ติดตั้งได้ <em>(เป็นขั้นตอนปกติของ Android สำหรับแอปนอก Play Store)</em></span></div>
-          <div class="ist"><span class="ist-n">3</span><span>กด <b>ติดตั้ง</b> → เปิดแอป → เริ่มเควสแรกได้เลย</span></div>
+          <div class="ist-title" data-i18n="dl.stepsTitle">วิธีติดตั้ง (1 นาที)</div>
+          <div class="ist"><span class="ist-n">1</span><span data-i18n-html="dl.step1">กดปุ่มดาวน์โหลดด้านบน รอไฟล์ <b>.apk</b> โหลดเสร็จ</span></div>
+          <div class="ist"><span class="ist-n">2</span><span data-i18n-html="dl.step2">แตะที่ไฟล์เพื่อเปิด ถ้าขึ้นเตือน “แหล่งที่ไม่รู้จัก” ให้กด <b>อนุญาต/ตั้งค่า</b> แล้วเปิดสวิตช์ให้เบราว์เซอร์ติดตั้งได้ <em>(เป็นขั้นตอนปกติของ Android สำหรับแอปนอก Play Store)</em></span></div>
+          <div class="ist"><span class="ist-n">3</span><span data-i18n-html="dl.step3">กด <b>ติดตั้ง</b> → เปิดแอป → เริ่มเควสแรกได้เลย</span></div>
         </div>
 
-        <div class="divider">อยากรู้ตอนมีเวอร์ชันใหม่?</div>
+        <div class="divider" data-i18n="news.title">อยากรู้ตอนมีเวอร์ชันใหม่?</div>
         <form id="trialForm" novalidate>
-          <p class="su-news">ฝากอีเมลไว้ เดี๋ยวเราส่งข่าวอัปเดตและฟีเจอร์ใหม่ให้</p>
+          <p class="su-news" data-i18n="news.p">ฝากอีเมลไว้ เดี๋ยวเราส่งข่าวอัปเดตและฟีเจอร์ใหม่ให้</p>
           <div class="news-row">
             <div class="field" id="fEmail">
               <input type="email" id="suEmail" name="email" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-label="อีเมลสำหรับรับข่าวสาร" required>
-              <div class="err" id="emailErr">กรุณากรอกอีเมลให้ถูกต้อง</div>
+              <div class="err" id="emailErr" data-i18n="news.err">กรุณากรอกอีเมลให้ถูกต้อง</div>
             </div>
-            <button type="submit" class="btn btn-primary" id="suBtn">ฝากไว้</button>
+            <button type="submit" class="btn btn-primary" id="suBtn" data-i18n="news.submit">ฝากไว้</button>
           </div>
           <input type="text" id="suName" name="name" class="hp" tabindex="-1" aria-hidden="true">
           <input type="text" class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         </form>
-        <p class="su-fine">การดาวน์โหลดถือว่ายอมรับ <a href="#">เงื่อนไขการใช้งาน</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a> — เราจะไม่ส่งสแปมหรือขายอีเมลของคุณ</p>
+        <p class="su-fine" data-i18n-html="legal.fine">การดาวน์โหลดถือว่ายอมรับ <a href="#">เงื่อนไขการใช้งาน</a> และ <a href="#" data-i18n="legal.link">นโยบายความเป็นส่วนตัว</a> — เราจะไม่ส่งสแปมหรือขายอีเมลของคุณ</p>
       </div>
       <div class="su-success" id="suSuccess">
         <div class="ok-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
-        <h3 id="suSuccessTitle">เรียบร้อย! 🌸</h3>
-        <p id="suSuccessMsg">บันทึกอีเมลของคุณแล้ว เราจะส่งข่าวเวอร์ชันใหม่ไปให้ — ดาวน์โหลดแอปไปลองเลยก็ได้นะ</p>
-        <a class="btn btn-primary btn-lg" href="https://github.com/sacmaib80-cmyk/Skr-v.0.11.2/releases/latest/download/sakuraq.apk" rel="noopener" style="margin-top:20px">ดาวน์โหลดแอป</a>
+        <h3 id="suSuccessTitle" data-i18n="ok.h3">เรียบร้อย! 🌸</h3>
+        <p id="suSuccessMsg" data-i18n="ok.p">บันทึกอีเมลของคุณแล้ว เราจะส่งข่าวเวอร์ชันใหม่ไปให้ — ดาวน์โหลดแอปไปลองเลยก็ได้นะ</p>
+        <a class="btn btn-primary btn-lg" href="https://github.com/sacmaib80-cmyk/Skr-v.0.11.2/releases/latest/download/sakuraq.apk" rel="noopener" style="margin-top:20px" data-i18n="dl.btnApp">ดาวน์โหลดแอป</a>
       </div>
     </div>
   </div>
@@ -518,11 +524,11 @@ footer{padding:40px 0 50px;color:var(--muted);font-size:13.5px;border-top:1px so
   <div class="wrap foot-grid">
     <a class="brand" href="#top"><img src="logo-192.png" alt="" style="width:30px;height:30px;border-radius:9px"><span>Sakura<b>Q</b></span></a>
     <div class="foot-links">
-      <a href="#features">ฟีเจอร์</a>
-      <a href="#how">วิธีใช้</a>
-      <a href="#download">ดาวน์โหลด</a>
+      <a data-i18n="foot.features" href="#features">ฟีเจอร์</a>
+      <a data-i18n="foot.how" href="#how">วิธีใช้</a>
+      <a data-i18n="foot.download" href="#download">ดาวน์โหลด</a>
     </div>
-    <div>© 2026 SakuraQ · สร้างด้วยใจโดยนักพัฒนาอิสระ</div>
+    <div><span data-i18n="foot.copy">© 2026 SakuraQ · สร้างด้วยใจโดยนักพัฒนาอิสระ</span></div>
   </div>
 </footer>
 
@@ -650,6 +656,81 @@ document.querySelectorAll('.faq-q').forEach(q=>{
       await window.sqCloud.addDoc(window.sqCloud.collection(window.sqDB,'trialSignups'),rec);
     }
   }
+})();
+</script>
+
+<script>
+/* ---- welcome.html i18n ----
+   Auto-detects the visitor's language (Thai only when the browser says Thai),
+   remembers the choice in localStorage, and swaps every [data-i18n] node.
+   Kept deliberately small and dependency-free: this page must stay a single file. */
+(function(){
+  var I18N = {"nav.features":{"th":"ฟีเจอร์","en":"Features"},"nav.download":{"th":"ดาวน์โหลด","en":"Download"},"hero.eyebrow":{"th":"<span class=\"dot\"></span> ฟรี 100% · สำหรับ Android","en":"<span class=\"dot\"></span> 100% free · for Android"},"hero.lead":{"th":"SakuraQ เปลี่ยนงานที่ต้องทำให้เป็น “เควส” สนุก ๆ — จับเวลาโฟกัส สะสมแต้ม สร้างสตรีค และมีระบบปลุกวินัยตอนเช้า ให้คุณลงมือทำได้จริงทุกวัน","en":"SakuraQ turns the things you keep putting off into quests. Time your focus, earn real points, build a streak, and let the Morning Gate get you started before the day slips away."},"hero.ctaDownload":{"th":"ดาวน์โหลดฟรี","en":"Download free"},"hero.ctaHow":{"th":"ดูวิธีใช้งาน","en":"See how it works"},"trust.free":{"th":"ฟรี 100%","en":"100% free"},"trust.noads":{"th":"ไม่มีโฆษณา","en":"No ads"},"trust.private":{"th":"ข้อมูลเป็นส่วนตัว","en":"Your data stays yours"},"mock.top":{"th":"วันนี้ · 4 เควส","en":"Today · 4 quests"},"mock.greet":{"th":"สวัสดีตอนเช้า","en":"Good morning"},"mock.name":{"th":"พร้อมลุยรึยัง?","en":"Ready to go?"},"mock.focus":{"th":"โฟกัส","en":"Focus"},"mock.learning":{"th":"การเรียนรู้","en":"Learning"},"mock.body":{"th":"ร่างกาย","en":"Physical"},"feat.kicker":{"th":"ทำไมต้อง SakuraQ","en":"Why SakuraQ"},"feat.h2":{"th":"เครื่องมือสร้างวินัย ที่ออกแบบให้คุณอยากกลับมาทำ","en":"A discipline tool built so you actually come back to it"},"feat.sub":{"th":"ไม่ใช่แค่ to-do list ธรรมดา แต่เป็นระบบที่ทำให้การลงมือทำรู้สึกคุ้มค่าทุกครั้ง","en":"Not another to-do list. A system that makes starting feel worth it every time."},"feat.timer.h":{"th":"จับเวลาโฟกัส","en":"Focus timer"},"feat.timer.p":{"th":"ตั้งเวลาทำงานเป็นรอบ เห็นวงแหวนนับถอยหลังชัดเจน ช่วยให้คุณจดจ่อกับสิ่งตรงหน้าได้นานขึ้น","en":"Work in timed rounds with a countdown ring you can read at a glance, so you stay on one thing for longer."},"feat.points.h":{"th":"สะสมแต้ม &amp; เลเวล","en":"Points &amp; levels"},"feat.points.p":{"th":"ทุกเควสที่ทำสำเร็จได้แต้มจริง สะสมขึ้นเลเวล ปลดล็อกธีมและไอเทมในร้านค้า — แรงจูงใจที่จับต้องได้","en":"Every finished quest earns real points. Level up and unlock themes and items in the shop — progress you can see."},"feat.gate.h":{"th":"ระบบปลุกวินัยตอนเช้า","en":"Morning Gate"},"feat.gate.p":{"th":"Morning Gate ท้าให้คุณเริ่มเควสแรกภายในเวลาที่ตั้งไว้ สร้างนิสัยลงมือทำตั้งแต่ตื่น ไม่ผัดวันประกันพรุ่ง","en":"Morning Gate dares you to start your first quest inside a window you set. Beat the clock and the day starts on your terms."},"feat.stats.h":{"th":"สถิติย้อนหลัง","en":"History &amp; stats"},"feat.stats.p":{"th":"กราฟแสดงพัฒนาการรายวัน รายสัปดาห์ เห็นสตรีคและจุดที่ทำได้ดี ให้คุณรู้ว่ากำลังก้าวหน้าจริง","en":"Daily and weekly charts show your streak and your best runs, so you can tell real progress from a good feeling."},"feat.noti.h":{"th":"เตือนเมื่อหมดเวลา","en":"Alerts when time is up"},"feat.noti.p":{"th":"แจ้งเตือนตรงเวลาแม้ปิดแอป ไม่พลาดจังหวะพัก จังหวะทำงาน ช่วยให้คุณวางมือถือลงได้อย่างสบายใจ","en":"Notifications fire on time even with the app closed, so you can put the phone down and still catch the end of a round."},"feat.cloud.h":{"th":"เซฟขึ้นคลาวด์","en":"Cloud backup"},"feat.cloud.p":{"th":"ล็อกอินด้วย Google แล้วข้อมูลซิงค์อัตโนมัติ เปลี่ยนเครื่องก็ไม่หาย เล่นต่อได้ทุกที่","en":"Sign in with Google and your data syncs automatically. Switch phones and pick up exactly where you left off."},"how.kicker":{"th":"ใช้ง่ายใน 3 ขั้นตอน","en":"Three steps"},"how.h2":{"th":"เริ่มได้ภายในหนึ่งนาที","en":"Up and running in a minute"},"how.sub":{"th":"ไม่ต้องตั้งค่าซับซ้อน เปิดแอปแล้วลงมือได้เลย","en":"No setup maze. Open it and start."},"how.s1.h":{"th":"ตั้งเควส","en":"Set a quest"},"how.s1.p":{"th":"พิมพ์สิ่งที่อยากทำ เลือกหมวดและเวลา หรือให้แอปสุ่มเควสให้ก็ได้","en":"Type what you want to do, pick a category and a length — or let the app roll one for you."},"how.s2.h":{"th":"กดเริ่มแล้วโฟกัส","en":"Hit start and focus"},"how.s2.p":{"th":"วงแหวนจับเวลาเริ่มเดิน คุณแค่จดจ่อกับงาน ที่เหลือแอปจัดการให้","en":"The ring starts counting. You do the work; the app handles the rest."},"how.s3.h":{"th":"รับแต้ม &amp; สะสมสตรีค","en":"Earn points &amp; keep the streak"},"how.s3.p":{"th":"ทำสำเร็จได้แต้มทันที กลับมาทำต่อทุกวันเพื่อรักษาสตรีคให้ยาวขึ้น","en":"Finish and the points land right away. Come back tomorrow to keep the streak alive."},"tr.h2":{"th":"ทำไมถึงไว้ใจ SakuraQ ได้?","en":"Why you can trust this app"},"tr.p":{"th":"เราเข้าใจว่าทุกวันนี้มีแอปหลอกลวงเยอะ เราเลยทำทุกอย่างให้โปร่งใส — นี่คือแอปสร้างนิสัย ไม่ใช่การลงทุน ไม่ใช่พนัน ไม่มีการเก็บเงินแอบ ๆ","en":"There are a lot of shady apps out there, so here it is plainly: this is a habit app. Not an investment. Not gambling. No hidden charges."},"tr.i1":{"th":"ไม่มีบัตรเครดิต ไม่มีกระเป๋าเงิน ไม่มีการโอน “แต้ม” เป็นเงินจริง — แต้มมีไว้ปลดล็อกของในแอปเท่านั้น","en":"No card, no wallet, no converting points into money. Points only unlock things inside the app."},"tr.i2":{"th":"เก็บในเครื่องคุณและคลาวด์ส่วนตัวผ่าน Google เท่านั้น เราไม่ขายข้อมูล ไม่มีโฆษณาติดตาม","en":"Stored on your phone and in your own Google-linked cloud. We do not sell data and there are no tracking ads."},"tr.i3":{"th":"เลิกใช้เมื่อไหร่ก็ลบบัญชีและข้อมูลได้เอง ไม่มีเงื่อนไขผูกมัด ไม่มีค่าใช้จ่ายแฝง","en":"Leave whenever you want and delete your account and data yourself. No lock-in, no surprise fees."},"faq.kicker":{"th":"คำถามที่พบบ่อย","en":"FAQ"},"faq.h2":{"th":"สงสัยอะไร ถามได้ตรง ๆ","en":"Straight answers"},"faq.sub":{"th":"เราตอบแบบไม่อ้อมค้อม เพราะอยากให้คุณมั่นใจก่อนเริ่ม","en":"No hedging — you should feel sure before you install."},"faq.q1":{"th":"SakuraQ ฟรีจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า?","en":"Is SakuraQ really free? Any hidden costs?"},"faq.a1":{"th":"ฟรีจริง ฟีเจอร์หลักทั้งหมดใช้ได้โดยไม่เสียเงิน ไม่ต้องผูกบัตรเครดิต ไม่มีสมาชิกรายเดือน และไม่มีการเรียกเก็บเงินภายหลัง","en":"Really free. Every core feature works without paying. No card required, no subscription, and nothing billed later."},"faq.q2":{"th":"แอปขอข้อมูลอะไรของฉันบ้าง?","en":"What data does the app ask for?"},"faq.a2":{"th":"แค่ชื่อกับอีเมลจากบัญชี Google เพื่อใช้เซฟข้อมูลข้ามเครื่องเท่านั้น เราไม่ขอเบอร์โทร ตำแหน่งที่อยู่ หรือรายชื่อผู้ติดต่อของคุณ","en":"Only your name and email from your Google account, used to sync across devices. No phone number, no location, no contacts."},"faq.q3":{"th":"“แต้ม” ในแอปแลกเป็นเงินได้ไหม?","en":"Can points be exchanged for money?"},"faq.a3":{"th":"ไม่ได้ และไม่เกี่ยวกับเงินจริงเลย แต้มมีไว้ปลดล็อกธีมและไอเทมตกแต่งในแอปเท่านั้น — SakuraQ ไม่ใช่แอปลงทุน ไม่ใช่พนัน และไม่มีการเติมเงิน","en":"No, and they have nothing to do with real money. Points unlock themes and cosmetic items only. This is not an investment app, not gambling, and there is no top-up."},"faq.q4":{"th":"ข้อมูลของฉันปลอดภัยแค่ไหน?","en":"How safe is my data?"},"faq.a4":{"th":"ข้อมูลเก็บอยู่ในเครื่องคุณและคลาวด์ส่วนตัวที่ผูกกับบัญชี Google ของคุณเอง เราไม่ขายข้อมูลให้ใคร และไม่มีโฆษณาที่คอยติดตามพฤติกรรม","en":"It lives on your phone and in a private cloud tied to your own Google account. We never sell it, and nothing tracks your behaviour for ads."},"faq.q5":{"th":"เลิกใช้แล้วลบข้อมูลได้ไหม?","en":"Can I delete everything if I stop using it?"},"faq.a5":{"th":"ได้ทุกเมื่อ คุณลบข้อมูลและออกจากระบบได้เองจากในแอป ไม่มีเงื่อนไขผูกมัด ไม่ต้องติดต่อใครให้ยุ่งยาก","en":"Any time. You can wipe your data and sign out from inside the app. No lock-in and no support ticket needed."},"dl.h2":{"th":"ดาวน์โหลด SakuraQ","en":"Download SakuraQ"},"dl.p":{"th":"ติดตั้งลงมือถือ Android แล้วใช้ได้เต็มที่ — ฟรี ไม่มีโฆษณา ไม่ต้องสมัครก่อนก็เริ่มได้","en":"Install it on your Android phone and use everything — free, no ads, and no signup needed to start."},"dl.meta":{"th":"ไฟล์ .apk · ~22 MB · รองรับ Android 6 ขึ้นไป","en":".apk file · ~22 MB · Android 6 and up"},"dl.stepsTitle":{"th":"วิธีติดตั้ง (1 นาที)","en":"How to install (1 minute)"},"dl.step1":{"th":"กดปุ่มดาวน์โหลดด้านบน รอไฟล์ <b>.apk</b> โหลดเสร็จ","en":"Tap the download button above and wait for the <b>.apk</b> to finish"},"dl.step2":{"th":"แตะที่ไฟล์เพื่อเปิด ถ้าขึ้นเตือน “แหล่งที่ไม่รู้จัก” ให้กด <b>ตั้งค่า</b> แล้วอนุญาต","en":"Open the file. If Android warns about an “unknown source”, tap <b>Settings</b> and allow it"},"dl.step3":{"th":"กด <b>ติดตั้ง</b> แล้วเปิดแอปได้เลย","en":"Tap <b>Install</b>, then open the app"},"news.title":{"th":"อยากรู้ตอนมีเวอร์ชันใหม่?","en":"Want to hear about new versions?"},"news.p":{"th":"ฝากอีเมลไว้ เดี๋ยวเราส่งข่าวอัปเดตและฟีเจอร์ใหม่ให้","en":"Leave your email and we will send updates and new features."},"news.err":{"th":"กรุณากรอกอีเมลให้ถูกต้อง","en":"Please enter a valid email address"},"news.submit":{"th":"ฝากไว้","en":"Notify me"},"legal.pre":{"th":"การดาวน์โหลดถือว่ายอมรับ","en":"By downloading you accept the"},"legal.link":{"th":"นโยบายความเป็นส่วนตัว","en":"privacy policy"},"ok.h3":{"th":"เรียบร้อย! 🌸","en":"You are on the list 🌸"},"ok.p":{"th":"บันทึกอีเมลของคุณแล้ว เราจะส่งข่าวเวอร์ชันใหม่ไปให้ — ดาวน์โหลดแอปไปลองเลยก็ได้นะ","en":"Email saved. We will let you know when a new version lands — grab the app and try it in the meantime."},"hero.h1":{"th":"เปลี่ยนความตั้งใจ<br>ให้กลายเป็น<span class=\"grad\">นิสัยจริง ๆ</span>","en":"Turn intentions into<br><span class=\"grad\">habits that stick</span>"},"legal.fine":{"th":"การดาวน์โหลดถือว่ายอมรับ <a href=\"#\">เงื่อนไขการใช้งาน</a> และ <a href=\"#\">นโยบายความเป็นส่วนตัว</a>","en":"By downloading you accept the <a href=\"#\">terms of use</a> and <a href=\"#\">privacy policy</a>"},"mock.q1":{"th":"อ่านหนังสือ","en":"Read a book"},"mock.q2":{"th":"ออกกำลังกาย","en":"Workout"},"tr.b1":{"th":"ไม่ขอข้อมูลการเงิน","en":"No financial details"},"tr.b2":{"th":"ข้อมูลเป็นของคุณ","en":"Your data is yours"},"tr.b3":{"th":"ลบได้ทุกเมื่อ","en":"Delete any time"},"dl.btnAndroid":{"th":"ดาวน์โหลดสำหรับ Android","en":"Download for Android"},"dl.btnApp":{"th":"ดาวน์โหลดแอป","en":"Download the app"},"foot.features":{"th":"ฟีเจอร์","en":"Features"},"foot.how":{"th":"วิธีใช้","en":"How it works"},"foot.download":{"th":"ดาวน์โหลด","en":"Download"},"foot.copy":{"th":"© 2026 SakuraQ · สร้างด้วยใจโดยนักพัฒนาอิสระ","en":"© 2026 SakuraQ · built by an indie developer"}};
+  var META = {
+    th: {
+      title: "SakuraQ — เปลี่ยนความตั้งใจให้เป็นนิสัย",
+      desc: "SakuraQ แอปสร้างวินัยและติดตามนิสัยในรูปแบบเควส จับเวลาโฟกัส สะสมแต้ม ปลุกตัวเองให้ลงมือทำทุกวัน — ทดลองใช้ฟรี ไม่ต้องใช้บัตร"
+    },
+    en: {
+      title: "SakuraQ — turn good intentions into habits that stick",
+      desc: "SakuraQ is a free Android habit tracker that turns your tasks into timed quests. Focus timer, points, streaks and a Morning Gate that gets you started. No ads, no card."
+    }
+  };
+  var KEY = "sq_welcome_lang";
+
+  function detect(){
+    try{
+      var saved = localStorage.getItem(KEY);
+      if(saved === "th" || saved === "en") return saved;
+    }catch(e){}
+    var langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || "en"];
+    for(var i=0;i<langs.length;i++){
+      if(/^th\b/i.test(langs[i] || "")) return "th";
+    }
+    return "en"; // default for everyone else — this page is aimed at a global audience
+  }
+
+  function apply(lang){
+    var nodes = document.querySelectorAll("[data-i18n],[data-i18n-html]");
+    for(var i=0;i<nodes.length;i++){
+      var el = nodes[i], k = el.getAttribute("data-i18n") || el.getAttribute("data-i18n-html"), row = I18N[k];
+      if(!row) continue;
+      var val = row[lang];
+      if(val == null) continue;
+      el.innerHTML = val;           // values may contain entities such as &amp;
+    }
+    document.documentElement.setAttribute("lang", lang);
+    var m = META[lang] || META.en;
+    document.title = m.title;
+    var d = document.querySelector('meta[name="description"]');
+    if(d) d.setAttribute("content", m.desc);
+    var ogt = document.querySelector('meta[property="og:title"]');
+    if(ogt) ogt.setAttribute("content", m.title);
+    var ogd = document.querySelector('meta[property="og:description"]');
+    if(ogd) ogd.setAttribute("content", m.desc);
+    var ogl = document.querySelector('meta[property="og:locale"]');
+    if(ogl) ogl.setAttribute("content", lang === "th" ? "th_TH" : "en_US");
+    // the button offers the OTHER language
+    var t = document.getElementById("langBtnText");
+    if(t) t.textContent = (lang === "th") ? "EN" : "ไทย";
+    window.__sqLang = lang;
+  }
+
+  function setLang(lang){
+    try{ localStorage.setItem(KEY, lang); }catch(e){}
+    apply(lang);
+  }
+
+  function init(){
+    apply(detect());
+    var b = document.getElementById("langBtn");
+    if(b) b.addEventListener("click", function(){
+      setLang(window.__sqLang === "th" ? "en" : "th");
+    });
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  window.sqSetLang = setLang;
 })();
 </script>
 </body>

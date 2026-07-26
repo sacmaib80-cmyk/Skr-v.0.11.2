@@ -3607,61 +3607,153 @@ body.keyboard-open .bottomNav {
 .storeDice .sdPaw{ position:absolute; right:11%; bottom:12%; width:6px; height:5px; border-radius:50%; display:none; z-index:4;
   background:#ff7eb0; opacity:.9; box-shadow:-4px -3px 0 -1px #ff7eb0, 0 -5px 0 -1px #ff7eb0, 4px -3px 0 -1px #ff7eb0; }
 
-/* marble veining */
+/* marble veining — soft cloudy pools instead of straight gradient lines.
+   Straight diagonals read as "CSS gradient"; real stone is blotchy, so this uses
+   offset radial pools at different sizes and opacities to break every edge. */
 .storeDice .sdVein{ position:absolute; inset:0; display:none; z-index:0; border-radius:inherit;
   background:
-    linear-gradient(118deg, transparent 36%, rgba(120,122,135,.28) 38%, transparent 40%),
-    linear-gradient(64deg,  transparent 58%, rgba(110,112,125,.20) 60%, transparent 63%),
-    linear-gradient(152deg, transparent 18%, rgba(130,130,142,.18) 20%, transparent 22%),
-    linear-gradient(95deg,  transparent 70%, rgba(120,120,132,.16) 72%, transparent 75%); }
+    radial-gradient(38% 26% at 22% 30%, rgba(120,122,138,.26), transparent 72%),
+    radial-gradient(30% 40% at 74% 22%, rgba(108,110,126,.20), transparent 70%),
+    radial-gradient(46% 22% at 62% 72%, rgba(126,128,142,.22), transparent 74%),
+    radial-gradient(24% 30% at 34% 84%, rgba(112,114,130,.16), transparent 70%),
+    radial-gradient(20% 18% at 84% 56%, rgba(130,132,146,.14), transparent 68%); }
+/* a single faint vein streak, curved by a border-radius mask rather than a hard line */
+.storeDice .sdVein::after{ content:""; position:absolute; left:-10%; top:34%; width:120%; height:26%;
+  border-radius:50% 40% 55% 45% / 60% 50% 55% 45%;
+  background:linear-gradient(96deg, transparent 8%, rgba(116,118,132,.16) 46%, transparent 82%);
+  transform:rotate(-9deg); }
 
-/* ---- PURPLE GLASS ---- */
+/* ---- DICE SKINS (hand-drawn in CSS, replaces the AI-generated PNGs) ----
+   Detail comes from layered lighting, not from a generated render: a lit top-left
+   face, a shaded lower-right, a crisp rim, and dots that are genuinely recessed
+   (dark top-inner shadow + light bottom-inner bounce). Each skin then earns its
+   price with its own ornament. No sparkle stars, no jelly gloss dome. */
+
+/* deeper dots: real pits with a rim, not flat circles */
+.storeDice .sdDot{ width:14px; height:14px; }
+
+/* ---- CRYSTAL AMETHYST (200) — faceted violet gem ---- */
 .storeDice-glass .sdFace{
-  background:linear-gradient(160deg, rgba(224,213,255,.95), rgba(150,110,250,.82) 58%, rgba(124,58,237,.88));
-  border:1.5px solid rgba(224,214,255,.75);
-  box-shadow:inset 0 3px 9px rgba(255,255,255,.6), inset 0 -7px 13px rgba(76,29,149,.5), 0 0 15px rgba(167,139,250,.6);
+  background:
+    /* facet planes */
+    linear-gradient(135deg, rgba(255,255,255,.34) 0 32%, transparent 32%),
+    linear-gradient(305deg, rgba(46,16,104,.42) 0 30%, transparent 30%),
+    radial-gradient(120% 110% at 26% 18%, #b79cf5 0%, #8b5cf6 34%, #6d28d9 68%, #4c1d95 100%);
+  border:1.5px solid #4a2694;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.62),
+    inset 0 -2.5px 0 rgba(40,14,92,.55),
+    inset 0 0 0 3.5px rgba(196,167,255,.30),
+    0 2px 4px rgba(60,26,120,.32);
 }
-.storeDice-glass .sdDot{ background:radial-gradient(circle at 50% 74%, #a98bf0, #6d34c9 52%, #421a86);
-  box-shadow: inset 0 3px 5px rgba(40,8,90,.65), inset 0 -2px 3px rgba(220,200,255,.45), 0 1px 0 rgba(255,255,255,.35); }
-.storeDice-glass .sdGloss{ display:block; }
-.storeDice-glass .sdSpark{ display:block; }
+.storeDice-glass .sdDot{
+  background:radial-gradient(circle at 50% 30%, #4c1d95, #2e1068 70%);
+  box-shadow:
+    inset 0 2.5px 3px rgba(18,4,48,.85),
+    inset 0 -2px 2px rgba(200,170,255,.42),
+    0 1px 0 rgba(226,214,255,.75);
+}
+/* gem crown: a thin bright edge across the top-left corner */
+.storeDice-glass .sdGloss{ display:block; left:6%; right:44%; top:5%; height:26%;
+  border-radius:40% 60% 70% 30% / 60% 50% 60% 40%;
+  background:linear-gradient(135deg, rgba(255,255,255,.72), rgba(255,255,255,0)); }
 
-/* ---- BLACK NEON CAT ---- */
+/* ---- MIDNIGHT CAT (500) — ink-black cat, violet inner ear, silver whiskers ---- */
 .storeDice-catBlack .sdFace{
-  background:radial-gradient(120% 120% at 50% 18%, #352b4f, #110c1b 76%);
-  border:2px solid rgba(202,140,255,.85);
-  box-shadow:0 0 13px rgba(180,100,255,.85), 0 0 3px rgba(230,190,255,.9), inset 0 0 9px rgba(140,70,220,.4);
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.10) 0 34%, transparent 34%),
+    radial-gradient(130% 120% at 30% 16%, #3a3350 0%, #241f36 42%, #14111f 78%, #0b0912 100%);
+  border:1.5px solid #07060c;
+  box-shadow:
+    inset 0 1.5px 0 rgba(190,175,235,.34),
+    inset 0 -2.5px 0 rgba(0,0,0,.62),
+    inset 0 0 0 3.5px rgba(139,92,246,.22),
+    0 2px 5px rgba(10,6,24,.42);
 }
-.storeDice-catBlack .sdDot{ background:radial-gradient(circle at 50% 72%, #ffe9ff, #e9a8ff 46%, #b06fdc);
-  box-shadow: inset 0 2.5px 3px rgba(12,4,26,.55), inset 0 -2px 3px rgba(255,235,255,.5), 0 0 7px rgba(216,140,255,.8); }
-.storeDice-catBlack .sdEar{ display:block; background:linear-gradient(#d18bff,#9b3fe0);
-  filter:drop-shadow(0 0 4px rgba(180,100,255,.95)); }
-.storeDice-catBlack .sdEar::before{ display:block; background:linear-gradient(#efe2ff,#cdb0f5); }
-.storeDice-catBlack .sdWk{ display:block; box-shadow:0 0 4px rgba(212,158,255,1), 0 0 8px rgba(168,85,247,.7); }
-.storeDice-catBlack .sdHeart{ display:block; }
+.storeDice-catBlack .sdDot{
+  background:radial-gradient(circle at 50% 32%, #fdfbff, #d9cff5 72%);
+  box-shadow:
+    inset 0 2.5px 3px rgba(60,40,110,.42),
+    inset 0 -2px 2px rgba(255,255,255,.85),
+    0 1px 0 rgba(0,0,0,.55);
+}
+/* ears: black outer, violet inner, lit top edge */
+.storeDice-catBlack .sdEar{ display:block;
+  background:linear-gradient(160deg,#2a2440,#100d1a);
+  box-shadow:inset 0 1px 0 rgba(190,175,235,.40); }
+.storeDice-catBlack .sdEar::before{ display:block;
+  background:linear-gradient(#b794f6,#7c3aed); }
+/* whiskers: tapered silver, no neon */
+.storeDice-catBlack .sdWk{ display:block; height:1.5px;
+  background:linear-gradient(90deg, rgba(214,206,240,.95), rgba(214,206,240,.15));
+  box-shadow:none; }
+.storeDice-catBlack .sdWkR1,.storeDice-catBlack .sdWkR2,.storeDice-catBlack .sdWkR3{
+  background:linear-gradient(270deg, rgba(214,206,240,.95), rgba(214,206,240,.15)); }
+/* collar bell instead of the neon heart */
+.storeDice-catBlack .sdHeart{ display:block; width:7px; height:7px; border-radius:50%;
+  transform:translate(-50%,-50%) rotate(0deg);
+  background:radial-gradient(circle at 38% 32%, #ffe89a, #e0a828 62%, #9a6a10 100%);
+  box-shadow:inset 0 -1px 1px rgba(90,58,0,.6), 0 1px 0 rgba(0,0,0,.5); }
+.storeDice-catBlack .sdHeart::before,.storeDice-catBlack .sdHeart::after{ display:none; }
 
-/* ---- PINK CAT ---- */
+/* ---- SAKURA CAT (500) — blossom pink, cream muzzle, petal mark ---- */
 .storeDice-catPink .sdFace{
-  background:linear-gradient(160deg,#ffeaf2,#ffa9ca 68%,#ff90b9);
-  box-shadow:inset 0 3px 8px rgba(255,255,255,.7), inset 0 -7px 12px rgba(244,114,182,.45), 0 2px 7px rgba(244,114,182,.3);
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.20) 0 25%, transparent 25%),
+    radial-gradient(125% 115% at 28% 16%, #ffc2d8 0%, #ff9dbf 38%, #ee6a99 72%, #cf3f73 100%);
+  border:1.5px solid #c93f70;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.80),
+    inset 0 -2.5px 0 rgba(168,42,88,.42),
+    inset 0 0 0 3.5px rgba(255,224,236,.42),
+    0 2px 4px rgba(190,60,110,.26);
 }
-.storeDice-catPink .sdDot{ background:radial-gradient(circle at 50% 74%, #ff9cc2, #d83f7e 55%, #a3275c);
-  box-shadow: inset 0 3px 4px rgba(130,15,65,.6), inset 0 -2px 3px rgba(255,220,235,.5), 0 1px 0 rgba(255,255,255,.35); }
-.storeDice-catPink .sdEar{ display:block; background:#ff9ec4; }
-.storeDice-catPink .sdEar::before{ display:block; background:linear-gradient(#ffe6ef,#ffc2d8); }
-.storeDice-catPink .sdGloss{ display:block; }
-.storeDice-catPink .sdSakura{ display:block; }
-.storeDice-catPink .sdPaw{ display:block; }
+.storeDice-catPink .sdDot{
+  background:radial-gradient(circle at 50% 30%, #fff8fb, #ffd9e8 72%);
+  box-shadow:
+    inset 0 2.5px 3px rgba(150,30,75,.40),
+    inset 0 -2px 2px rgba(255,255,255,.90),
+    0 1px 0 rgba(190,70,115,.55);
+}
+.storeDice-catPink .sdEar{ display:block;
+  background:linear-gradient(160deg,#ffb9d2,#ef6f9d);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65); }
+.storeDice-catPink .sdEar::before{ display:block;
+  background:linear-gradient(#fff2f7,#ffc8dc); }
+/* five-petal sakura, drawn from one dot + four shadow petals */
+.storeDice-catPink .sdSakura{ display:block; width:5px; height:5px; right:8%; top:9%;
+  background:#fff6fa;
+  box-shadow:
+    3.4px -1.1px 0 #fff6fa, -3.4px -1.1px 0 #fff6fa,
+    2.1px 3.2px 0 #fff6fa, -2.1px 3.2px 0 #fff6fa,
+    0 -3.4px 0 #fff6fa,
+    0 0 0 1px rgba(212,72,122,.35); }
+/* paw print, lower right */
+.storeDice-catPink .sdPaw{ display:block; background:#fff2f7; opacity:.95;
+  box-shadow:-4px -3px 0 -1px #fff2f7, 0 -5px 0 -1px #fff2f7, 4px -3px 0 -1px #fff2f7; }
 
-/* ---- WHITE MARBLE + GOLD ---- */
-/* gold frame drawn INSET (inside the 62px face) so the body matches every other dice */
+/* ---- GILDED IVORY (200) — ivory stock, engraved gold frame, gold pips ---- */
 .storeDice-marble .sdFace{
-  background:linear-gradient(150deg,#ffffff,#efece6 50%,#f8f6f2);
-  box-shadow:inset 0 0 0 2.5px #b8860b, inset 0 0 0 4px rgba(255,235,160,.5),
-             inset 0 3px 5px rgba(255,255,255,.85), inset 0 -3px 6px rgba(150,120,40,.2);
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.75) 0 36%, transparent 36%),
+    radial-gradient(120% 115% at 28% 16%, #fffdf8 0%, #f6f1e4 48%, #e8dfc9 100%);
+  box-shadow:
+    inset 0 0 0 2px #c9971f,
+    inset 0 0 0 3px rgba(255,246,206,.85),
+    inset 0 0 0 4.5px #a97c12,
+    inset 0 2px 0 rgba(255,255,255,.85),
+    inset 0 -2.5px 0 rgba(150,120,40,.26),
+    0 2px 4px rgba(120,96,30,.22);
 }
-.storeDice-marble .sdDot{ background:radial-gradient(circle at 50% 74%, #f4cf63, #b8860b 52%, #6f4e08);
-  box-shadow: inset 0 3px 4px rgba(70,45,0,.7), inset 0 -2px 3px rgba(255,240,170,.6), 0 1px 0 rgba(255,245,200,.4); }
+.storeDice-marble .sdDot{
+  background:radial-gradient(circle at 50% 30%, #ffe393, #d3a12a 58%, #8a6508 100%);
+  box-shadow:
+    inset 0 2.5px 3px rgba(70,48,0,.72),
+    inset 0 -2px 2px rgba(255,242,190,.70),
+    0 1px 0 rgba(255,250,220,.60);
+}
+/* faint stone veining stays, but softer so the gold reads first */
+.storeDice-marble .sdVein{ display:block; opacity:.5; }
 
 /* ---- equipped dice skin overlaid on the REAL dice button (#diceBtn) ---- */
 .diceBtn.sqDiceSkinned{ background:transparent !important; box-shadow:none !important; }
@@ -6132,6 +6224,19 @@ body.quest-running #sec-timer .timer {
 .adminTab.active{ background:#5b6af0; border-color:#5b6af0; color:#fff; }
 .adminTabCount{ font-size:10px; font-weight:800; background:rgba(255,255,255,.22); color:#fff; padding:1px 7px; border-radius:999px; min-width:18px; }
 .adminTab:not(.active) .adminTabCount{ background:rgba(148,163,184,.22); color:#e2e8f0; }
+/* export row (owner-only tool: plain + dense, no decoration needed) */
+.adminExportRow{ flex:0 0 auto; display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+  padding:9px 14px; border-bottom:1px solid rgba(148,163,184,.12); }
+.adminExpBtn{
+  appearance:none; -webkit-appearance:none;
+  border:1px solid rgba(148,163,184,.24); background:rgba(148,163,184,.08);
+  color:#dbe3ee; font-family:inherit; font-size:11.5px; font-weight:800;
+  border-radius:9px; padding:7px 10px; cursor:pointer; transition:.16s;
+}
+.adminExpBtn:hover{ background:rgba(148,163,184,.16); }
+.adminExpBtn:active{ transform:translateY(1px); }
+.adminExpNote{ font-size:11px; font-weight:700; color:#86efac; margin-left:auto; }
+.adminExpNote.warn{ color:#fca5a5; }
 .adminSignupCard{
   background:rgba(148,163,184,.07); border:1px solid rgba(148,163,184,.14);
   border-radius:12px; padding:11px 13px; margin-bottom:8px;
@@ -7889,7 +7994,7 @@ body:has(#homeReportScreen.show) .gateTopBar{
   padding:18px;
   background:
     linear-gradient(180deg, rgba(60,10,140,.30) 0%, rgba(90,30,180,.20) 60%, rgba(109,40,217,.10) 100%),
-    url('./room-bg.png') center bottom / cover no-repeat;
+    url('./room-bg.svg') center bottom / 100% auto no-repeat, linear-gradient(180deg,#f6f2ff 0%,#efe9fc 60%,#e6dcf8 100%);
 }
 
 .homeReportScreen.show{
@@ -8355,7 +8460,7 @@ body:has(#homeReportScreen.show) .gateTopBar{
   padding:18px;
   background:
     linear-gradient(180deg, rgba(60,10,140,.30) 0%, rgba(90,30,180,.20) 60%, rgba(109,40,217,.10) 100%),
-    url('./room-bg.png') center bottom / cover no-repeat;
+    url('./room-bg.svg') center bottom / 100% auto no-repeat, linear-gradient(180deg,#f6f2ff 0%,#efe9fc 60%,#e6dcf8 100%);
 }
 
 .homeResultScreen.show{
@@ -9122,7 +9227,7 @@ body:has(#homeReportScreen.show) .gateTopBar{
 
 /* ฉากหลังห้องใหม่ */
 .roomScene {
-  background: url('./room-bg.png') center bottom / cover no-repeat !important;
+  background: url('./room-bg.svg') center bottom / 100% auto no-repeat, linear-gradient(180deg,#f6f2ff 0%,#efe9fc 60%,#e6dcf8 100%) !important;
 }
 
 .roomWall,
@@ -12286,7 +12391,10 @@ input, textarea {
     <span class="topMenuItemRight" id="topMenuGateState">OFF</span>
   </button>
 
-  <button class="topMenuItem" type="button" id="topMenuBreakBtn">
+  <!-- Break Time: hidden on purpose (2026-07-26) — the feature is unfinished, so the
+       entry point is removed from the menu. All break logic/state is left intact and
+       untouched; deleting `style="display:none"` below brings it straight back. -->
+  <button class="topMenuItem" type="button" id="topMenuBreakBtn" style="display:none">
     <span class="topMenuItemLabel">
       <span class="topMenuItemTitle">Break Time</span>
       <span class="topMenuItemSub" data-i18n="break.sub">ระบบพักระหว่างเควส</span>
@@ -12477,6 +12585,14 @@ input, textarea {
     <div class="adminTabs">
       <button id="adminTabUsers" class="adminTab active" type="button">ผู้ใช้</button>
       <button id="adminTabSignups" class="adminTab" type="button">สมัครทดลอง <span id="adminSignupCount" class="adminTabCount"></span></button>
+    </div>
+    <!-- Export row: pull the loaded rows out of the app. Works on whichever tab is
+         open, and always exports what is currently loaded (so it matches what you see). -->
+    <div class="adminExportRow">
+      <button id="adminExpEmails" class="adminExpBtn" type="button">คัดลอกอีเมล</button>
+      <button id="adminExpCsv"    class="adminExpBtn" type="button">คัดลอก CSV</button>
+      <button id="adminExpJson"   class="adminExpBtn" type="button">ดาวน์โหลด JSON</button>
+      <span id="adminExpNote" class="adminExpNote"></span>
     </div>
     <div class="adminBody" id="adminBody">
       <div class="adminMsg">กำลังโหลด…</div>
@@ -21644,10 +21760,10 @@ const STORE_ITEMS = [
     { id:"btn-fire",   nameKey:"store.item.btnFire",   price:500, fx:"fire", swatch:"linear-gradient(180deg,#ffd54a 0%,#ff7a18 45%,#e02d1b 100%)" },
   ]},
   { slot:"dice", titleKey:"store.slot.dice", items:[
-    { id:"dice-glass",    nameKey:"store.item.diceGlass",    price:200, dice:"glass",    img:"dice-glass.png" },
-    { id:"dice-catblack", nameKey:"store.item.diceCatBlack", price:500, dice:"catBlack", img:"dice-catblack.png" },
-    { id:"dice-catpink",  nameKey:"store.item.diceCatPink",  price:500, dice:"catPink",  img:"dice-catpink.png" },
-    { id:"dice-marble",   nameKey:"store.item.diceMarble",   price:200, dice:"marble",   img:"dice-marble.png" },
+    { id:"dice-glass",    nameKey:"store.item.diceGlass",    price:200, dice:"glass" },
+    { id:"dice-catblack", nameKey:"store.item.diceCatBlack", price:500, dice:"catBlack" },
+    { id:"dice-catpink",  nameKey:"store.item.diceCatPink",  price:500, dice:"catPink" },
+    { id:"dice-marble",   nameKey:"store.item.diceMarble",   price:200, dice:"marble" },
   ]},
   { slot:"homeTheme", titleKey:"store.slot.homeTheme", items:[
     { id:"home-dawn",  nameKey:"store.item.homeDawn",  price:120, swatch:"linear-gradient(135deg,#a78bfa,#f0abfc)" },
@@ -25713,6 +25829,142 @@ function adminRenderDetail(idx){
     '<div class="adminSectionTitle">เควสล่าสุด</div>' + recentRows;
 }
 
+/* ===== EXPORT (owner-only) =====
+   Built for scale: at 1,000 users you cannot read the panel row by row, so every
+   loaded row can leave the app as clipboard text or a downloaded file. Exports
+   whatever the open tab has already loaded, so the output always matches the
+   list on screen. Stats come from adminCalcStats() — the same numbers the cards show. */
+
+function adminExpNote(msg, warn){
+  const n = document.getElementById("adminExpNote");
+  if(!n) return;
+  n.textContent = msg;
+  n.classList.toggle("warn", !!warn);
+  clearTimeout(adminExpNote._t);
+  adminExpNote._t = setTimeout(()=>{ if(n) n.textContent = ""; }, 4000);
+}
+
+/* clipboard with a fallback: navigator.clipboard needs a secure context, which
+   file:// and some in-app WebViews are not. execCommand keeps working there. */
+async function adminCopyText(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){ /* fall through */ }
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly","");
+    ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+
+function adminDownload(filename, text, mime){
+  try{
+    const blob = new Blob([text], { type: (mime || "text/plain") + ";charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 1500);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* one flat row per user: identity + the headline numbers */
+function adminExportRows(){
+  if(_adminTab === "signups"){
+    return _adminSignups.map(s=>({
+      email: s.email || "",
+      ts: s.ts || 0,
+      date: s.ts ? new Date(s.ts).toISOString() : "",
+      ref: s.ref || "",
+      ua: s.ua || ""
+    }));
+  }
+  return _adminUsers.map(u=>{
+    let st = {};
+    try{ st = adminCalcStats(u.data || {}) || {}; }catch(e){ st = {}; }
+    return {
+      email: u.email || "",
+      name: u.name || "",
+      uid: u.uid || "",
+      totalScore: st.totalScore != null ? st.totalScore : "",
+      totalQuests: st.totalQuests != null ? st.totalQuests : "",
+      realQuests: st.realQuests != null ? st.realQuests : "",   // quests >= 5 min
+      totalMinutes: st.totalMinutes != null ? st.totalMinutes : "",
+      activeDays: st.activeDays != null ? st.activeDays : "",
+      firstDay: st.firstDay || "",
+      lastDay: st.lastDay || "",
+      lastActive: u.updatedAt ? new Date(u.updatedAt).toISOString() : "",
+      updatedAt: u.updatedAt || 0
+    };
+  });
+}
+
+function adminCsvCell(v){
+  const s = String(v == null ? "" : v);
+  // quote when the value could break the column layout
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+
+function adminExportEmails(){
+  const rows = adminExportRows();
+  const emails = rows.map(r=>r.email).filter(Boolean);
+  if(!emails.length){ adminExpNote("ไม่มีอีเมลให้คัดลอก", true); return; }
+  const uniq = Array.from(new Set(emails));
+  adminCopyText(uniq.join("\n")).then(ok=>{
+    adminExpNote(ok ? ("คัดลอก " + uniq.length + " อีเมลแล้ว") : "คัดลอกไม่ได้", !ok);
+  });
+}
+
+function adminExportCsv(){
+  const rows = adminExportRows();
+  if(!rows.length){ adminExpNote("ยังไม่มีข้อมูล", true); return; }
+  const cols = Object.keys(rows[0]);
+  const csv = [cols.join(",")]
+    .concat(rows.map(r=> cols.map(c=> adminCsvCell(r[c])).join(",")))
+    .join("\r\n");
+  // BOM so Excel opens Thai text correctly
+  adminCopyText(csv).then(ok=>{
+    if(ok){ adminExpNote("คัดลอก CSV " + rows.length + " แถวแล้ว"); }
+    else{
+      const done = adminDownload("sakuraq-" + _adminTab + ".csv", "﻿" + csv, "text/csv");
+      adminExpNote(done ? "คัดลอกไม่ได้ → ดาวน์โหลดไฟล์แทน" : "ส่งออกไม่ได้", !done);
+    }
+  });
+}
+
+function adminExportJson(){
+  const rows = adminExportRows();
+  if(!rows.length){ adminExpNote("ยังไม่มีข้อมูล", true); return; }
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    tab: _adminTab,
+    count: rows.length,
+    rows: rows,
+    // full raw docs too, so nothing is lost for later analysis
+    raw: _adminTab === "signups" ? _adminSignups : _adminUsers
+  };
+  const txt = JSON.stringify(payload, null, 2);
+  const name = "sakuraq-" + _adminTab + "-" + new Date().toISOString().slice(0,10) + ".json";
+  const ok = adminDownload(name, txt, "application/json");
+  if(ok){ adminExpNote("ดาวน์โหลด " + rows.length + " รายการแล้ว"); }
+  else{
+    adminCopyText(txt).then(c=> adminExpNote(c ? "ดาวน์โหลดไม่ได้ → คัดลอกแล้ว" : "ส่งออกไม่ได้", !c));
+  }
+}
+
 /* ===== Tab switching (ผู้ใช้ / สมัครทดลอง) ===== */
 let _adminTab = "users";
 let _adminSignups = [];
@@ -25858,6 +26110,12 @@ function submitAdminGate(){
     if(tabUsers && !tabUsers._adminBound){ tabUsers._adminBound = true; tabUsers.addEventListener("click", ()=> adminSetTab("users")); }
     const tabSignups = document.getElementById("adminTabSignups");
     if(tabSignups && !tabSignups._adminBound){ tabSignups._adminBound = true; tabSignups.addEventListener("click", ()=> adminSetTab("signups")); }
+    const expEmails = document.getElementById("adminExpEmails");
+    if(expEmails && !expEmails._adminBound){ expEmails._adminBound = true; expEmails.addEventListener("click", adminExportEmails); }
+    const expCsv = document.getElementById("adminExpCsv");
+    if(expCsv && !expCsv._adminBound){ expCsv._adminBound = true; expCsv.addEventListener("click", adminExportCsv); }
+    const expJson = document.getElementById("adminExpJson");
+    if(expJson && !expJson._adminBound){ expJson._adminBound = true; expJson.addEventListener("click", adminExportJson); }
     const gate = document.getElementById("adminGate");
     if(gate && !gate._adminBound){ gate._adminBound = true; gate.addEventListener("click", (e)=>{ if(e.target === gate) closeAdminGate(); }); }
     const gateOk = document.getElementById("adminGateOk");

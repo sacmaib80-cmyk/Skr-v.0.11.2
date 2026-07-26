@@ -1,4 +1,4 @@
-const CACHE_NAME = "sakuraq-v0-17-3-dice";
+const CACHE_NAME = "sakuraq-v0-18-4-room-svg";
 
 const APP_SHELL = [
   "/index.html",
@@ -83,10 +83,14 @@ if (url.origin !== self.location.origin) return;
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put("/index.html", clone).catch(() => {});
-          });
+          // cache ทับ /index.html เฉพาะตอน navigate ไปหน้าแอปจริงเท่านั้น
+          // (เดิม cache ทุกหน้า → เปิด welcome.html/board.html แล้ว offline fallback ของแอปพัง)
+          if (url.pathname === "/" || url.pathname === "/index.html") {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put("/index.html", clone).catch(() => {});
+            });
+          }
           return res;
         })
         .catch(() => caches.match("/index.html"))
